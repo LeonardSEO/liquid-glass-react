@@ -15,7 +15,7 @@ That's the entire runtime cost: **one CSS declaration** plus a tiny
 layout thrashing. It works in a server-rendered Next.js app and degrades
 gracefully to a plain blur in browsers that don't support SVG filters in
 `backdrop-filter`.
-
+ 
 ---
 
 ## Why this exists
