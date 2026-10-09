@@ -20,12 +20,12 @@ Preferred: install the package and import its stylesheet once (e.g. in
 the root layout):
 
 ```bash
-npm install liquidglass-react
+npm install @vepando/liquid-glass-react
 ```
 
 ```tsx
-import "liquidglass-react/style.css"
-import { LiquidGlass } from "liquidglass-react"
+import "@vepando/liquid-glass-react/style.css"
+import { LiquidGlass } from "@vepando/liquid-glass-react"
 ```
 
 The bundle is marked `"use client"`, so it can be used directly from
@@ -38,7 +38,7 @@ there. That copy imports its own CSS.
 ## Step 2 - Wrap the element
 
 ```tsx
-import { LiquidGlass } from "liquidglass-react"
+import { LiquidGlass } from "@vepando/liquid-glass-react"
 
 <LiquidGlass radius={999} style={{ height: 64 }}>
   <nav className="h-full flex items-center px-6">…</nav>

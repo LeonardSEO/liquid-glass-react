@@ -10,8 +10,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
-      { find: /^liquidglass-react\/style\.css$/, replacement: src('liquid-glass.css') },
-      { find: /^liquidglass-react$/, replacement: src('index.ts') },
+      { find: /^@vepando\/liquid-glass-react\/style\.css$/, replacement: src('liquid-glass.css') },
+      { find: /^@vepando\/liquid-glass-react$/, replacement: src('index.ts') },
     ],
     dedupe: ['react', 'react-dom'],
   },

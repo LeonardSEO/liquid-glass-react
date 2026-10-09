@@ -3,11 +3,11 @@
  * Liquid Glass. The component measures itself and generates a
  * displacement map that matches its exact size.
  *
- *   npm install liquidglass-react
+ *   npm install @vepando/liquid-glass-react
  */
 
-import { LiquidGlass } from "liquidglass-react"
-import "liquidglass-react/style.css"
+import { LiquidGlass } from "@vepando/liquid-glass-react"
+import "@vepando/liquid-glass-react/style.css"
 
 export function LiquidGlassPill() {
   return (

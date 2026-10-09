@@ -1,5 +1,5 @@
 {
-  "name": "liquidglass-react",
+  "name": "@vepando/liquid-glass-react",
   "version": "1.0.0",
   "description": "Apple-style Liquid Glass for React: physically-based refraction (Snell's law), specular rim and touch-reactive glass via SVG backdrop-filter. No WebGL.",
   "license": "MIT",
@@ -64,5 +64,8 @@
     "react-dom": "^19.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

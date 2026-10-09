@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import { Background } from "./Background"
-import { LiquidGlass } from "liquidglass-react"
+import { LiquidGlass } from "@vepando/liquid-glass-react"
 import { LiquidGlassFilter } from "./original/LiquidGlassFilter"
 import { overrides } from "./Scenes"
 import "./original/liquid-glass.css"
