@@ -14,7 +14,7 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "paths": {
-      "liquidglass-react": ["../src/index.ts"]
+      "@vepando/liquid-glass-react": ["../src/index.ts"]
     },
     "noEmit": true,
     "jsx": "react-jsx",

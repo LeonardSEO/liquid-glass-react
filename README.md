@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/liquidglass-react"><img alt="npm" src="https://img.shields.io/npm/v/liquidglass-react?color=black" /></a>
-  <a href="https://bundlephobia.com/package/liquidglass-react"><img alt="bundle size" src="https://img.shields.io/bundlephobia/minzip/liquidglass-react?color=black&label=gzip" /></a>
+  <a href="https://www.npmjs.com/package/@vepando/liquid-glass-react"><img alt="npm" src="https://img.shields.io/npm/v/@vepando/liquid-glass-react?color=black" /></a>
+  <a href="https://bundlephobia.com/package/@vepando/liquid-glass-react"><img alt="bundle size" src="https://img.shields.io/bundlephobia/minzip/@vepando/liquid-glass-react?color=black&label=gzip" /></a>
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-black" />
   <img alt="React 18+" src="https://img.shields.io/badge/React-18%2B-149eca" />
   <img alt="Next.js ready" src="https://img.shields.io/badge/Next.js-SSR%20safe-black" />
@@ -33,12 +33,12 @@ sized to each element, and lets the browser apply it in its normal
 `backdrop-filter` pass.
 
 ```bash
-npm install liquidglass-react
+npm install @vepando/liquid-glass-react
 ```
 
 ```tsx
-import "liquidglass-react/style.css"
-import { LiquidGlass } from "liquidglass-react"
+import "@vepando/liquid-glass-react/style.css"
+import { LiquidGlass } from "@vepando/liquid-glass-react"
 
 <LiquidGlass radius={999} interactive style={{ height: 64 }}>
   <nav>…</nav>
@@ -90,20 +90,20 @@ import { LiquidGlass } from "liquidglass-react"
 ## Install
 
 ```bash
-npm install liquidglass-react
-# or: pnpm add liquidglass-react · yarn add liquidglass-react · bun add liquidglass-react
+npm install @vepando/liquid-glass-react
+# or: pnpm add @vepando/liquid-glass-react · yarn add @vepando/liquid-glass-react · bun add @vepando/liquid-glass-react
 ```
 
 Import the stylesheet **once**, e.g. in your root layout or entry file:
 
 ```tsx
-import "liquidglass-react/style.css"
+import "@vepando/liquid-glass-react/style.css"
 ```
 
 Then use the component anywhere:
 
 ```tsx
-import { LiquidGlass } from "liquidglass-react"
+import { LiquidGlass } from "@vepando/liquid-glass-react"
 ```
 
 **Next.js App Router:** the bundle is already marked `"use client"`, so
@@ -273,7 +273,7 @@ npm run dev
 Every prop can be tuned from the URL, for example
 `/?scene=playground&thickness=80&dispersion=0.2&blur=0`.
 
-The demo imports `liquidglass-react` by name; Vite aliases that name to
+The demo imports `@vepando/liquid-glass-react` by name; Vite aliases that name to
 `src/`, so you get HMR on the library source without a build step.
 
 ## Before and after
