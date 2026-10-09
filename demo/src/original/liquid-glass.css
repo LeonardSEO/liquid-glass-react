@@ -1,0 +1,115 @@
+/*
+ * Liquid Glass - real edge refraction, not just blur.
+ *
+ * Apply `.liquid-glass` to any element with a `border-radius` (a pill,
+ * a rounded card, a toolbar...). It needs:
+ *
+ *   1. The #liquid-lens SVG filter rendered once on the page
+ *      (see components/LiquidGlassFilter.tsx).
+ *   2. A displacement map PNG that matches the element's shape
+ *      (see scripts/generate-displacement-map.py).
+ *
+ * Everything below is plain CSS - no JS, no canvas, no WebGL. The whole
+ * cost is one extra paint pass the GPU compositor already does for
+ * `backdrop-filter: blur()`, plus a tiny (2-5KB) PNG.
+ */
+
+:root {
+  /* Tint behind the glass - keep this LOW alpha. The glass should mostly
+     show the page behind it, bent through the lens, not a solid color. */
+  --lg-tint: rgba(255, 255, 255, 0.55);
+
+  /* Subtle outer rim border - glass has a visible edge, even if thin. */
+  --lg-rim-border: rgba(255, 255, 255, 0.35);
+
+  /* Brightness multiplier applied to the refracted backdrop. Apple's glass
+     is slightly brighter at the rim than the flat backdrop - >1 sells the
+     "light catching the edge" look. Keep close to 1 (e.g. 1.05-1.15). */
+  --lg-rim-brightness: 1.08;
+
+  /* Specular highlight colors for the inset top/side glows. */
+  --lg-specular: rgba(255, 255, 255, 0.6);
+  --lg-specular-side: rgba(255, 255, 255, 0.35);
+
+  /* Soft sheen gradient overlay (the ::after pseudo-element below). */
+  --lg-sheen: rgba(255, 255, 255, 0.25);
+
+  /* Drop shadow strength under the glass. */
+  --lg-drop-alpha: 0.18;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lg-tint: rgba(30, 30, 35, 0.45);
+    --lg-rim-border: rgba(255, 255, 255, 0.12);
+    --lg-rim-brightness: 1.15;
+    --lg-specular: rgba(255, 255, 255, 0.18);
+    --lg-specular-side: rgba(255, 255, 255, 0.08);
+    --lg-sheen: rgba(255, 255, 255, 0.06);
+    --lg-drop-alpha: 0.4;
+  }
+}
+
+.liquid-glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--lg-tint);
+
+  /*
+   * Fallback FIRST: a plain blur for browsers that ignore `url()` inside
+   * backdrop-filter (Safari and Firefox at the time of writing). They will
+   * apply this declaration and skip the one below, so the element still
+   * reads as "glass" everywhere - just without the lens bend.
+   */
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+
+  /*
+   * The real effect: a light blur PLUS the SVG lens filter, which bends
+   * and magnifies the backdrop inward at the curved rim - the actual
+   * "Liquid Glass" material. Chromium-based browsers parse `url(#id)`
+   * inside `backdrop-filter` and apply BOTH this and the blur above is
+   * simply overridden (last valid declaration wins), so no `@supports`
+   * gate is needed - it degrades automatically.
+   */
+  -webkit-backdrop-filter: blur(5px) url(#liquid-lens) saturate(180%) brightness(var(--lg-rim-brightness));
+  backdrop-filter: blur(5px) url(#liquid-lens) saturate(180%) brightness(var(--lg-rim-brightness));
+
+  border: 1px solid var(--lg-rim-border);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, var(--lg-drop-alpha)),
+    0 2px 6px rgba(0, 0, 0, calc(var(--lg-drop-alpha) * 0.5)),
+    inset 0 1.5px 0.5px var(--lg-specular),
+    inset 0 -1.5px 1px var(--lg-specular),
+    inset 2px 0 3px -2px var(--lg-specular-side),
+    inset -2px 0 3px -2px var(--lg-specular-side);
+
+  transition: box-shadow 0.25s ease;
+}
+
+/* Soft top/bottom sheen, like light grazing a curved glass surface. */
+.liquid-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, var(--lg-sheen) 0%, transparent 36%),
+    linear-gradient(to top, var(--lg-sheen) 0%, transparent 26%);
+}
+
+/* Browsers with no backdrop-filter support at all (very old) get a solid
+   surface instead of a transparent void. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass {
+    background: rgba(245, 245, 248, 0.96);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .liquid-glass {
+      background: rgba(28, 28, 32, 0.96);
+    }
+  }
+}

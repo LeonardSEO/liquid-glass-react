@@ -1,109 +1,96 @@
-# Liquid Glass: how the refraction actually works
+# Liquid Glass: how it works
 
-Read this when you need to debug or tune the effect, not for the basic
-implementation steps (those are in `SKILL.md`).
+Read this when debugging or tuning, not for the basic steps (`SKILL.md`).
 
-## The core primitive: feDisplacementMap
+## The primitive: feDisplacementMap via backdrop-filter
 
-`feDisplacementMap` shifts every pixel of an input image based on the
-color of a corresponding pixel in a "map" image:
+`feDisplacementMap` moves pixels using a map image:
+`P'(x, y) = P(x + scale·(R − 0.5), y + scale·(G − 0.5))`, with R and G in
+[0, 1]. A value of 128 means no displacement. Referenced from
+`backdrop-filter: blur() url(#id) saturate()`, it displaces whatever is
+behind the element. That's refraction.
 
-- Map's **R channel** -> horizontal displacement
-- Map's **G channel** -> vertical displacement
-- **128** (mid-grey) = no displacement
-- Distance from 128, times the filter's `scale`, = displacement amount
-  (in px)
+The filter uses `filterUnits`/`primitiveUnits="userSpaceOnUse"` with
+`x=0 y=0 width=W height=H`, and the `feImage` has the same box: the map is
+placed 1:1 on the element's border box. This holds at any devicePixelRatio
+(verified at DPR 1 and 2 in Chrome).
 
-Applied via `backdrop-filter: blur() url(#filter)`, this displaces the
-*page content behind the glass element* in real time, as the page
-scrolls or content changes underneath. That's refraction.
+## The physical displacement profile
 
-## The map must be a shape-aware SDF, not a gradient
+The bezel (rim) is a convex squircle height profile
+`h(t) = (1 − (1 − t)⁴)^¼ · thickness`, with `t` = distance from the border
+/ bezel width (0 at the edge, 1 at the flat plateau).
 
-A plain linear gradient as the map produces a uniform diagonal "shear"
-across the whole element - everything behind it shifts the same amount in
-the same direction, like a glitch. Real glass only bends light at its
-**curved edges**; the flat center transmits the image undistorted.
+For each `t`:
 
-The correct map is a **signed distance field (SDF)** of the element's
-rounded-rectangle shape:
+1. The surface normal comes from the slope `dh/dd`.
+2. A straight-down view ray is refracted into glass (n = `ior`) with
+   Snell's law.
+3. It travels down `h(t)` to the content plane. Its sideways offset is the
+   displacement magnitude.
 
-- For each pixel, compute the signed distance to the rounded-rect border
-  (negative inside, 0 at the border)
-- The **center stays neutral grey** (128, 128) - distance to the edge is
-  large, so displacement = 0
-- Near the border, displacement ramps up, **in the direction of the
-  outward normal** (the gradient of the SDF) - i.e. pixels near the top
-  edge get pushed/pulled vertically, pixels near a rounded corner get
-  pushed/pulled diagonally outward from that corner, etc.
+This gives 256 samples across the bezel. They're normalised by the
+maximum, and that maximum (×2, because of the `− 0.5` above) becomes the
+filter `scale`.
 
-`scripts/generate-displacement-map.py` computes this with a closed-form
-rounded-rect SDF plus a central-difference gradient for the normal
-direction, then encodes `(normal * falloff)` into R/G with 128 as the
-zero-point.
+Per pixel, the rounded-rect outline gives the inside distance to the
+border and the outward normal. The vector written into the map is
+`−normal · magnitude(distance)`: it points inward, so the rim samples
+content from further inside the glass, which reads as magnification near
+the edge. Inside the plateau the map is exactly 128 (no bend).
 
-## scale sign determines lens vs fish-eye
+## Specular rim
 
-- `scale > 0`: pixels move *toward* where the map points -> **fish-eye /
-  pinch**. The image behind the glass appears to recede/shrink near the
-  edges.
-- `scale < 0`: pixels move *away* from where the map points -> **magnifying
-  lens**. The image behind the glass appears to bulge toward the viewer
-  near the edges.
+`buildSpecularMap` writes an alpha mask (white):
 
-Apple's Liquid Glass is the magnifying case: **scale must be negative**.
-Typical values: `-30` to `-50`. If you generated the map correctly (SDF,
-centered, normals pointing outward) but the bend looks inverted or like a
-black hole, you have the sign wrong.
+- a Gaussian edge line about 1.2 px wide, plus a fainter second line just
+  inside it
+- an exponential inner glow over about 0.6 × bezel
+- both scaled by `|normal · light|^1.6`: full strength on the side facing
+  the light, 70 % on the opposite side, and an ambient floor of 0.3
 
-## Chromatic aberration = three displacements + channel recombination
+It's drawn at devicePixelRatio resolution so the edge line stays crisp,
+and composited with `mix-blend-mode: plus-lighter`.
 
-1. Run `feDisplacementMap` three times on `SourceGraphic`, with `scale`,
-   `scale - 2`, and `scale + 2` (or similar small offsets)
-2. After each pass, use `feColorMatrix` to zero out everything except one
-   color channel (R, G, or B) - this isolates "what would the red channel
-   look like if displaced by this amount"
-3. Recombine the three single-channel results with `feBlend mode="screen"`
-   (screen blending with black = 0 in the other channels means each
-   result only contributes its own channel)
+## Tint mask
 
-The result: red, green, and blue are each displaced by a very slightly
-different amount, producing the subtle color fringing you see at high-
-contrast edges through real glass/lenses.
+The tint layer is masked by a smoothstep over the bezel: 25 % opacity at
+the edge and 100 % on the plateau. The rim therefore shows the refracted
+backdrop brighter and clearer than the centre, which is a large part of
+the Apple look, especially for dark panels.
 
-## Why backdrop-filter url() doesn't break other browsers
+## Dispersion
 
-`backdrop-filter` accepts a space-separated list of filter functions,
-which can include `url(#filter-id)` referencing an SVG filter, alongside
-standard functions like `blur()`, `saturate()`, `brightness()`.
+The displacement runs three times, at `scale·(1 + d)`, `scale` and
+`scale·(1 − d)`. Each result is reduced to one channel with
+`feColorMatrix` and the three are summed with `feComposite
+operator="arithmetic" k2=1 k3=1`. Set `dispersion = 0` for a single pass.
 
-CSS parsing is per-declaration: if a browser doesn't understand one value
-in a `backdrop-filter` declaration that includes `url()`, it treats the
-*entire declaration* as invalid and ignores it - falling back to whatever
-`backdrop-filter` declaration came before it. This is why the recommended
-CSS pattern is:
+## Backdrop roots (the #1 reason for "no refraction")
 
-```css
-.liquid-glass {
-  backdrop-filter: blur(10px) saturate(180%);                                   /* fallback */
-  backdrop-filter: blur(5px) url(#liquid-lens) saturate(180%) brightness(1.08); /* real effect */
-}
-```
+A `backdrop-filter` only sees content up to the nearest Backdrop Root
+ancestor: an element with `filter`, `opacity < 1`, `mask`, `clip-path`,
+`backdrop-filter`, `mix-blend-mode`, or children that force it to be an
+isolated blend group. Beyond that the backdrop is empty, the displacement
+moves transparent pixels, and the page just shows through the glass,
+unbent.
 
-Browsers that support `url()` in `backdrop-filter` apply the second
-(more specific) declaration. Browsers that don't, fail to parse it
-entirely and keep using the first. No `@supports` query needed - this is
-just normal CSS cascade behavior with progressive enhancement.
+That's why the component puts `backdrop-filter` on its own root (its
+specular layer uses `plus-lighter`, which would otherwise isolate the
+parent). It's also why glass-on-glass must be built from siblings.
 
-## Performance characteristics
+## Browser support
 
-- The displacement map is a static PNG, typically 2-5 KB at ~700x64px for
-  a navbar-sized element. It's cached like any other static asset.
-- The filter runs as part of the GPU compositing pass that
-  `backdrop-filter: blur()` already requires - there's no separate render
-  target, no per-frame JS, no DOM snapshotting.
-- Cost scales with the *area* of the glass element and the complexity of
-  what's behind it (same as any `backdrop-filter: blur()`), not with the
-  complexity of the filter graph itself. Three extra `feDisplacementMap`
-  + `feColorMatrix` + `feBlend` passes for chromatic aberration are
-  negligible compared to the blur itself.
+Only Blink draws SVG `url()` filters in `backdrop-filter`. WebKit (Safari
+and every iOS browser) and Gecko parse the value but don't render it, so
+the component sniffs Blink and gives other engines a frosted
+blur + tint + specular fallback.
+
+## Cost
+
+Maps are generated once per (size, radius, bezel, thickness, ior,
+profile, light, DPR) and cached in a small LRU, so identical controls
+share them. A 780×420 panel takes about 45 ms in total (displacement
+8 ms, specular at DPR 2 about 22 ms, PNG encoding about 11 ms). A 64 px
+pill takes a few ms. After that, rendering is the browser's normal
+backdrop-filter pass.
