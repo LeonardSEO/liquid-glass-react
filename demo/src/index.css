@@ -1,0 +1,65 @@
+*{box-sizing:border-box}
+html,body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif;color:#111;background:#f2f2f5}
+.bg{position:relative;min-height:220vh;padding:140px 40px 80px;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(0px)}
+.bigtext{font-size:120px;font-weight:800;line-height:.95;letter-spacing:-4px;margin:0}
+.para{max-width:760px;font-size:20px;line-height:1.5}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.12) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.stripes{height:160px;background:repeating-linear-gradient(90deg,#ff3b30 0 20px,#ffcc00 20px 40px,#34c759 40px 60px,#007aff 60px 80px,#af52de 80px 100px);margin:40px 0;border-radius:12px}
+.checker{height:200px;background:conic-gradient(#111 25%,#fff 0 50%,#111 0 75%,#fff 0) 0 0/40px 40px;border-radius:12px;margin:40px 0}
+.toolbar{position:fixed;left:16px;bottom:16px;z-index:100;background:#fff;padding:6px 10px;border-radius:8px;font:12px monospace;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+
+/* ---------- Music scene ---------- */
+.stage{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;gap:40px;padding:24px;background:#e9e9ee;flex-wrap:wrap}
+.phone{position:relative;width:402px;height:874px;border-radius:56px;overflow:hidden;background:#fff;box-shadow:0 0 0 10px #1c1c1e,0 30px 60px rgba(0,0,0,.25)}
+.phone__scroll{position:absolute;inset:0;overflow-y:auto;padding:60px 20px 260px}
+.phone__scroll::-webkit-scrollbar{display:none}
+.m-h1{font-size:34px;font-weight:800;margin:8px 0 12px}
+.m-h2{font-size:22px;font-weight:700;margin:18px 0 10px}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.m-art{width:100%;aspect-ratio:1;border-radius:10px;display:block;object-fit:cover}
+.m-title{font-size:15px;font-weight:600;margin-top:6px}
+.m-artist{font-size:14px;color:#8a8a8e}
+.m-chrome{position:absolute;left:14px;right:14px;bottom:30px;display:flex;flex-direction:column;gap:10px}
+.m-player{height:60px}
+.m-player__row{display:flex;align-items:center;height:100%;padding:0 18px 0 8px;gap:12px}
+.m-player__art{width:44px;height:44px;border-radius:50%;object-fit:cover}
+.m-player__text{flex:1;display:flex;flex-direction:column;line-height:1.15}
+.m-player__text b{font-size:16px}
+.m-player__text span{font-size:14px;color:rgba(0,0,0,.5)}
+.m-player__btn{display:flex;color:#111}
+.m-tabrow{display:flex;gap:10px;align-items:center}
+.m-tabbar{flex:1;height:64px}
+.m-tabs{position:relative;display:flex;height:100%;padding:4px}
+.m-tabrow{position:relative}
+.m-dropzone{position:absolute;left:4px;top:4px;bottom:4px;right:78px;pointer-events:none}
+.m-drop{position:absolute;inset:0 auto 0 0;width:25%;transform:translateX(calc(var(--i) * 100%));transition:transform .42s cubic-bezier(.3,1.35,.4,1);pointer-events:none}
+.lg.m-drop__glass{width:100%;height:100%;box-shadow:0 2px 10px rgba(0,0,0,.08);transition:transform .32s cubic-bezier(.3,1.5,.4,1)}
+.m-drop--moving .lg.m-drop__glass{transform:scale(1.18,1.12)}
+.m-tab{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 11px -apple-system,system-ui,sans-serif;color:#3a3a3c;border-radius:999px;cursor:pointer}
+.m-tab--on{color:#fa2d48}
+.m-tab{position:relative;z-index:1}
+.m-search{width:64px;height:64px;flex:none}
+.m-search__icon{display:flex;align-items:center;justify-content:center;height:100%;color:#3a3a3c}
+
+/* ---------- Siri scene ---------- */
+.siri{position:relative;width:900px;max-width:100%;height:760px;border-radius:40px;overflow:hidden;background:url(/img/ribbons.jpg) center/cover;padding:80px 60px}
+.siri__panel{padding:56px 44px 36px}
+.siri__text{color:#fff;font-size:40px;line-height:1.2;margin:0 0 40px;font-weight:500;letter-spacing:-.5px}
+.siri__card{display:flex;justify-content:space-between;padding:28px 32px;border-radius:40px;color:#fff;background:linear-gradient(180deg,#1677ff,#16c1ff)}
+.siri__city{font-size:28px;font-weight:600}
+.siri__temp{font-size:84px;font-weight:300;line-height:1}
+.siri__right{text-align:right;font-size:24px;font-weight:500;display:flex;flex-direction:column;justify-content:flex-end}
+.siri__sun{font-size:40px;color:#ffd60a}
+
+/* ---------- Banner (docs/banner.png) ---------- */
+.banner{position:relative;width:1280px;height:480px;overflow:hidden;background:url(/img/ribbons.jpg) center 40%/cover}
+.lg.banner__title{position:absolute;left:96px;top:120px;height:150px;width:660px}
+.banner__titlerow{display:flex;align-items:center;gap:22px;height:100%;padding:0 48px;color:#fff;font-size:84px;font-weight:700;letter-spacing:-2.5px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.banner__logo{font-size:72px;opacity:.95}
+.lg.banner__sub{position:absolute;left:110px;top:298px;height:62px;width:600px}
+.banner__subrow{display:flex;align-items:center;height:100%;padding:0 30px;color:#fff;font-size:21px;font-weight:500;letter-spacing:-.2px}
+.lg.lg.banner__orb{position:absolute}
+.lg.banner__orb--a{left:860px;top:70px;width:190px;height:190px}
+.lg.banner__orb--b{left:1085px;top:250px;width:110px;height:110px}
+.lg.banner__card{position:absolute;left:820px;top:300px;width:230px;height:150px}

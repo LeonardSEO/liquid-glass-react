@@ -1,39 +1,31 @@
 /**
- * Example: a floating pill-shaped navbar using the Liquid Glass effect.
- *
- * This is a reference for how to wire `.liquid-glass` up to a real
- * component - copy and adapt the shape/content, not necessarily this
- * exact markup.
- *
- * Don't forget: <LiquidGlassFilter /> must be rendered once elsewhere on
- * the page (e.g. your root layout) for `url(#liquid-lens)` to resolve.
- * See ../components/LiquidGlassFilter.tsx.
+ * Example: a floating pill-shaped navbar and a round icon button made of
+ * Liquid Glass. Copy and adapt the shape/content - the component measures
+ * itself and generates a displacement map that matches its exact size.
  */
 
-import "../components/liquid-glass.css"
+import { LiquidGlass } from "../components/LiquidGlass"
 
 export function LiquidGlassPill() {
   return (
-    <div className="fixed top-4 inset-x-0 mx-auto z-50 w-full max-w-3xl px-4">
-      <nav
-        className="liquid-glass relative h-16 rounded-full flex items-center justify-between px-6"
-        aria-label="Main navigation"
-      >
-        <span className="font-semibold">Your Logo</span>
+    <div className="fixed top-4 inset-x-0 mx-auto z-50 w-full max-w-3xl px-4 flex gap-3">
+      <LiquidGlass radius={999} className="h-16 flex-1">
+        <nav className="h-full flex items-center justify-between px-6" aria-label="Main navigation">
+          <span className="font-semibold">Your Logo</span>
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#about">About</a>
+          </div>
+          <a href="#cta" className="text-sm font-semibold">
+            Get started
+          </a>
+        </nav>
+      </LiquidGlass>
 
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#about">About</a>
-        </div>
-
-        <a
-          href="#cta"
-          className="inline-flex items-center px-5 h-11 rounded-full text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
-        >
-          Get started
-        </a>
-      </nav>
+      <LiquidGlass radius={999} interactive className="h-16 w-16 shrink-0" role="button" aria-label="Search">
+        <span className="h-full flex items-center justify-center">🔍</span>
+      </LiquidGlass>
     </div>
   )
 }

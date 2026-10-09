@@ -1,329 +1,299 @@
-# Liquid Glass for React / Next.js
+<p align="center">
+  <img src="docs/banner.jpg" alt="Liquid Glass for React: glass pills and orbs refracting a ribbon wallpaper" width="100%" />
+</p>
 
-Real edge refraction for glass UI - the way Apple's "Liquid Glass" material
-(iOS 26 / macOS 26) actually works, not just `backdrop-filter: blur()` in a
-rounded box.
+<h1 align="center">Liquid Glass for React</h1>
 
-```css
-.liquid-glass {
-  backdrop-filter: blur(5px) url(#liquid-lens) saturate(180%) brightness(1.08);
-}
+<p align="center">
+  Apple's iOS 26 / macOS 26 <b>Liquid Glass</b> material for the web.<br/>
+  Physically based refraction, a specular rim and touch-reactive glass.<br/>
+  No WebGL, no canvas snapshots, no per-frame JavaScript.
+</p>
+
+<p align="center">
+  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-black" />
+  <img alt="React 18+" src="https://img.shields.io/badge/React-18%2B-149eca" />
+  <img alt="Next.js ready" src="https://img.shields.io/badge/Next.js-SSR%20safe-black" />
+  <img alt="Zero dependencies" src="https://img.shields.io/badge/dependencies-0-brightgreen" />
+  <img alt="Full effect in Chromium" src="https://img.shields.io/badge/full%20effect-Chromium-4285f4" />
+</p>
+
+---
+
+Most "liquid glass" CSS on the web is `backdrop-filter: blur()` in a
+rounded box. Real Liquid Glass **bends light**: the centre stays clear,
+while the curved rim magnifies and stretches whatever is behind it and
+catches a bright edge highlight.
+
+This library models that rim as an actual lens. It traces light through
+it with **Snell's law**, writes the result into an SVG displacement map
+sized to each element, and lets the browser apply it in its normal
+`backdrop-filter` pass.
+
+```tsx
+import { LiquidGlass } from "@/components/LiquidGlass"
+
+<LiquidGlass radius={999} interactive style={{ height: 64 }}>
+  <nav>…</nav>
+</LiquidGlass>
 ```
 
-That's the entire runtime cost: **one CSS declaration** plus a tiny
-(2-5 KB) PNG. No WebGL, no `html2canvas`, no per-frame JavaScript, no
-layout thrashing. It works in a server-rendered Next.js app and degrades
-gracefully to a plain blur in browsers that don't support SVG filters in
-`backdrop-filter`.
- 
----
+<p align="center">
+  <img src="docs/showcase.jpg" alt="Music app tab bar with sliding glass droplet and mini player; dark Siri-style glass panel" width="100%" />
+</p>
 
-## Why this exists
+## Contents
 
-Search for "liquid glass css" or "liquid glass react" and you'll find two
-kinds of results:
+- [Features](#features)
+- [Install](#install)
+- [Usage](#usage)
+- [Props](#props)
+- [How it works](#how-it-works)
+- [Browser support](#browser-support)
+- [Gotchas](#gotchas)
+- [Static / zero-JS variant](#static--zero-js-variant)
+- [Demo](#demo)
+- [Before and after](#before-and-after)
+- [Credits](#credits)
 
-1. **Blur-in-a-pill.** `backdrop-filter: blur(20px)` on a
-   `border-radius: 9999px` element with a translucent background. This
-   looks fine from a distance, but it is **not** what Liquid Glass does.
-   Real glass *bends* the image behind it - text and shapes near the edge
-   of the glass visibly warp and magnify. A flat blur never does this, no
-   matter how you tune it.
+## Features
 
-2. **WebGL / canvas recreations.** Several projects render the whole page
-   (or a screenshot of it) into a `<canvas>` or WebGL texture and apply a
-   real lens-distortion shader to it. This *does* produce real refraction,
-   but at a real cost: extra render passes, `html2canvas`-style DOM
-   snapshots, large JS bundles, and a noticeable performance hit on pages
-   with a lot of content - exactly the kind of "now my whole site is slow"
-   tradeoff most marketing/product sites can't afford for a navbar.
+- **Physically based refraction.** The rim is a convex squircle bezel.
+  Rays are refracted at n = 1.5 and traced down to the content beneath.
+  The centre stays undistorted and the rim magnifies.
+- **Pixel-exact maps per element.** Each map is generated for the
+  element's measured size and regenerated on resize, so the bend sits
+  right on the curve whatever the shape.
+- **Clear rim, tinted centre.** The tint fades out across the bezel, so
+  the refracted backdrop shows bright at the edge, as in Apple's glass.
+- **Angle-dependent specular.** A crisp edge line plus a soft inner glow
+  that follows a configurable light direction.
+- **Chromatic dispersion.** R, G and B bend by slightly different amounts
+  for a faint colour fringe on high-contrast edges.
+- **Touch interaction.** `interactive` adds a springy press-to-grow and a
+  glow from the touch point.
+- **Light and dark tints**, or any CSS colour.
+- **SSR safe.** A frosted fallback renders on the server and upgrades on
+  mount, without hydration mismatches.
+- **Cheap.** Maps are built once per size (a few ms for a pill, about
+  45 ms for a large panel) and cached; identical controls share them.
+- **Zero dependencies** apart from React.
 
-This repo documents a **third approach**: a single hidden SVG
-`<filter>` using `feDisplacementMap`, driven by a small pre-generated
-displacement map image, applied via the standards-based
-`backdrop-filter: blur() url(#filter)` syntax. It gets you real refraction
-- including chromatic aberration at the edges - using only CSS and one
-small image. It's the same primitive the browser already uses for
-`backdrop-filter: blur()`, so there's no new rendering pipeline to pay for.
+## Install
 
----
+Copy the three files from [`components/`](components) into your project:
+
+```
+components/
+├── LiquidGlass.tsx        # the component
+├── liquid-glass-maps.ts   # optics + map generation
+└── liquid-glass.css       # layers and tints
+```
+
+There's no npm package. The source is small enough that you'll want to
+own and tweak it.
+
+## Usage
+
+**Floating navbar**
+
+```tsx
+<LiquidGlass radius={999} className="h-16 w-full max-w-3xl">
+  <nav className="h-full flex items-center justify-between px-6">…</nav>
+</LiquidGlass>
+```
+
+**Round icon button**
+
+```tsx
+<LiquidGlass radius={999} interactive role="button" aria-label="Search" className="h-16 w-16">
+  <SearchIcon />
+</LiquidGlass>
+```
+
+**Dark sheet / panel**
+
+```tsx
+<LiquidGlass radius={56} tint="dark" className="p-12">
+  <p className="text-white text-4xl">It'll be fantastic weather…</p>
+</LiquidGlass>
+```
+
+**Glass on glass (e.g. a tab bar selection droplet).** Render the inner
+glass as a *sibling* positioned over the outer one, not as a child (see
+[Gotchas](#gotchas)):
+
+```tsx
+<div className="relative">
+  <LiquidGlass radius={999} className="h-16">{tabs}</LiquidGlass>
+  <div className="absolute inset-1 pointer-events-none">
+    <LiquidGlass radius={999} blur={0} tint="rgba(255,255,255,.05)"
+      style={{ width: "25%", height: "100%", transform: `translateX(${active * 100}%)` }} />
+  </div>
+</div>
+```
+
+A full working version, including the stretch while it slides, is in
+[`demo/src/Scenes.tsx`](demo/src/Scenes.tsx).
+
+## Props
+
+| Prop | Default | Description |
+| --- | --- | --- |
+| `radius` | `32` | Corner radius in px. `999` for pills and circles. |
+| `bezel` | auto | Width of the curved, light-bending rim. Auto ≈ ¼ of the short side, capped by `radius` and 56. |
+| `thickness` | `1.5 × bezel` | Glass height. Taller glass bends more. |
+| `ior` | `1.5` | Index of refraction (water ≈ 1.33). |
+| `profile` | `"squircle"` | Rim surface: `"squircle"`, `"circle"` or `"lip"`. |
+| `refraction` | `1` | Multiplier on top of the physical bend. |
+| `dispersion` | `0.06` | Colour separation. `0` disables it (single filter pass). |
+| `blur` | `3` | Frost in px. `0` = perfectly clear glass. |
+| `saturation` | `1.5` | Backdrop vibrancy. |
+| `tint` | `"light"` | `"light"`, `"dark"` or any CSS colour. |
+| `specular` | `1` | Edge highlight strength, 0-1. |
+| `lightAngle` | `-135` | Light direction in degrees (-90 = top, -135 = top-left). |
+| `interactive` | `false` | Press-to-grow and touch glow. |
+
+Every other `div` prop (`className`, `style`, `onClick`, `role`, …) is
+passed through.
 
 ## How it works
 
-### 1. Refraction is a displacement map, not a blur
-
-`feDisplacementMap` is an SVG filter primitive that shifts every pixel of
-an input image based on the color values of a second "map" image:
-
-- The map's **red channel** controls horizontal displacement
-- The map's **green channel** controls vertical displacement
-- A value of **128** (mid-grey) means "no displacement"
-- Values above/below 128 shift the pixel right/left or down/up,
-  proportional to a `scale` factor
-
-If you apply this filter to the page's own backdrop (via
-`backdrop-filter: ... url(#filter)`), you get real-time pixel-shifting of
-whatever is behind the glass element - which *is* refraction.
-
-### 2. The map has to follow the shape of the glass (SDF)
-
-The naive approach is a simple linear gradient as the displacement map.
-**Don't do this** - it produces a uniform diagonal "shear" across the
-entire element, which looks like a glitch, not glass.
-
-Real glass only bends light **at its curved edges**. The flat center of a
-pane of glass doesn't distort what's behind it at all. So the displacement
-map needs to be:
-
-- **Neutral grey (128, 128) in the center** - no displacement where the
-  glass is "flat"
-- **Ramping toward the edges**, in a direction that follows the element's
-  actual border-radius - i.e. an [SDF](https://en.wikipedia.org/wiki/Signed_distance_function)
-  (signed distance field) of the rounded-rectangle shape, not a plain
-  gradient
-
-[`scripts/generate-displacement-map.py`](scripts/generate-displacement-map.py)
-generates exactly this: for every pixel, it computes the signed distance
-to the rounded-rect border and the outward normal direction, and encodes
-"how far from the edge" and "which way is the edge" into the R/G channels.
-The center comes out flat grey; the rounded corners and edges get a
-radial-ish push outward.
-
-| SDF map (correct) | Linear gradient (wrong) |
-| --- | --- |
-| Neutral center, displacement follows the rounded shape, bends only at the rim | Uniform diagonal shift across the whole element - looks like a UI bug |
-
-### 3. The scale must be negative
-
-`feDisplacementMap`'s `scale` value controls the strength *and direction*
-of the bend:
-
-- **Positive scale** pushes pixels in the direction the map encodes -
-  this produces a **fish-eye / pinch** distortion (like looking through
-  the wrong end of a telescope).
-- **Negative scale** pulls pixels the other way - this produces a
-  **magnifying lens** effect, where content behind the glass appears to
-  bulge *toward* the viewer at the edges. This is the Apple Liquid Glass
-  look.
-
-If your refraction looks "inside out" - distorting the wrong way, or
-shrinking instead of magnifying - flip the sign of `scale`.
-
-### 4. Chromatic aberration sells it
-
-Real glass refracts different wavelengths of light by slightly different
-amounts. You can fake this cheaply by running the displacement **three
-times** at slightly different `scale` values, isolating the red, green,
-and blue channels of each result with `feColorMatrix`, and recombining
-them with `feBlend mode="screen"`. The difference is subtle (a couple of
-pixels of red/blue fringing at high-contrast edges) but it's a big part of
-why this reads as "glass" instead of "warped screenshot".
-
-### 5. Browser support is a non-issue
-
-`backdrop-filter: blur(10px) url(#my-filter) saturate(180%)` is valid CSS.
-Browsers that don't support `url()` filter references inside
-`backdrop-filter` (Safari and Firefox, as of writing) simply ignore that
-specific value and fall back to the previous valid `backdrop-filter`
-declaration - which is why the CSS in this repo declares a plain
-`blur() saturate()` *first*, and the lens version *second*. No
-`@supports` query needed; it's automatic graceful degradation.
-
----
-
-## Quick start
-
-### 1. Generate a displacement map for your shape
-
-```bash
-pip install -r scripts/requirements.txt
-python3 scripts/generate-displacement-map.py \
-  --width 700 --height 64 --radius 32 --mode sdf \
-  --output public/liquid-lens-map.png
+```mermaid
+flowchart LR
+  A[ResizeObserver<br/>element size] --> B[Snell's law over<br/>squircle bezel]
+  B --> C[Displacement map<br/>R = x, G = y]
+  A --> D[Specular rim map]
+  A --> E[Tint mask]
+  C --> F["SVG filter<br/>feImage → feDisplacementMap ×3"]
+  F --> G["backdrop-filter:<br/>blur() url(#filter) saturate()"]
+  D --> H[plus-lighter overlay]
+  E --> I[masked tint layer]
 ```
 
-- `--width` / `--height`: roughly the on-screen size of your glass element
-  (the map gets stretched to fill it, so exact pixels don't matter - the
-  *aspect ratio* and corner-radius proportion do)
-- `--radius`: should match your element's CSS `border-radius` in pixels
-- `--rim`: (optional) how far the bend extends inward from the edge, in
-  px. Defaults to `--radius`. Increase for a "thicker" glass edge.
+1. **Optics.** For each distance across the bezel, the surface slope of
+   the squircle profile gives a normal. A straight-down view ray is
+   refracted into the glass and followed to the content plane. The
+   sideways offset is the displacement: 0 on the flat plateau, large near
+   the edge.
+2. **Map.** That 1-D curve is swept around the rounded-rect outline along
+   the inward normal and encoded into R/G, where 128 means no shift.
+   `feDisplacementMap` then samples the backdrop from further inside the
+   glass near the rim, which reads as magnification.
+3. **Compositing.** The filter is referenced from `backdrop-filter` on the
+   component root. A masked tint, the specular map
+   (`mix-blend-mode: plus-lighter`) and your content sit on top.
 
-Regenerate this whenever you change the element's shape or aspect ratio
-significantly.
-
-### 2. Render the SVG filter once, server-side
-
-```tsx
-// app/layout.tsx
-import { LiquidGlassFilter } from "@/components/LiquidGlassFilter"
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <LiquidGlassFilter />
-        {children}
-      </body>
-    </html>
-  )
-}
-```
-
-Render it **once**, in a server component, near the root of your app -
-not inside the client component that uses it. See
-["Common pitfalls"](#common-pitfalls) for why.
-
-### 3. Apply the CSS class
-
-```tsx
-import "./liquid-glass.css"
-
-<nav className="liquid-glass rounded-full h-16 px-6 flex items-center">
-  ...
-</nav>
-```
-
-That's it. [`components/liquid-glass.css`](components/liquid-glass.css)
-contains the full rule plus light/dark CSS custom properties you can
-override per-theme. [`examples/LiquidGlassPill.tsx`](examples/LiquidGlassPill.tsx)
-shows a complete floating navbar pill.
-
----
-
-## API reference
-
-### `<LiquidGlassFilter />`
-
-Server-renderable component that outputs the hidden `<svg><filter>`.
-
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `id` | `string` | `"liquid-lens"` | Filter id. Reference it from CSS as `url(#id)`. |
-| `mapSrc` | `string` | `"/liquid-lens-map.png"` | Path to the generated displacement map. |
-| `scale` | `number` | `-42` | Bend strength/direction. **Must be negative** for a magnifying lens (see [why](#3-the-scale-must-be-negative)). Larger magnitude = stronger bend. |
-| `chromaticAberration` | `boolean` | `true` | Adds the 3-pass color-fringing effect. Set `false` for a slightly cheaper, neutral-color bend. |
-
-### CSS custom properties (`liquid-glass.css`)
-
-| Variable | Purpose | Typical range |
-| --- | --- | --- |
-| `--lg-tint` | Background color/alpha behind the glass | low alpha, e.g. `rgba(255,255,255,0.5)` |
-| `--lg-rim-border` | 1px outer border color | low-alpha white/black |
-| `--lg-rim-brightness` | `brightness()` applied to the refracted backdrop | `1.0`-`1.2` |
-| `--lg-specular` / `--lg-specular-side` | Inset highlight colors (top/bottom and left/right edges) | low-alpha white |
-| `--lg-sheen` | Soft overlay gradient for a top/bottom light sheen | low-alpha white |
-| `--lg-drop-alpha` | Drop shadow opacity | `0.1`-`0.4` |
-
-Override these per-theme (e.g. inside `[data-theme="dark"]` or
-`@media (prefers-color-scheme: dark)`) - the example file already includes
-a dark-mode block.
-
----
-
-## Tuning the effect
-
-- **Bend too subtle / too strong**: adjust `scale` on `<LiquidGlassFilter>`.
-  Start around `-30` to `-50`; go higher in magnitude for a more dramatic
-  "blob lens" look, lower for a barely-there edge highlight.
-- **Bend in the wrong place**: regenerate the displacement map with
-  `--radius` matching your element's actual `border-radius`, and
-  `--width`/`--height` matching its aspect ratio.
-- **Glass feels "thin"**: increase `--rim` when generating the map (more
-  of the element participates in the bend), and/or increase
-  `--lg-rim-brightness` slightly.
-- **Performance**: the displacement map is a static PNG (a few KB),
-  cached like any other image. The filter itself runs on the GPU as part
-  of the existing backdrop-filter compositing pass - there's no additional
-  per-frame cost beyond what a plain `blur()` already costs.
-
----
-
-## Common pitfalls
-
-- **Hydration mismatch from the SVG filter.** If `<LiquidGlassFilter />`
-  is rendered inside a `"use client"` component, React's client-side
-  render can produce a slightly different SVG tree than the server did on
-  first paint, triggering a hydration error. Fix: render it from a server
-  component (e.g. your root layout), not from the client island that uses
-  the glass effect.
-- **Positive `scale` looks like a glitch, not glass.** This is the fish-eye
-  case - flip the sign (see [above](#3-the-scale-must-be-negative)).
-- **Linear-gradient displacement maps cause uniform shear.** If the whole
-  element looks like it's "sliding" diagonally rather than bending at the
-  edges, your map isn't following the element's shape - regenerate with
-  `--mode sdf`.
-- **Effect missing entirely in Safari/Firefox.** Expected - those browsers
-  don't yet support `url()` references inside `backdrop-filter` and will
-  show the plain-blur fallback declaration instead. Make sure that
-  fallback declaration comes *before* the `url(#liquid-lens)` one in your
-  CSS, and that it looks acceptable on its own.
-- **`next/image` quality / `images.qualities` warnings** are unrelated to
-  this technique - they're a general Next.js 16 image-optimization config
-  requirement, not specific to the displacement map PNG (which is served
-  as a plain static asset, not through `next/image`).
-
----
+The deep dive is in
+[`skills/liquid-glass/references/theory.md`](skills/liquid-glass/references/theory.md).
 
 ## Browser support
 
-| Browser | Behavior |
+| Engine | Result |
 | --- | --- |
-| Chrome / Edge / other Chromium | Full effect: blur + SVG lens refraction + chromatic aberration |
-| Safari | Falls back to plain `blur() saturate()` (no `url()` filter support in `backdrop-filter` yet) |
-| Firefox | Same fallback as Safari |
-| No `backdrop-filter` support at all | Solid near-opaque background via `@supports not (...)` |
+| **Blink**: Chrome, Edge, Arc, Brave, Opera | Full effect: refraction, dispersion, specular, frost |
+| **WebKit**: Safari and every iOS browser | Frosted fallback: blur, tint and specular rim, no refraction |
+| **Gecko**: Firefox | Same frosted fallback |
 
----
+Only Blink renders SVG filters referenced from `backdrop-filter`. The
+other engines accept the syntax but draw nothing, so a CSS cascade
+fallback isn't reliable there. The component detects Blink and only adds
+`url(#filter)` there.
+
+## Gotchas
+
+> **No refraction at all, the page just shows through the glass?** You
+> have a *backdrop root* in the way.
+
+- An ancestor with `filter`, `opacity < 1`, `mask`, `clip-path`,
+  `mix-blend-mode`, `backdrop-filter`, or children that blend into it,
+  cuts the backdrop off at that ancestor. The glass then refracts an empty
+  image. That's why `backdrop-filter` sits on the component root, never on
+  an inner layer. `transform` and `overflow: hidden` are fine.
+- **Glass inside glass can't see the outer glass's refraction.** Use
+  siblings positioned on top (see [Usage](#usage)).
+- **Give the glass something to bend.** Over a flat colour, any glass
+  looks like a tinted rectangle. Refraction shows over images, text and
+  edges.
+
+## Static / zero-JS variant
+
+For fixed-size elements, the same optics are available as a Python script
+that writes a PNG and prints the matching `scale`:
+
+```bash
+pip install -r scripts/requirements.txt
+python3 scripts/generate-displacement-map.py --width 700 --height 64 --radius 32 \
+  --output public/liquid-lens-map.png
+# → Use it with: <feDisplacementMap scale="24.0" xChannelSelector="R" yChannelSelector="G" />
+```
+
+Generate the map at the element's **exact** CSS size; a stretched map
+puts the bend in the wrong place.
+
+## Demo
+
+```bash
+cd demo
+npm install
+npm run dev
+```
+
+| URL | Scene |
+| --- | --- |
+| `/?scene=music` | Apple Music style tab bar with sliding droplet, mini player and search button over album art |
+| `/?scene=siri` | Dark glass panel over a ribbon wallpaper |
+| `/?scene=playground` | Draggable lenses over text, stripes and a grid |
+| `/?scene=banner` | The header image of this README |
+| `/?scene=original` | The v1 technique, for comparison |
+
+Every prop can be tuned from the URL, for example
+`/?scene=playground&thickness=80&dispersion=0.2&blur=0`.
+
+`demo/src/liquid-glass` is a symlink to `components/`, so the demo always
+runs the library source.
+
+## Before and after
+
+<table>
+  <tr>
+    <th>v1: one stretched static map, milky tint</th>
+    <th>v2: physical, per-element, clear rim</th>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/before-after.jpg" alt="Top: v1 original, bottom: v2" /></td>
+    <td width="50%">
+      <img src="docs/music-closeup.jpg" alt="Mini player and tab bar close-up" /><br/>
+      <img src="docs/siri-closeup.jpg" alt="Dark panel rim close-up" />
+    </td>
+  </tr>
+</table>
+
+## For AI coding agents
+
+[`skills/liquid-glass/`](skills/liquid-glass) is a self-contained skill
+(`SKILL.md`, assets and theory) that you can hand to Claude Code or any
+other coding agent to implement the effect end-to-end, including the
+troubleshooting table for the common failure modes.
 
 ## Repository layout
 
 ```
-.
-├── components/
-│   ├── LiquidGlassFilter.tsx   # the SVG <filter> component
-│   └── liquid-glass.css        # the .liquid-glass CSS rule + theming vars
-├── examples/
-│   └── LiquidGlassPill.tsx      # example floating navbar pill
-├── scripts/
-│   ├── generate-displacement-map.py
-│   └── requirements.txt
-├── public/
-│   ├── liquid-lens-map.png             # example SDF map (700x64, radius 32)
-│   └── liquid-lens-map-linear-example.png  # "wrong" map, for comparison
-└── skills/
-    └── liquid-glass/            # self-contained skill for AI coding agents
-        ├── SKILL.md
-        ├── scripts/
-        ├── assets/
-        └── references/
+components/           LiquidGlass.tsx · liquid-glass-maps.ts · liquid-glass.css
+examples/             LiquidGlassPill.tsx
+demo/                 Vite + React showcase
+scripts/              generate-displacement-map.py (static variant)
+skills/liquid-glass/  skill for AI coding agents
+docs/                 images used in this README
 ```
 
-## For AI coding tools
+## Credits
 
-The [`skills/liquid-glass/`](skills/liquid-glass/) directory is a
-self-contained "skill": a `SKILL.md` with step-by-step implementation
-instructions plus its own copies of the script, component, and CSS, meant
-to be handed directly to an AI coding assistant (e.g. as a Claude Code /
-Claude Agent skill, or pasted as context for any other coding agent). It
-captures the same technique as the rest of this repo, organized for an
-agent to follow end-to-end - including a troubleshooting table for the
-"fish-eye instead of magnifying lens" and "uniform shear" failure modes
-that are the most common mistakes when implementing this from scratch.
-
-## Related projects
-
-This repo focuses on the SVG-displacement-map technique specifically
-because it has the smallest footprint of the approaches that produce real
-refraction. If you need more advanced effects (full lens distortion of
-arbitrary content, animated liquid blobs, drag-and-merge glass shapes),
-look at WebGL/canvas-based libraries - they do more, at the cost of extra
-JS and render passes. This technique is aimed at the common case: a
-navbar, toolbar, card, or modal that needs to *look* like glass without
-becoming the heaviest thing on the page.
-
----
+The refraction model follows the approach described by kube.io in
+[*Liquid Glass in the browser: refraction with CSS and SVG*](https://kube.io/blog/liquid-glass-css-svg/).
+Liquid Glass is a design language by Apple; this project is not
+affiliated with Apple.
 
 ## License
 
-MIT - see [LICENSE](LICENSE).
+[MIT](LICENSE)

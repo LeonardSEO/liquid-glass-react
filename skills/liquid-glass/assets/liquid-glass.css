@@ -1,115 +1,110 @@
 /*
- * Liquid Glass - real edge refraction, not just blur.
+ * Liquid Glass material.
  *
- * Apply `.liquid-glass` to any element with a `border-radius` (a pill,
- * a rounded card, a toolbar...). It needs:
- *
- *   1. The #liquid-lens SVG filter rendered once on the page
- *      (see components/LiquidGlassFilter.tsx).
- *   2. A displacement map PNG that matches the element's shape
- *      (see scripts/generate-displacement-map.py).
- *
- * Everything below is plain CSS - no JS, no canvas, no WebGL. The whole
- * cost is one extra paint pass the GPU compositor already does for
- * `backdrop-filter: blur()`, plus a tiny (2-5KB) PNG.
+ * Layers (bottom to top), all clipped to the element's border-radius:
+ *   (root)           backdrop-filter: blur + SVG refraction + saturate
+ *   .lg__tint        very light tint so the glass reads on flat backgrounds
+ *   .lg__specular    generated rim highlight, angle-dependent
+ *   .lg__glow        touch glow (interactive only)
+ *   .lg__content     your children
  */
 
-:root {
-  /* Tint behind the glass - keep this LOW alpha. The glass should mostly
-     show the page behind it, bent through the lens, not a solid color. */
-  --lg-tint: rgba(255, 255, 255, 0.55);
+.lg {
+  --lg-tint: rgba(255, 255, 255, 0.3);
+  --lg-shadow: 0 6px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --lg-inner-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 -10px 24px -18px rgba(0, 0, 0, 0.18);
+  --lg-px: 50%;
+  --lg-py: 50%;
 
-  /* Subtle outer rim border - glass has a visible edge, even if thin. */
-  --lg-rim-border: rgba(255, 255, 255, 0.35);
-
-  /* Brightness multiplier applied to the refracted backdrop. Apple's glass
-     is slightly brighter at the rim than the flat backdrop - >1 sells the
-     "light catching the edge" look. Keep close to 1 (e.g. 1.05-1.15). */
-  --lg-rim-brightness: 1.08;
-
-  /* Specular highlight colors for the inset top/side glows. */
-  --lg-specular: rgba(255, 255, 255, 0.6);
-  --lg-specular-side: rgba(255, 255, 255, 0.35);
-
-  /* Soft sheen gradient overlay (the ::after pseudo-element below). */
-  --lg-sheen: rgba(255, 255, 255, 0.25);
-
-  /* Drop shadow strength under the glass. */
-  --lg-drop-alpha: 0.18;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --lg-tint: rgba(30, 30, 35, 0.45);
-    --lg-rim-border: rgba(255, 255, 255, 0.12);
-    --lg-rim-brightness: 1.15;
-    --lg-specular: rgba(255, 255, 255, 0.18);
-    --lg-specular-side: rgba(255, 255, 255, 0.08);
-    --lg-sheen: rgba(255, 255, 255, 0.06);
-    --lg-drop-alpha: 0.4;
-  }
-}
-
-.liquid-glass {
   position: relative;
   isolation: isolate;
-  background: var(--lg-tint);
-
-  /*
-   * Fallback FIRST: a plain blur for browsers that ignore `url()` inside
-   * backdrop-filter (Safari and Firefox at the time of writing). They will
-   * apply this declaration and skip the one below, so the element still
-   * reads as "glass" everywhere - just without the lens bend.
-   */
-  -webkit-backdrop-filter: blur(10px) saturate(180%);
-  backdrop-filter: blur(10px) saturate(180%);
-
-  /*
-   * The real effect: a light blur PLUS the SVG lens filter, which bends
-   * and magnifies the backdrop inward at the curved rim - the actual
-   * "Liquid Glass" material. Chromium-based browsers parse `url(#id)`
-   * inside `backdrop-filter` and apply BOTH this and the blur above is
-   * simply overridden (last valid declaration wins), so no `@supports`
-   * gate is needed - it degrades automatically.
-   */
-  -webkit-backdrop-filter: blur(5px) url(#liquid-lens) saturate(180%) brightness(var(--lg-rim-brightness));
-  backdrop-filter: blur(5px) url(#liquid-lens) saturate(180%) brightness(var(--lg-rim-brightness));
-
-  border: 1px solid var(--lg-rim-border);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, var(--lg-drop-alpha)),
-    0 2px 6px rgba(0, 0, 0, calc(var(--lg-drop-alpha) * 0.5)),
-    inset 0 1.5px 0.5px var(--lg-specular),
-    inset 0 -1.5px 1px var(--lg-specular),
-    inset 2px 0 3px -2px var(--lg-specular-side),
-    inset -2px 0 3px -2px var(--lg-specular-side);
-
-  transition: box-shadow 0.25s ease;
+  box-shadow: var(--lg-shadow);
+  transform: translateZ(0) scale(1);
+  transition: transform 0.45s cubic-bezier(0.2, 1.6, 0.35, 1), box-shadow 0.3s ease;
 }
 
-/* Soft top/bottom sheen, like light grazing a curved glass surface. */
-.liquid-glass::after {
-  content: "";
+.lg__tint,
+.lg__specular,
+.lg__glow {
   position: absolute;
   inset: 0;
-  z-index: -1;
   border-radius: inherit;
   pointer-events: none;
-  background:
-    linear-gradient(to bottom, var(--lg-sheen) 0%, transparent 36%),
-    linear-gradient(to top, var(--lg-sheen) 0%, transparent 26%);
 }
 
-/* Browsers with no backdrop-filter support at all (very old) get a solid
-   surface instead of a transparent void. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .liquid-glass {
-    background: rgba(245, 245, 248, 0.96);
-  }
+.lg__tint {
+  z-index: 1;
+  background: var(--lg-tint);
+  box-shadow: var(--lg-inner-shadow);
+}
 
-  @media (prefers-color-scheme: dark) {
-    .liquid-glass {
-      background: rgba(28, 28, 32, 0.96);
-    }
+.lg__tint {
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+}
+
+.lg__specular {
+  z-index: 2;
+  background-size: 100% 100%;
+  opacity: var(--lg-specular-opacity, 1);
+  mix-blend-mode: plus-lighter;
+}
+
+.lg__glow {
+  z-index: 3;
+  opacity: 0;
+  background: radial-gradient(circle at var(--lg-px) var(--lg-py), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 60%);
+  mix-blend-mode: plus-lighter;
+  transition: opacity 0.35s ease;
+}
+
+.lg__content {
+  position: relative;
+  z-index: 4;
+  height: 100%;
+}
+
+.lg__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lg--interactive {
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.lg--pressed {
+  transform: translateZ(0) scale(1.06);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.lg--pressed .lg__glow {
+  opacity: 1;
+}
+
+.lg--dark {
+  --lg-tint: rgba(6, 6, 8, 0.82);
+  --lg-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --lg-inner-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Safari / Firefox: no SVG refraction, so lean on frost + a bit more tint. */
+.lg--fallback {
+  --lg-tint: rgba(255, 255, 255, 0.45);
+}
+
+.lg--dark.lg--fallback {
+  --lg-tint: rgba(8, 8, 10, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg {
+    transition: none;
   }
 }
