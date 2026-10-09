@@ -1,10 +1,13 @@
 /**
  * Example: a floating pill-shaped navbar and a round icon button made of
- * Liquid Glass. Copy and adapt the shape/content - the component measures
- * itself and generates a displacement map that matches its exact size.
+ * Liquid Glass. The component measures itself and generates a
+ * displacement map that matches its exact size.
+ *
+ *   npm install liquidglass-react
  */
 
-import { LiquidGlass } from "../components/LiquidGlass"
+import { LiquidGlass } from "liquidglass-react"
+import "liquidglass-react/style.css"
 
 export function LiquidGlassPill() {
   return (

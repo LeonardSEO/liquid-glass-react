@@ -13,7 +13,9 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "preserveSymlinks": true,
+    "paths": {
+      "liquidglass-react": ["../src/index.ts"]
+    },
     "noEmit": true,
     "jsx": "react-jsx",
 

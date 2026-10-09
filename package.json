@@ -1,0 +1,68 @@
+{
+  "name": "liquidglass-react",
+  "version": "1.0.0",
+  "description": "Apple-style Liquid Glass for React: physically-based refraction (Snell's law), specular rim and touch-reactive glass via SVG backdrop-filter. No WebGL.",
+  "license": "MIT",
+  "author": "Leonard van Hemert",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeonardSEO/liquid-glass-react.git"
+  },
+  "homepage": "https://github.com/LeonardSEO/liquid-glass-react#readme",
+  "bugs": "https://github.com/LeonardSEO/liquid-glass-react/issues",
+  "keywords": [
+    "liquid-glass",
+    "glassmorphism",
+    "react",
+    "nextjs",
+    "backdrop-filter",
+    "refraction",
+    "svg-filter",
+    "feDisplacementMap",
+    "apple",
+    "ios26",
+    "ui"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.0"
+  }
+}

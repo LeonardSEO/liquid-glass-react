@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { LiquidGlass, type LiquidGlassProps } from "./liquid-glass/LiquidGlass"
+import { LiquidGlass, type LiquidGlassProps } from "liquidglass-react"
 
 const params = new URLSearchParams(location.search)
 const num = (k: string) => (params.has(k) ? Number(params.get(k)) : undefined)

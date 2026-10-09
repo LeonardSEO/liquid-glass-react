@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import { Background } from "./Background"
-import { LiquidGlass } from "./liquid-glass/LiquidGlass"
+import { LiquidGlass } from "liquidglass-react"
 import { LiquidGlassFilter } from "./original/LiquidGlassFilter"
 import { overrides } from "./Scenes"
 import "./original/liquid-glass.css"

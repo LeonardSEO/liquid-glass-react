@@ -1,11 +1,10 @@
-"use client"
-
 import {
   type CSSProperties,
   type HTMLAttributes,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useCallback,
+  useEffect,
   useId,
   useLayoutEffect,
   useMemo,
@@ -18,8 +17,7 @@ import {
   buildSpecularMap,
   imageDataToUrl,
   type SurfaceProfile,
-} from "./liquid-glass-maps"
-import "./liquid-glass.css"
+} from "./maps"
 
 export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> & {
   children?: ReactNode
@@ -50,6 +48,9 @@ export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> & {
   /** Press-to-grow + touch glow, like iOS controls. */
   interactive?: boolean
 }
+
+// useLayoutEffect warns during SSR on React 18; fall back to useEffect there.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect
 
 let chromiumCache: boolean | undefined
 function supportsSvgBackdrop(): boolean {
@@ -95,7 +96,7 @@ export function LiquidGlass({
   const [svgSupported, setSvgSupported] = useState(false)
   const [pressed, setPressed] = useState(false)
 
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setSvgSupported(supportsSvgBackdrop())
     const el = ref.current
     if (!el) return

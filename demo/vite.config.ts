@@ -1,10 +1,19 @@
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-// src/liquid-glass is a symlink to ../components (the library source).
-// preserveSymlinks makes `react` resolve from this demo's node_modules.
+const src = (p: string) => fileURLToPath(new URL(`../src/${p}`, import.meta.url))
+
+// The demo imports the package by name; during development that name points
+// straight at the library source in ../src (no build step, full HMR).
 export default defineConfig({
   plugins: [react()],
-  resolve: { preserveSymlinks: true },
+  resolve: {
+    alias: [
+      { find: /^liquidglass-react\/style\.css$/, replacement: src('liquid-glass.css') },
+      { find: /^liquidglass-react$/, replacement: src('index.ts') },
+    ],
+    dedupe: ['react', 'react-dom'],
+  },
   server: { fs: { allow: ['..'] } },
 })

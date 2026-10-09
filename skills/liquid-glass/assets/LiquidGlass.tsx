@@ -6,6 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useCallback,
+  useEffect,
   useId,
   useLayoutEffect,
   useMemo,
@@ -51,6 +52,9 @@ export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> & {
   interactive?: boolean
 }
 
+// useLayoutEffect warns during SSR on React 18; fall back to useEffect there.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect
+
 let chromiumCache: boolean | undefined
 function supportsSvgBackdrop(): boolean {
   if (chromiumCache !== undefined) return chromiumCache
@@ -95,7 +99,7 @@ export function LiquidGlass({
   const [svgSupported, setSvgSupported] = useState(false)
   const [pressed, setPressed] = useState(false)
 
-  useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setSvgSupported(supportsSvgBackdrop())
     const el = ref.current
     if (!el) return
