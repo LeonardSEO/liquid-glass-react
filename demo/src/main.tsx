@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import 'liquidglass-react/style.css'
 import './index.css'
 import App from './App.tsx'
 

@@ -5,3 +5,5 @@ __pycache__/
 .playwright-mcp/
 node_modules/
 dist/
+dist/
+*.tgz

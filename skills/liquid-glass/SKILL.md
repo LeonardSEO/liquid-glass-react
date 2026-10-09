@@ -16,13 +16,29 @@ Read `references/theory.md` only when debugging or tuning.
 
 ## Step 1 - Install
 
-Copy the three files from `assets/` into the project's components
-directory, next to each other. No dependencies besides React.
+Preferred: install the package and import its stylesheet once (e.g. in
+the root layout):
+
+```bash
+npm install liquidglass-react
+```
+
+```tsx
+import "liquidglass-react/style.css"
+import { LiquidGlass } from "liquidglass-react"
+```
+
+The bundle is marked `"use client"`, so it can be used directly from
+Next.js server components.
+
+Alternative (no dependency): copy the three files from `assets/` into
+the project's components directory, next to each other, and import from
+there. That copy imports its own CSS.
 
 ## Step 2 - Wrap the element
 
 ```tsx
-import { LiquidGlass } from "@/components/LiquidGlass"
+import { LiquidGlass } from "liquidglass-react"
 
 <LiquidGlass radius={999} style={{ height: 64 }}>
   <nav className="h-full flex items-center px-6">…</nav>

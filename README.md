@@ -11,6 +11,8 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/liquidglass-react"><img alt="npm" src="https://img.shields.io/npm/v/liquidglass-react?color=black" /></a>
+  <a href="https://bundlephobia.com/package/liquidglass-react"><img alt="bundle size" src="https://img.shields.io/bundlephobia/minzip/liquidglass-react?color=black&label=gzip" /></a>
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-black" />
   <img alt="React 18+" src="https://img.shields.io/badge/React-18%2B-149eca" />
   <img alt="Next.js ready" src="https://img.shields.io/badge/Next.js-SSR%20safe-black" />
@@ -30,8 +32,13 @@ it with **Snell's law**, writes the result into an SVG displacement map
 sized to each element, and lets the browser apply it in its normal
 `backdrop-filter` pass.
 
+```bash
+npm install liquidglass-react
+```
+
 ```tsx
-import { LiquidGlass } from "@/components/LiquidGlass"
+import "liquidglass-react/style.css"
+import { LiquidGlass } from "liquidglass-react"
 
 <LiquidGlass radius={999} interactive style={{ height: 64 }}>
   <nav>…</nav>
@@ -77,21 +84,37 @@ import { LiquidGlass } from "@/components/LiquidGlass"
   mount, without hydration mismatches.
 - **Cheap.** Maps are built once per size (a few ms for a pill, about
   45 ms for a large panel) and cached; identical controls share them.
-- **Zero dependencies** apart from React.
+- **Zero dependencies.** React 18+ is the only peer dependency. ESM +
+  CJS + TypeScript types, about 5 KB gzipped.
 
 ## Install
 
-Copy the three files from [`components/`](components) into your project:
-
-```
-components/
-├── LiquidGlass.tsx        # the component
-├── liquid-glass-maps.ts   # optics + map generation
-└── liquid-glass.css       # layers and tints
+```bash
+npm install liquidglass-react
+# or: pnpm add liquidglass-react · yarn add liquidglass-react · bun add liquidglass-react
 ```
 
-There's no npm package. The source is small enough that you'll want to
-own and tweak it.
+Import the stylesheet **once**, e.g. in your root layout or entry file:
+
+```tsx
+import "liquidglass-react/style.css"
+```
+
+Then use the component anywhere:
+
+```tsx
+import { LiquidGlass } from "liquidglass-react"
+```
+
+**Next.js App Router:** the bundle is already marked `"use client"`, so
+you can render `<LiquidGlass>` straight from a server component. Put the
+CSS import in `app/layout.tsx`. Tested with `next build` and React 18/19
+SSR.
+
+**Prefer to own the code?** The source is three files in [`src/`](src).
+The copy-paste version in
+[`skills/liquid-glass/assets/`](skills/liquid-glass/assets) works without
+the package.
 
 ## Usage
 
@@ -250,8 +273,8 @@ npm run dev
 Every prop can be tuned from the URL, for example
 `/?scene=playground&thickness=80&dispersion=0.2&blur=0`.
 
-`demo/src/liquid-glass` is a symlink to `components/`, so the demo always
-runs the library source.
+The demo imports `liquidglass-react` by name; Vite aliases that name to
+`src/`, so you get HMR on the library source without a build step.
 
 ## Before and after
 
@@ -279,7 +302,8 @@ troubleshooting table for the common failure modes.
 ## Repository layout
 
 ```
-components/           LiquidGlass.tsx · liquid-glass-maps.ts · liquid-glass.css
+src/                  the package: LiquidGlass.tsx · maps.ts · liquid-glass.css · index.ts
+dist/                 build output (npm run build), published to npm
 examples/             LiquidGlassPill.tsx
 demo/                 Vite + React showcase
 scripts/              generate-displacement-map.py (static variant)
@@ -293,6 +317,18 @@ The refraction model follows the approach described by kube.io in
 [*Liquid Glass in the browser: refraction with CSS and SVG*](https://kube.io/blog/liquid-glass-css-svg/).
 Liquid Glass is a design language by Apple; this project is not
 affiliated with Apple.
+
+## Development
+
+```bash
+npm install
+npm run build      # tsup → dist/ (ESM, CJS, .d.ts, style.css)
+npm run typecheck
+cd demo && npm install && npm run dev
+```
+
+Publishing: `npm publish` (runs typecheck and build first via
+`prepublishOnly`).
 
 ## License
 
