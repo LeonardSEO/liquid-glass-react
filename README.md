@@ -20,6 +20,14 @@
   <img alt="Full effect in Chromium" src="https://img.shields.io/badge/full%20effect-Chromium-4285f4" />
 </p>
 
+<p align="center">
+  <strong>Try the live demo — no installation needed</strong><br/>
+  <a href="https://leonardseo.github.io/liquid-glass-react/">https://leonardseo.github.io/liquid-glass-react/</a><br/>
+  <a href="https://leonardseo.github.io/liquid-glass-react/?scene=playground">Draggable playground</a> ·
+  <a href="https://leonardseo.github.io/liquid-glass-react/?scene=music">Music interface</a> ·
+  <a href="https://leonardseo.github.io/liquid-glass-react/?scene=siri">Siri panel</a>
+</p>
+
 ---
 
 Most "liquid glass" CSS on the web is `backdrop-filter: blur()` in a
