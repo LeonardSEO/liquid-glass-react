@@ -66,7 +66,7 @@ export function MusicScene() {
         <div className="m-grid">
           {albums.map(([t, a], i) => (
             <div key={t}>
-              <img className="m-art" src={`/img/art${i + 1}.jpg`} alt="" />
+              <img className="m-art" src={`${import.meta.env.BASE_URL}img/art${i + 1}.jpg`} alt="" />
               <div className="m-title">{t}</div>
               <div className="m-artist">{a}</div>
             </div>
@@ -76,7 +76,7 @@ export function MusicScene() {
         <div className="m-grid">
           {albums.slice(0, 4).map(([t, a], i) => (
             <div key={t}>
-              <img className="m-art" src={`/img/art${8 - i}.jpg`} alt="" />
+              <img className="m-art" src={`${import.meta.env.BASE_URL}img/art${8 - i}.jpg`} alt="" />
               <div className="m-title">{t}</div>
               <div className="m-artist">{a}</div>
             </div>
@@ -87,7 +87,7 @@ export function MusicScene() {
       <div className="m-chrome">
         <LiquidGlass radius={999} interactive className="m-player" {...overrides}>
           <div className="m-player__row">
-            <img src="/img/art3.jpg" className="m-player__art" alt="" />
+            <img src={`${import.meta.env.BASE_URL}img/art3.jpg`} className="m-player__art" alt="" />
             <div className="m-player__text">
               <b>All Of Me</b>
               <span>Nao</span>

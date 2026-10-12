@@ -21,9 +21,9 @@ export type GlassShape = {
 export type OpticsOptions = {
   /** Width of the curved rim in px. The plateau inside it is flat (no bend). */
   bezel: number
-  /** Height of the glass at the plateau in px. Taller glass = stronger bend. */
+  /** Finite, non-negative height at the plateau in px. Taller glass = stronger bend. */
   thickness: number
-  /** Index of refraction. Glass ≈ 1.5, water ≈ 1.33. */
+  /** Finite positive index of refraction. Glass ≈ 1.5, water ≈ 1.33. */
   ior: number
   profile: SurfaceProfile
 }
@@ -52,6 +52,9 @@ function profileHeight(profile: SurfaceProfile, t: number): number {
  * distances across the bezel.
  */
 export function refractionProfile({ bezel, thickness, ior, profile }: OpticsOptions): Float32Array {
+  if (!Number.isFinite(bezel) || bezel <= 0 || !Number.isFinite(thickness) || thickness < 0 || !Number.isFinite(ior) || ior <= 0) {
+    throw new RangeError("Glass optics require a finite positive bezel and ior, and a finite non-negative thickness")
+  }
   const out = new Float32Array(SAMPLES)
   const eta = 1 / ior
   const h = 1e-3
@@ -233,6 +236,7 @@ export function imageDataToUrl(data: ImageData | DisplacementMap): string {
  */
 export function buildInteriorMask(shape: GlassShape, bezel: number, dpr = 1): ImageData {
   const { width, height, radius } = clampShape(shape)
+  bezel = Math.max(1, Math.min(bezel, width / 2, height / 2))
   const W = Math.round(width * dpr)
   const H = Math.round(height * dpr)
   const img = new ImageData(W, H)

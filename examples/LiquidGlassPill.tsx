@@ -26,8 +26,10 @@ export function LiquidGlassPill() {
         </nav>
       </LiquidGlass>
 
-      <LiquidGlass radius={999} interactive className="h-16 w-16 shrink-0" role="button" aria-label="Search">
-        <span className="h-full flex items-center justify-center">🔍</span>
+      <LiquidGlass radius={999} interactive className="h-16 w-16 shrink-0">
+        <button type="button" aria-label="Search" className="h-full w-full rounded-full border-0 bg-transparent cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+          <span aria-hidden="true">🔍</span>
+        </button>
       </LiquidGlass>
     </div>
   )

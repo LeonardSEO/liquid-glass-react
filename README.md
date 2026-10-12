@@ -82,8 +82,11 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
 - **Light and dark tints**, or any CSS colour.
 - **SSR safe.** A frosted fallback renders on the server and upgrades on
   mount, without hydration mismatches.
-- **Cheap.** Maps are built once per size (a few ms for a pill, about
-  45 ms for a large panel) and cached; identical controls share them.
+- **Cached maps.** Identical controls share maps. New sizes and optical
+  settings generate maps synchronously; large panels and continuous
+  resizing can be expensive. SVG backdrop rendering still costs work
+  every frame, especially with dispersion. Many-element rendering has
+  not been benchmarked across browsers and devices.
 - **Zero dependencies.** React 18+ is the only peer dependency. ESM +
   CJS + TypeScript types, about 5 KB gzipped.
 
@@ -129,10 +132,18 @@ the package.
 **Round icon button**
 
 ```tsx
-<LiquidGlass radius={999} interactive role="button" aria-label="Search" className="h-16 w-16">
-  <SearchIcon />
+<LiquidGlass radius={999} interactive className="h-16 w-16">
+  <button type="button" aria-label="Search" onClick={openSearch}
+    className="h-full w-full rounded-full border-0 bg-transparent cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+    <SearchIcon aria-hidden="true" />
+  </button>
 </LiquidGlass>
 ```
+
+`interactive` adds a pointer animation to a `div`; it does not turn it
+into a button. Put a native button or link inside for keyboard access,
+activation and focus. The utility classes in these examples assume
+Tailwind; equivalent CSS works too.
 
 **Dark sheet / panel**
 
@@ -161,6 +172,10 @@ A full working version, including the stretch while it slides, is in
 
 ## Props
 
+For most uses, set the size with CSS and optionally choose `radius`,
+`tint` and `interactive`. The optical controls below are optional tuning;
+leave `bezel` and `thickness` unset to derive them from the measured size.
+
 | Prop | Default | Description |
 | --- | --- | --- |
 | `radius` | `32` | Corner radius in px. `999` for pills and circles. |
@@ -179,6 +194,33 @@ A full working version, including the stretch while it slides, is in
 
 Every other `div` prop (`className`, `style`, `onClick`, `role`, …) is
 passed through.
+
+### Responsive layout and geometry
+
+Width and height can use `rem`, `%`, `vw`, grid or flex layouts. The
+component measures the border box in CSS pixels and regenerates its maps
+when that box changes, including padding and borders. CSS pixels are the
+coordinate system of the generated filter, not physical device pixels.
+
+```tsx
+<LiquidGlass radius={999} style={{ width: "100%", maxWidth: "40rem", height: "4rem" }}>
+  <nav>…</nav>
+</LiquidGlass>
+```
+
+The geometry props (`radius`, `bezel`, `thickness`, `blur`) take numbers
+in CSS pixels. Explicit values stay fixed when the root font size
+changes; they do not accept `rem` strings or CSS variables. A design
+system that needs those values to follow font-relative tokens must
+resolve the tokens to CSS pixels and update the props. The default bezel
+adapts within its documented limits; it is not proportional scaling of
+every optical parameter.
+
+`ior` must be finite and greater than zero, and `thickness` must be finite
+and non-negative. Invalid optical inputs throw a `RangeError`. The map
+builders clamp the bezel to at least one CSS pixel and at most half the
+short side (with a one-pixel minimum); the low-level `refractionProfile`
+requires a finite positive bezel.
 
 ## How it works
 
@@ -324,6 +366,7 @@ affiliated with Apple.
 npm install
 npm run build      # tsup → dist/ (ESM, CJS, .d.ts, style.css)
 npm run typecheck
+npm test           # geometry regressions; Node 22.18+ or 24+
 cd demo && npm install && npm run dev
 ```
 

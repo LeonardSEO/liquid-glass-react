@@ -88,6 +88,7 @@ export function LiquidGlass({
   onPointerMove,
   onPointerUp,
   onPointerLeave,
+  onPointerCancel,
   ...rest
 }: LiquidGlassProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -107,12 +108,10 @@ export function LiquidGlass({
     }
     // Measure synchronously so the filter exists on first paint (and in
     // background tabs, where ResizeObserver may not fire until visible).
-    update(el.offsetWidth, el.offsetHeight)
-    const ro = new ResizeObserver(([entry]) => {
-      const box = entry.borderBoxSize?.[0]
-      update(box ? box.inlineSize : entry.contentRect.width, box ? box.blockSize : entry.contentRect.height)
-    })
-    ro.observe(el)
+    const measure = () => update(el.offsetWidth, el.offsetHeight)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el, { box: "border-box" })
     return () => ro.disconnect()
   }, [])
 
@@ -195,6 +194,10 @@ export function LiquidGlass({
       onPointerLeave={(e) => {
         setPressed(false)
         onPointerLeave?.(e)
+      }}
+      onPointerCancel={(e) => {
+        setPressed(false)
+        onPointerCancel?.(e)
       }}
       {...rest}
     >

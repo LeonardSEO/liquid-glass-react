@@ -38,7 +38,7 @@ export function Playground() {
       <Background />
       {original ? (
         <>
-          <LiquidGlassFilter mapSrc="/liquid-lens-map.png" />
+          <LiquidGlassFilter mapSrc={`${import.meta.env.BASE_URL}liquid-lens-map.png`} />
           <div style={{ position: "fixed", top: 16, left: 0, right: 0, margin: "0 auto", width: 700, zIndex: 50 }}>
             <nav className="liquid-glass" style={{ ...navStyle, height: 64, borderRadius: 32 }}>
               <b>Your Logo</b><span>Features · Pricing · About</span><span>Get started</span>

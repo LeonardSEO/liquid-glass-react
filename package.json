@@ -52,6 +52,7 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "prepublishOnly": "npm run typecheck && npm run build"
   },
   "peerDependencies": {
