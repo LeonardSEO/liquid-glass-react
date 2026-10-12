@@ -1,9 +1,11 @@
 import { BannerScene, MusicScene, SiriScene } from "./Scenes"
 import { Playground } from "./Playground"
+import { Website } from "./Website"
 
-const scene = new URLSearchParams(location.search).get("scene") ?? "all"
+const scene = new URLSearchParams(location.search).get("scene")
 
 export default function App() {
+  if (!scene) return <Website />
   if (scene === "banner") return <BannerScene />
   if (scene === "playground" || scene === "original") return <Playground />
   return (

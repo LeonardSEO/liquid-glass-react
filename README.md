@@ -23,9 +23,9 @@
 <p align="center">
   <strong>Try the live demo — no installation needed</strong><br/>
   <a href="https://leonardseo.github.io/liquid-glass-react/">https://leonardseo.github.io/liquid-glass-react/</a><br/>
-  <a href="https://leonardseo.github.io/liquid-glass-react/?scene=playground">Draggable playground</a> ·
-  <a href="https://leonardseo.github.io/liquid-glass-react/?scene=music">Music interface</a> ·
-  <a href="https://leonardseo.github.io/liquid-glass-react/?scene=siri">Siri panel</a>
+  <a href="https://leonardseo.github.io/liquid-glass-react/?page=lab">Glass lab</a> ·
+  <a href="https://leonardseo.github.io/liquid-glass-react/?page=showcase">Showcase</a> ·
+  <a href="https://leonardseo.github.io/liquid-glass-react/?page=classic">Classic demo</a>
 </p>
 
 ---
@@ -308,9 +308,9 @@ puts the bend in the wrong place.
 
 **[Open the live demo](https://leonardseo.github.io/liquid-glass-react/)** — no installation required.
 
-[Music](https://leonardseo.github.io/liquid-glass-react/?scene=music) ·
-[Siri panel](https://leonardseo.github.io/liquid-glass-react/?scene=siri) ·
-[Draggable playground](https://leonardseo.github.io/liquid-glass-react/?scene=playground)
+[Glass lab](https://leonardseo.github.io/liquid-glass-react/?page=lab) ·
+[Showcase](https://leonardseo.github.io/liquid-glass-react/?page=showcase) ·
+[Classic demo](https://leonardseo.github.io/liquid-glass-react/?page=classic)
 
 Chromium shows the full refraction effect; other browsers get the frosted
 fallback. The demo deploys to GitHub Pages after successful checks on `main`.
@@ -325,6 +325,10 @@ npm run dev
 
 | URL | Scene |
 | --- | --- |
+| `/` | Homepage with draggable glass and links to all demos |
+| `/?page=lab` | Squircle, orb and pill lenses; draggable with mouse, touch or arrow keys; live backdrop, refraction and frost controls |
+| `/?page=showcase` | Interactive artwork gallery, music interface and weather panel |
+| `/?page=classic` | The original Music and Siri collection |
 | `/?scene=music` | Apple Music style tab bar with sliding droplet, mini player and search button over album art |
 | `/?scene=siri` | Dark glass panel over a ribbon wallpaper |
 | `/?scene=playground` | Draggable lenses over text, stripes and a grid |
