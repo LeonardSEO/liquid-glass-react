@@ -22,10 +22,7 @@
 
 <p align="center">
   <strong>Try the live demo — no installation needed</strong><br/>
-  <a href="https://leonardseo.github.io/liquid-glass-react/">https://leonardseo.github.io/liquid-glass-react/</a><br/>
-  <a href="https://leonardseo.github.io/liquid-glass-react/?page=lab">Glass lab</a> ·
-  <a href="https://leonardseo.github.io/liquid-glass-react/?page=showcase">Showcase</a> ·
-  <a href="https://leonardseo.github.io/liquid-glass-react/?page=classic">Classic demo</a>
+  <a href="https://leonardseo.github.io/liquid-glass-react/">https://leonardseo.github.io/liquid-glass-react/</a>
 </p>
 
 ---
