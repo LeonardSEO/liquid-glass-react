@@ -298,6 +298,17 @@ puts the bend in the wrong place.
 
 ## Demo
 
+**[Open the live demo](https://leonardseo.github.io/liquid-glass-react/)** — no installation required.
+
+[Music](https://leonardseo.github.io/liquid-glass-react/?scene=music) ·
+[Siri panel](https://leonardseo.github.io/liquid-glass-react/?scene=siri) ·
+[Draggable playground](https://leonardseo.github.io/liquid-glass-react/?scene=playground)
+
+Chromium shows the full refraction effect; other browsers get the frosted
+fallback. The demo deploys to GitHub Pages after successful checks on `main`.
+
+To run locally:
+
 ```bash
 cd demo
 npm install
