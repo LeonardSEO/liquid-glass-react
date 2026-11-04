@@ -35,6 +35,34 @@ Alternative (no dependency): copy the three files from `assets/` into
 the project's components directory, next to each other, and import from
 there. That copy imports its own CSS.
 
+## Step 1b - Need real controls or your own element?
+
+Don't wrap interactive controls in the `div` component. Use one of these from
+the package (1.1 or later):
+
+- **Ready-made components:** Button, Tabs, Dialog and Card install as source
+  in shadcn projects with Tailwind v4, for example:
+  `npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-button.json`
+- **Your own element:** `useLiquidGlass(options)` returns `ref`, `rootProps`
+  and `wrap(children)`. Put all three on one element, or use
+  `<LiquidGlass render={<button type="button" />}>`.
+- **Tokens:** `radius="auto"` reads the CSS `border-radius`. `--lg-bezel`,
+  `--lg-thickness`, `--lg-blur`, `--lg-saturation` and `--lg-tint` set the
+  material from CSS.
+
+The copied files in `assets/` don't have these features and don't forward `ref`.
+
+Rules that apply to all of them:
+
+- One layer of glass per stack: nested glass has nothing to refract. Give
+  controls on a glass surface `--lg-backdrop-override: none` (the components do
+  this themselves).
+- Use `dispersion={0}` on small controls. With 50 in view while scrolling,
+  frame rate went from 33 to 59 fps in a software-rendered test.
+- Never declare `backdrop-filter` on `.lg` in CSS, because minifiers can reduce
+  it to the `-webkit-` form, which Chromium ignores. Set
+  `--lg-backdrop-override` instead.
+
 ## Step 2 - Wrap the element
 
 ```tsx

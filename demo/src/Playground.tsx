@@ -29,7 +29,7 @@ function Draggable({ x, y, children }: { x: number; y: number; children: React.R
   )
 }
 
-const navStyle = { height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px" } as const
+const navStyle = { height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", color: "var(--wallpaper-ink)" } as const
 
 export function Playground() {
   const original = params.get("scene") === "original"

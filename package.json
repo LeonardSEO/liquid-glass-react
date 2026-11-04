@@ -1,6 +1,6 @@
 {
   "name": "@vepando/liquid-glass-react",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Apple-style Liquid Glass for React: physically-based refraction (Snell's law), specular rim and touch-reactive glass via SVG backdrop-filter. No WebGL.",
   "license": "MIT",
   "author": "Leonard van Hemert",
@@ -52,19 +52,26 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs",
-    "prepublishOnly": "npm run typecheck && npm run build"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs && vitest run",
+    "prepublishOnly": "npm run typecheck && npm run build",
+    "registry:build": "npx shadcn@4.23.0 build registry.json --output demo/public/r"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@base-ui/react": "^1.9.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.3.0",
+    "jsdom": "^30.1.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.0"
   },
   "publishConfig": {
     "access": "public"

@@ -59,6 +59,7 @@
 }
 
 .lg__content {
+  display: block;
   position: relative;
   z-index: 4;
   height: 100%;
@@ -106,5 +107,64 @@
 @media (prefers-reduced-motion: reduce) {
   .lg {
     transition: none;
+  }
+}
+
+/*
+ * Accessibility. The engine sets backdrop-filter inline and reads
+ * --lg-backdrop-override first. Never declare backdrop-filter here: CSS
+ * minifiers such as Lightning CSS collapse a backdrop-filter and
+ * -webkit-backdrop-filter pair with equal values to the prefixed one alone,
+ * and Chromium ignores that, which silently removes the glass.
+ * !important is only for the tint mask, which is also set inline.
+ */
+@media (prefers-reduced-transparency: reduce) {
+  .lg {
+    --lg-backdrop-override: none;
+  }
+
+  .lg__tint {
+    background: rgb(245, 245, 247);
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+
+  .lg--dark .lg__tint {
+    background: rgb(22, 22, 24);
+  }
+
+  .lg__specular,
+  .lg__glow {
+    display: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .lg {
+    --lg-backdrop-override: blur(16px);
+    --lg-inner-shadow: inset 0 0 0 1.5px currentColor;
+  }
+
+  .lg__tint {
+    background: rgba(255, 255, 255, 0.9);
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+
+  .lg--dark .lg__tint {
+    background: rgba(8, 8, 10, 0.92);
+  }
+}
+
+@media (forced-colors: active) {
+  .lg {
+    --lg-backdrop-override: none;
+    outline: 1px solid CanvasText;
+  }
+
+  .lg__tint,
+  .lg__specular,
+  .lg__glow {
+    display: none;
   }
 }

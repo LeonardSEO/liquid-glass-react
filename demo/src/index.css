@@ -1,16 +1,15 @@
+/* macOS Tahoe wallpapers: the demo's backdrop everywhere, following the system theme. */
+:root{--wallpaper-light:url(/img/tahoe-light.jpg);--wallpaper-dark:url(/img/tahoe-dark.jpg);--wallpaper:var(--wallpaper-light);--wallpaper-ink:#10131c}
+@media (prefers-color-scheme:dark){:root{--wallpaper:var(--wallpaper-dark);--wallpaper-ink:#f7f8fc}}
 *{box-sizing:border-box}
 html,body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif;color:#111;background:#f2f2f5}
-.bg{position:relative;min-height:220vh;padding:140px 40px 80px;overflow:hidden}
-.blob{position:absolute;border-radius:50%;filter:blur(0px)}
+.bg{position:relative;min-height:220vh;padding:140px 40px 80px;overflow:hidden;background:var(--wallpaper) center/cover fixed;color:var(--wallpaper-ink)}
 .bigtext{font-size:120px;font-weight:800;line-height:.95;letter-spacing:-4px;margin:0}
 .para{max-width:760px;font-size:20px;line-height:1.5}
-.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.12) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.stripes{height:160px;background:repeating-linear-gradient(90deg,#ff3b30 0 20px,#ffcc00 20px 40px,#34c759 40px 60px,#007aff 60px 80px,#af52de 80px 100px);margin:40px 0;border-radius:12px}
-.checker{height:200px;background:conic-gradient(#111 25%,#fff 0 50%,#111 0 75%,#fff 0) 0 0/40px 40px;border-radius:12px;margin:40px 0}
 .toolbar{position:fixed;left:16px;bottom:16px;z-index:100;background:#fff;padding:6px 10px;border-radius:8px;font:12px monospace;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 
 /* ---------- Music scene ---------- */
-.stage{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;gap:40px;padding:24px;background:#e9e9ee;flex-wrap:wrap}
+.stage{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;gap:40px;padding:24px;background:var(--wallpaper) center/cover;flex-wrap:wrap}
 .phone{position:relative;width:402px;height:874px;border-radius:56px;overflow:hidden;background:#fff;box-shadow:0 0 0 10px #1c1c1e,0 30px 60px rgba(0,0,0,.25)}
 .phone__scroll{position:absolute;inset:0;overflow-y:auto;padding:60px 20px 260px}
 .phone__scroll::-webkit-scrollbar{display:none}
@@ -43,7 +42,7 @@ html,body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display"
 .m-search__icon{display:flex;align-items:center;justify-content:center;height:100%;color:#3a3a3c}
 
 /* ---------- Siri scene ---------- */
-.siri{position:relative;width:900px;max-width:100%;height:760px;border-radius:40px;overflow:hidden;background:url(/img/ribbons.jpg) center/cover;padding:80px 60px}
+.siri{position:relative;width:900px;max-width:100%;height:760px;border-radius:40px;overflow:hidden;background:var(--wallpaper) center/cover;padding:80px 60px}
 .siri__panel{padding:56px 44px 36px}
 .siri__text{color:#fff;font-size:40px;line-height:1.2;margin:0 0 40px;font-weight:500;letter-spacing:-.5px}
 .siri__card{display:flex;justify-content:space-between;padding:28px 32px;border-radius:40px;color:#fff;background:linear-gradient(180deg,#1677ff,#16c1ff)}
@@ -53,7 +52,7 @@ html,body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display"
 .siri__sun{font-size:40px;color:#ffd60a}
 
 /* ---------- Banner (docs/banner.png) ---------- */
-.banner{position:relative;width:1280px;height:480px;overflow:hidden;background:url(/img/ribbons.jpg) center 40%/cover}
+.banner{position:relative;width:1280px;height:480px;overflow:hidden;background:var(--wallpaper-dark) center 40%/cover}
 .lg.banner__title{position:absolute;left:96px;top:120px;height:150px;width:660px}
 .banner__titlerow{display:flex;align-items:center;gap:22px;height:100%;padding:0 48px;color:#fff;font-size:84px;font-weight:700;letter-spacing:-2.5px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
 .banner__logo{font-size:72px;opacity:.95}

@@ -14,7 +14,12 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "paths": {
-      "@vepando/liquid-glass-react": ["../src/index.ts"]
+      "@vepando/liquid-glass-react": ["../src/index.ts"],
+      "@/registry/*": ["../registry/*"],
+      "@/lib/utils": ["./src/lib/utils.ts"],
+      "@base-ui/react/*": ["./node_modules/@base-ui/react/*"],
+      "react": ["./node_modules/@types/react"],
+      "react/jsx-runtime": ["./node_modules/@types/react/jsx-runtime"]
     },
     "noEmit": true,
     "jsx": "react-jsx",
@@ -25,5 +30,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "../registry"]
 }

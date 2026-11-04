@@ -80,7 +80,7 @@ function Lens({ shape, stage, blur, refraction, selected, onSelect, compact }: {
 
 export function LensCanvas({ hero = false }: { hero?: boolean }) {
   const stage = useRef<HTMLDivElement>(null)
-  const [background, setBackground] = useState("grid")
+  const [background, setBackground] = useState("light")
   const [blur, setBlur] = useState(0)
   const [refraction, setRefraction] = useState(1.3)
   const [selected, setSelected] = useState("")
@@ -89,7 +89,7 @@ export function LensCanvas({ hero = false }: { hero?: boolean }) {
     <>
       {!hero && <div className="lab-tools">
         <fieldset className="surface-picker"><legend>Backdrop</legend>
-          {["grid", "ribbons", "type"].map((value) => <button type="button" key={value} aria-pressed={background === value} onClick={() => setBackground(value)}>{value}</button>)}
+          {["light", "dark", "type"].map((value) => <button type="button" key={value} aria-pressed={background === value} onClick={() => setBackground(value)}>{value}</button>)}
         </fieldset>
         <label>Refraction <output>{refraction.toFixed(1)}×</output><input aria-label="Refraction" type="range" min="0" max="2.5" step="0.1" value={refraction} onChange={(e) => setRefraction(Number(e.target.value))} /></label>
         <label>Frost <output>{blur}px</output><input aria-label="Frost" type="range" min="0" max="12" step="1" value={blur} onChange={(e) => setBlur(Number(e.target.value))} /></label>
@@ -97,7 +97,6 @@ export function LensCanvas({ hero = false }: { hero?: boolean }) {
       </div>}
       <div ref={stage} className={hero ? "hero-lenses" : `lab-canvas lab-canvas--${background}`} aria-label="Draggable glass canvas">
         {!hero && <div className="lab-art" aria-hidden="true">
-          <div className="lab-disc lab-disc--orange" /><div className="lab-disc lab-disc--violet" />
           <span className="lab-edition">THE MATERIAL STUDY / 001</span>
           <div className="lab-type">Liquid<br />in motion.</div>
           <p>Letters bend. Colours split.<br />A different perspective, wherever you move.</p>

@@ -1,4 +1,5 @@
 export { LiquidGlass, type LiquidGlassProps } from "./LiquidGlass"
+export { useLiquidGlass, type LiquidGlassHandle, type LiquidGlassOptions, type LiquidGlassRootProps } from "./useLiquidGlass"
 export {
   buildDisplacementMap,
   buildInteriorMask,

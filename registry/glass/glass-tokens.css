@@ -1,0 +1,106 @@
+/*
+ * Liquid Glass design tokens. Change the variables in :root and .dark to theme
+ * every glass component. Rules use `.lg.glass-*` so they win over the engine's
+ * own `.lg` defaults regardless of import order.
+ */
+
+:root {
+  --glass-radius-sm: 0.75rem;
+  --glass-radius-md: 1rem;
+  --glass-radius-lg: 1.5rem;
+  --glass-radius-xl: 2rem;
+
+  --glass-foreground: rgb(15, 15, 20);
+  --glass-muted-foreground: rgb(50, 50, 58);
+  --glass-primary: rgba(29, 78, 216, 0.92);
+  --glass-primary-foreground: rgb(255, 255, 255);
+  --glass-ring: rgb(37, 99, 235);
+  --glass-track: rgba(255, 255, 255, 0.72);
+
+  /* Small controls: mostly clear. Needs enough tint to keep labels readable. */
+  --glass-clear-tint: rgba(255, 255, 255, 0.62);
+  --glass-clear-blur: 6px;
+  /* Cards and toolbars. */
+  --glass-regular-tint: rgba(255, 255, 255, 0.66);
+  --glass-regular-blur: 14px;
+  /* Large surfaces with running text, such as dialogs. */
+  --glass-reading-tint: rgba(255, 255, 255, 0.82);
+  --glass-reading-blur: 28px;
+  /* Controls that sit on other glass and have no backdrop of their own. */
+  --glass-inset-tint: rgba(255, 255, 255, 0.5);
+}
+
+.dark,
+[data-theme="dark"] {
+  --glass-foreground: rgb(250, 250, 252);
+  --glass-muted-foreground: rgb(214, 214, 222);
+  --glass-primary: rgba(29, 78, 216, 0.95);
+  --glass-ring: rgb(147, 197, 253);
+  --glass-track: rgba(15, 15, 20, 0.72);
+  --glass-clear-tint: rgba(12, 12, 16, 0.66);
+  --glass-regular-tint: rgba(12, 12, 16, 0.8);
+  --glass-reading-tint: rgba(12, 12, 16, 0.84);
+  --glass-inset-tint: rgba(255, 255, 255, 0.14);
+}
+
+.lg.glass-clear,
+.lg.glass-regular,
+.lg.glass-reading,
+.lg.glass-inset {
+  color: var(--glass-foreground);
+}
+
+.lg.glass-clear,
+.lg.lg--fallback.glass-clear {
+  --lg-tint: var(--glass-clear-tint);
+  --lg-blur: var(--glass-clear-blur);
+}
+
+.lg.glass-regular,
+.lg.lg--fallback.glass-regular {
+  --lg-tint: var(--glass-regular-tint);
+  --lg-blur: var(--glass-regular-blur);
+  --lg-bezel: 12px;
+}
+
+.lg.glass-reading,
+.lg.lg--fallback.glass-reading {
+  --lg-tint: var(--glass-reading-tint);
+  --lg-blur: var(--glass-reading-blur);
+  --lg-bezel: 14px;
+}
+
+.lg.glass-inset,
+.lg.lg--fallback.glass-inset {
+  --lg-tint: var(--glass-inset-tint);
+  --lg-backdrop-override: none;
+}
+
+.lg.glass-primary,
+.lg.lg--fallback.glass-primary {
+  --lg-tint: var(--glass-primary);
+  color: var(--glass-primary-foreground);
+}
+
+/* The engine's solid fallbacks assume a light page unless tint="dark" is set. */
+@media (prefers-reduced-transparency: reduce) {
+  .dark .lg__tint,
+  [data-theme="dark"] .lg__tint {
+    background: rgb(22, 22, 24);
+  }
+
+  .lg.glass-primary .lg__tint {
+    background: rgb(29, 78, 216);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .dark .lg__tint,
+  [data-theme="dark"] .lg__tint {
+    background: rgba(8, 8, 10, 0.92);
+  }
+
+  .lg.glass-primary .lg__tint {
+    background: rgb(29, 78, 216);
+  }
+}

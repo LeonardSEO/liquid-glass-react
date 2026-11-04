@@ -10,21 +10,21 @@ const image = (name: string) => `${import.meta.env.BASE_URL}img/${name}.jpg`
 
 function Gallery() {
   const artworks = [
-    { title: "Late Bloomer", artist: "Tuck Ellis", image: "art1" },
-    { title: "Like A Ribbon", artist: "John Odell", image: "art2" },
-    { title: "Paper Suns", artist: "Halcyon", image: "art4" },
-    { title: "Night Swim", artist: "Moira", image: "art5" },
+    { title: "Day", artist: "macOS Tahoe", image: "tahoe-light", position: "center" },
+    { title: "Night", artist: "macOS Tahoe", image: "tahoe-dark", position: "center" },
+    { title: "Day, detail", artist: "macOS Tahoe", image: "tahoe-light", position: "100% 0%" },
+    { title: "Night, detail", artist: "macOS Tahoe", image: "tahoe-dark", position: "100% 100%" },
   ]
   const [index, setIndex] = useState(0)
   const artwork = artworks[index]
-  return <section className="gallery-scene" aria-label="Interactive artwork showcase" style={{ backgroundImage: `url(${image(artwork.image)})` }}>
+  return <section className="gallery-scene" aria-label="Interactive artwork showcase" style={{ backgroundImage: `url(${image(artwork.image)})`, backgroundPosition: artwork.position }}>
     <div className="gallery-heading"><span className="eyebrow">01 / THE LISTENING ROOM</span><h2>Artwork first.<br />Interface, lighter.</h2><p>Change the artwork. Watch the glass take on its colours.</p></div>
     <LiquidGlass radius={40} blur={8} tint="dark" className="gallery-player">
-      <div className="gallery-cover"><img src={image(artwork.image)} alt={`${artwork.title} album artwork`} /><span className="eyebrow">A STUDY IN SOUND & SURFACE</span></div>
+      <div className="gallery-cover"><img style={{ objectPosition: artwork.position }} src={image(artwork.image)} alt={`${artwork.title} album artwork`} /><span className="eyebrow">A STUDY IN SOUND & SURFACE</span></div>
       <div className="gallery-track" aria-live="polite"><span>SELECTED ARTWORK</span><h3>{artwork.title}</h3><p>{artwork.artist}</p></div>
       <div className="gallery-controls"><button type="button" aria-label="Previous artwork" onClick={() => setIndex((index + artworks.length - 1) % artworks.length)}>←</button><span>{String(index + 1).padStart(2, "0")} / 04</span><button type="button" aria-label="Next artwork" onClick={() => setIndex((index + 1) % artworks.length)}>→</button></div>
     </LiquidGlass>
-    <div className="gallery-choices" aria-label="Choose artwork">{artworks.map((art, i) => <button type="button" key={art.title} aria-label={`View ${art.title}`} aria-pressed={i === index} onClick={() => setIndex(i)}><img src={image(art.image)} alt="" /></button>)}</div>
+    <div className="gallery-choices" aria-label="Choose artwork">{artworks.map((art, i) => <button type="button" key={art.title} aria-label={`View ${art.title}`} aria-pressed={i === index} onClick={() => setIndex(i)}><img style={{ objectPosition: art.position }} src={image(art.image)} alt="" /></button>)}</div>
   </section>
 }
 
@@ -59,6 +59,6 @@ export function Website() {
       {page === "showcase" && <Showcase />}
       {page === "classic" && <><header className="page-intro"><span className="eyebrow">THE ORIGINAL DEMO</span><h1>The classic collection.</h1><p>Music and Siri, side by side. The original standalone scenes are still available.</p><div className="classic-links"><a href="?scene=music">Music ↗</a><a href="?scene=siri">Siri ↗</a><a href="?scene=playground">Playground ↗</a><a href="?scene=original">v1 comparison ↗</a></div></header><div className="stage classic-stage"><MusicScene /><SiriScene /></div></>}
     </main>
-    <footer className="site-footer"><a href="?page=overview">◐ Liquid Glass</a><p>Full refraction in Chromium. Frosted glass in other browsers.</p><a href={repository}>Open source · MIT ↗</a></footer>
+    <footer className="site-footer"><a href="?page=overview">◐ Liquid Glass</a><p>Full refraction in Chromium. Frosted glass in other browsers. <a href="?scene=ui">See the components</a>.</p><a href={repository}>Open source · MIT ↗</a></footer>
   </div>
 }

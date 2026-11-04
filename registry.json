@@ -1,0 +1,53 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "liquid-glass",
+  "homepage": "https://leonardseo.github.io/liquid-glass-react/",
+  "items": [
+    {
+      "name": "glass-material",
+      "type": "registry:ui",
+      "title": "Glass material",
+      "description": "Design tokens and the shared hook behind every Liquid Glass component.",
+      "dependencies": ["@vepando/liquid-glass-react@^1.1.0"],
+      "files": [
+        { "path": "registry/glass/glass-material.ts", "type": "registry:ui" },
+        { "path": "registry/glass/glass-tokens.css", "type": "registry:ui" }
+      ]
+    },
+    {
+      "name": "glass-button",
+      "type": "registry:ui",
+      "title": "Glass Button",
+      "description": "A real button in Liquid Glass, with primary and secondary variants, loading and disabled states.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["utils", "https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-button.tsx", "type": "registry:ui" }]
+    },
+    {
+      "name": "glass-tabs",
+      "type": "registry:ui",
+      "title": "Glass Tabs",
+      "description": "Keyboard-accessible tabs with a moving glass indicator.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["utils", "https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-tabs.tsx", "type": "registry:ui" }]
+    },
+    {
+      "name": "glass-dialog",
+      "type": "registry:ui",
+      "title": "Glass Dialog",
+      "description": "A modal dialog on a readable glass surface. Glass buttons inside it render as inset glass.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["utils", "https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-dialog.tsx", "type": "registry:ui" }]
+    },
+    {
+      "name": "glass-card",
+      "type": "registry:ui",
+      "title": "Glass Card",
+      "description": "A glass panel with header, content and footer. Glass buttons inside it render as inset glass.",
+      "registryDependencies": ["utils", "https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-card.tsx", "type": "registry:ui" }]
+    }
+  ]
+}

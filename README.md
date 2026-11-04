@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.jpg" alt="Liquid Glass for React: glass pills and orbs refracting a ribbon wallpaper" width="100%" />
+  <img src="docs/banner.jpg" alt="Liquid Glass for React: glass pills and orbs refracting the macOS Tahoe wallpaper" width="100%" />
 </p>
 
 <h1 align="center">Liquid Glass for React</h1>
@@ -59,7 +59,9 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
 - [Features](#features)
 - [Install](#install)
 - [Usage](#usage)
+- [UI components](#ui-components)
 - [Props](#props)
+- [Building your own components](#building-your-own-components)
 - [How it works](#how-it-works)
 - [Browser support](#browser-support)
 - [Gotchas](#gotchas)
@@ -175,6 +177,54 @@ glass as a *sibling* positioned over the outer one, not as a child (see
 A full working version, including the stretch while it slides, is in
 [`demo/src/Scenes.tsx`](demo/src/Scenes.tsx).
 
+## UI components
+
+Ready-made, themeable components for real apps: **Button, Tabs, Dialog and
+Card**. They are built on [Base UI](https://base-ui.com) for keyboard and
+screen reader behaviour, and installed as source code through the
+[shadcn](https://ui.shadcn.com) CLI, so they live in your project and you
+(or your coding agent) can change them.
+
+```bash
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-button.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tabs.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-dialog.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-card.json
+```
+
+This needs a project set up for shadcn with Tailwind CSS v4. The tokens
+come along in `components/ui/glass-tokens.css`: change the variables there
+to theme everything, including dark mode through a `.dark` class or
+`data-theme="dark"` on `<html>`.
+
+```tsx
+import { GlassButton } from "@/components/ui/glass-button"
+
+<GlassButton variant="primary">Save</GlassButton>
+<GlassButton loading>Saving</GlassButton>
+```
+
+Materials set how much the glass gives way to legibility:
+
+| Material | Used for | Character |
+| --- | --- | --- |
+| `clear` | Buttons, tab indicator | Light blur, no colour dispersion |
+| `regular` | Cards | More blur and tint |
+| `reading` | Dialogs | Mostly opaque, for running text |
+
+**One layer of glass per stack.** A `backdrop-filter` hides the page from
+everything inside it, so glass nested in glass has nothing to refract.
+`GlassCard` and `GlassDialogContent` handle this for you: a `GlassButton`
+inside them switches to inset glass, which keeps the rim and tint but has no
+backdrop of its own. For the same reason the track of `GlassTabsList` is not
+glass, so the indicator moving over it can refract.
+
+**Performance.** Measured with 50 elements in view while scrolling, colour
+dispersion was the main frame cost, so `clear` turns it off. Maps are built
+once per distinct size and shared, so a page of uniform controls is cheap.
+Fifty *different* sizes at once take noticeably longer on slow devices (about
+225 ms under 4× CPU throttling, in one block on first render).
+
 ## Props
 
 For most uses, set the size with CSS and optionally choose `radius`,
@@ -183,22 +233,47 @@ leave `bezel` and `thickness` unset to derive them from the measured size.
 
 | Prop | Default | Description |
 | --- | --- | --- |
-| `radius` | `32` | Corner radius in px. `999` for pills and circles. |
-| `bezel` | auto | Width of the curved, light-bending rim. Auto ≈ ¼ of the short side, capped by `radius` and 56. |
-| `thickness` | `1.5 × bezel` | Glass height. Taller glass bends more. |
+| `radius` | `32` | Corner radius in px. `999` for pills and circles. `"auto"` reads the CSS `border-radius`, so `rem` and tokens work. |
+| `bezel` | auto | Width of the curved, light-bending rim. Auto uses the `--lg-bezel` CSS variable if set, else ≈ ¼ of the short side, capped by `radius` and 56. |
+| `thickness` | `1.5 × bezel` | Glass height. Taller glass bends more. Can also come from `--lg-thickness`. |
 | `ior` | `1.5` | Index of refraction (water ≈ 1.33). |
 | `profile` | `"squircle"` | Rim surface: `"squircle"`, `"circle"` or `"lip"`. |
 | `refraction` | `1` | Multiplier on top of the physical bend. |
 | `dispersion` | `0.06` | Colour separation. `0` disables it (single filter pass). |
-| `blur` | `3` | Frost in px. `0` = perfectly clear glass. |
-| `saturation` | `1.5` | Backdrop vibrancy. |
+| `blur` | `3` | Frost in px. `0` = perfectly clear glass. Can also come from `--lg-blur`. |
+| `saturation` | `1.5` | Backdrop vibrancy. Can also come from `--lg-saturation`. |
 | `tint` | `"light"` | `"light"`, `"dark"` or any CSS colour. |
 | `specular` | `1` | Edge highlight strength, 0-1. |
 | `lightAngle` | `-135` | Light direction in degrees (-90 = top, -135 = top-left). |
 | `interactive` | `false` | Press-to-grow and touch glow. |
+| `render` | - | Render as another element, e.g. `render={<button type="button" />}`. |
 
 Every other `div` prop (`className`, `style`, `onClick`, `role`, …) is
-passed through.
+passed through, and `ref` reaches the element.
+
+## Building your own components
+
+`useLiquidGlass` gives you the engine without the `div`, for use with Base UI,
+Radix or your own markup. It takes the same options as the props above, with
+`radius` defaulting to `"auto"`.
+
+```tsx
+import { Button } from "@base-ui/react/button"
+import { useLiquidGlass } from "@vepando/liquid-glass-react"
+
+function GlassButton({ children }) {
+  const glass = useLiquidGlass()
+  return (
+    <Button ref={glass.ref} {...glass.rootProps} className={`${glass.rootProps.className} rounded-full`}>
+      {glass.wrap(children)}
+    </Button>
+  )
+}
+```
+
+`ref` must reach the DOM element, and `wrap` must be its only child. If you
+pass your own `className`, `style` or pointer handlers, merge them with
+`rootProps` (Base UI's `mergeProps` does this).
 
 ### Responsive layout and geometry
 
@@ -265,6 +340,10 @@ The deep dive is in
 | **WebKit**: Safari and every iOS browser | Frosted fallback: blur, tint and specular rim, no refraction |
 | **Gecko**: Firefox | Same frosted fallback |
 
+The stylesheet also responds to `prefers-reduced-transparency` (solid
+surface), `prefers-contrast: more` (near-opaque surface with a visible edge),
+`forced-colors` and `prefers-reduced-motion`.
+
 Only Blink renders SVG filters referenced from `backdrop-filter`. The
 other engines accept the syntax but draw nothing, so a CSS cascade
 fallback isn't reliable there. The component detects Blink and only adds
@@ -282,6 +361,11 @@ fallback isn't reliable there. The component detects Blink and only adds
   an inner layer. `transform` and `overflow: hidden` are fine.
 - **Glass inside glass can't see the outer glass's refraction.** Use
   siblings positioned on top (see [Usage](#usage)).
+- **Don't declare `backdrop-filter` on `.lg` in your own CSS.** Minifiers
+  such as Lightning CSS (the Vite 8 default) can collapse a
+  `backdrop-filter` and `-webkit-backdrop-filter` pair with equal values to
+  the prefixed one alone, which Chromium ignores. To replace the filter, set
+  `--lg-backdrop-override` instead.
 - **Give the glass something to bend.** Over a flat colour, any glass
   looks like a tinted rectangle. Refraction shows over images, text and
   edges.
@@ -327,7 +411,7 @@ npm run dev
 | `/?page=showcase` | Interactive artwork gallery, music interface and weather panel |
 | `/?page=classic` | The original Music and Siri collection |
 | `/?scene=music` | Apple Music style tab bar with sliding droplet, mini player and search button over album art |
-| `/?scene=siri` | Dark glass panel over a ribbon wallpaper |
+| `/?scene=siri` | Dark glass panel over the macOS Tahoe wallpaper |
 | `/?scene=playground` | Draggable lenses over text, stripes and a grid |
 | `/?scene=banner` | The header image of this README |
 | `/?scene=original` | The v1 technique, for comparison |
@@ -364,7 +448,8 @@ troubleshooting table for the common failure modes.
 ## Repository layout
 
 ```
-src/                  the package: LiquidGlass.tsx · maps.ts · liquid-glass.css · index.ts
+src/                  the package: LiquidGlass.tsx · useLiquidGlass.tsx · maps.ts · liquid-glass.css · index.ts
+registry/glass/       source of the UI components; registry.json lists them for the shadcn CLI
 dist/                 build output (npm run build), published to npm
 examples/             LiquidGlassPill.tsx
 demo/                 Vite + React showcase
@@ -380,15 +465,24 @@ The refraction model follows the approach described by kube.io in
 Liquid Glass is a design language by Apple; this project is not
 affiliated with Apple.
 
+The macOS Tahoe wallpapers in `demo/public/img/` and in the images in `docs/`
+are Apple's. They are only used for the demo and are not covered by this
+project's MIT license or included in the npm package.
+
 ## Development
 
 ```bash
 npm install
 npm run build      # tsup → dist/ (ESM, CJS, .d.ts, style.css)
 npm run typecheck
-npm test           # geometry regressions; Node 22.18+ or 24+
+npm test           # geometry and component tests; Node 22.18+ or 24+
+npm run registry:build  # shadcn registry → demo/public/r
 cd demo && npm install && npm run dev
 ```
+
+The components are at `?scene=ui` in the demo, and `?scene=bench&mode=dense`
+(also `same`, `varied`, `panel`, `move`, `resize`, `scroll`, `nest`) is the
+measuring page.
 
 Publishing: `npm publish` (runs typecheck and build first via
 `prepublishOnly`).
