@@ -82,6 +82,12 @@
   color: var(--glass-primary-foreground);
 }
 
+/* A coloured surface keeps its edge: without this the tint fades out across the rim into a halo. */
+.lg.glass-primary .lg__tint {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
 /* The engine's solid fallbacks assume a light page unless tint="dark" is set. */
 @media (prefers-reduced-transparency: reduce) {
   .dark .lg__tint,

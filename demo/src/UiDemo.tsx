@@ -15,15 +15,17 @@ import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "@/re
 
 const params = new URLSearchParams(location.search)
 
-const wallpaper = (name: string) => ({ background: `url(${import.meta.env.BASE_URL}img/${name}.jpg) center / cover fixed` })
+type Backdrop = "wallpaper" | "stripes" | "solid"
+type Theme = "light" | "dark"
 
-const backgrounds = {
-  photo: {},
-  stripes: { background: "repeating-linear-gradient(45deg, #111 0 14px, #fff 14px 28px)" },
-  light: { background: "#f4f4f5" },
-  dark: { background: "#0b0b0f" },
+const backdropStyle = (backdrop: Backdrop, theme: Theme) => {
+  if (backdrop === "stripes") return { background: "repeating-linear-gradient(45deg, #111 0 14px, #fff 14px 28px)" }
+  if (backdrop === "solid") return { background: theme === "dark" ? "#0b0b0f" : "#f4f4f5" }
+  return { background: `url(${import.meta.env.BASE_URL}img/tahoe-${theme}.jpg) center / cover fixed` }
 }
-type Background = keyof typeof backgrounds
+
+const darkScheme = window.matchMedia("(prefers-color-scheme: dark)")
+const systemTheme = (): Theme => (darkScheme.matches ? "dark" : "light")
 
 const stress = params.has("stress")
 const repository = "https://leonardseo.github.io/liquid-glass-react/r"
@@ -43,26 +45,44 @@ function Example({ title, item, code, children }: { title: string; item: string;
 const panelText = "rounded-2xl bg-(--glass-track) p-4 text-sm text-(--glass-foreground)"
 
 export function UiDemo() {
-  const [background, setBackground] = useState<Background>((params.get("bg") as Background) ?? "photo")
-  const [dark, setDark] = useState(params.get("theme") === "dark")
+  const [backdrop, setBackdrop] = useState<Backdrop>((params.get("bg") as Backdrop) ?? "wallpaper")
+  // Follows the system until the visitor picks a theme here.
+  const [chosenTheme, setChosenTheme] = useState<Theme | null>(params.get("theme") as Theme | null)
+  const [system, setSystem] = useState(systemTheme)
+  const theme = chosenTheme ?? system
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark)
+    const update = () => setSystem(systemTheme())
+    darkScheme.addEventListener("change", update)
+    return () => darkScheme.removeEventListener("change", update)
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark")
     return () => document.documentElement.classList.remove("dark")
-  }, [dark])
+  }, [theme])
 
   return (
-    <main className="flex min-h-screen flex-col items-start gap-10 p-10 font-sans" style={{ ...(background === "photo" ? wallpaper(dark ? "tahoe-dark" : "tahoe-light") : backgrounds[background]), minHeight: stress ? "400vh" : undefined }}>
+    <main
+      className="flex min-h-screen flex-col items-start gap-10 p-10 font-sans"
+      style={{ ...backdropStyle(backdrop, theme), minHeight: stress ? "400vh" : undefined }}
+    >
       <h1 className="rounded-full bg-(--glass-track) px-4 py-2 text-xl font-semibold text-(--glass-foreground)">Liquid Glass components</h1>
-      <section aria-label="Demo settings" className="flex flex-wrap gap-2">
-        {(Object.keys(backgrounds) as Background[]).map((name) => (
-          <GlassButton key={name} size="sm" aria-pressed={name === background} onClick={() => setBackground(name)}>
-            {name}
-          </GlassButton>
-        ))}
-        <GlassButton size="sm" aria-pressed={dark} onClick={() => setDark(!dark)}>
-          dark theme
-        </GlassButton>
+      <section aria-label="Demo settings" className="flex flex-wrap items-center gap-6">
+        <div role="group" aria-label="Theme" className="flex gap-2">
+          {(["light", "dark"] as const).map((name) => (
+            <GlassButton key={name} size="sm" className="capitalize" variant={theme === name ? "primary" : "secondary"} aria-pressed={theme === name} onClick={() => setChosenTheme(name)}>
+              {name}
+            </GlassButton>
+          ))}
+        </div>
+        <div role="group" aria-label="Backdrop" className="flex gap-2">
+          {(["wallpaper", "stripes", "solid"] as const).map((name) => (
+            <GlassButton key={name} size="sm" className="capitalize" variant={backdrop === name ? "primary" : "secondary"} aria-pressed={backdrop === name} onClick={() => setBackdrop(name)}>
+              {name}
+            </GlassButton>
+          ))}
+        </div>
       </section>
 
       {stress && (
