@@ -14,8 +14,8 @@
   --glass-muted-foreground: rgb(50, 50, 58);
   --glass-primary: rgba(29, 78, 216, 0.92);
   --glass-primary-foreground: rgb(255, 255, 255);
-  --glass-accent: rgb(0, 72, 190);
-  --glass-tab-pill: rgba(255, 255, 255, 0.62);
+  --glass-accent: rgb(0, 100, 225);
+  --glass-tab-pill: rgba(110, 110, 116, 0.38);
   --glass-ring: rgb(37, 99, 235);
   --glass-track: rgba(255, 255, 255, 0.72);
 
@@ -29,7 +29,7 @@
   --glass-muted-foreground: rgb(214, 214, 222);
   --glass-primary: rgba(29, 78, 216, 0.95);
   --glass-accent: rgb(160, 210, 255);
-  --glass-tab-pill: rgba(0, 0, 0, 0.5);
+  --glass-tab-pill: rgba(255, 255, 255, 0.16);
   --glass-ring: rgb(147, 197, 253);
   --glass-track: rgba(15, 15, 20, 0.72);
   --glass-inset-tint: rgba(255, 255, 255, 0.14);
@@ -88,6 +88,21 @@
   }
 }
 
+/* Bars and players: the backdrop stays recognisable under a light frost. */
+.lg.glass-bar {
+  --lg-blur: 7px;
+  --lg-saturation: 1.1;
+  --lg-tint: rgba(250, 250, 250, 0.4);
+  --lg-preset-brightness: 1;
+  --lg-specular-opacity: 0.35;
+}
+
+:is(.dark, [data-theme="dark"]) .lg.glass-bar {
+  --lg-tint: rgba(30, 30, 32, 0.42);
+  --lg-preset-brightness: 0.9;
+  --lg-specular-opacity: 0.15;
+}
+
 .glass-tab-bar {
   position: relative;
   display: inline-block;
@@ -105,7 +120,6 @@
   z-index: 1;
   border-radius: 9999px;
   background: var(--glass-tab-pill);
-  box-shadow: inset 0 0 0 0.5px rgba(120, 120, 128, 0.35);
   pointer-events: none;
 }
 

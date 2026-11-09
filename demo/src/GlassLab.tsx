@@ -87,7 +87,7 @@ function Lens({ shape, stage, variant, tint, interactive, radius, selected, onSe
 export function LensCanvas({ hero = false }: { hero?: boolean }) {
   const stage = useRef<HTMLDivElement>(null)
   const [background, setBackground] = useState("light")
-  const [variant, setVariant] = useState<GlassVariant>("regular")
+  const [variant, setVariant] = useState<GlassVariant>("clear")
   const [tint, setTint] = useState<string | undefined>(undefined)
   const [interactive, setInteractive] = useState(true)
   const [radius, setRadius] = useState(MAX_RADIUS)
@@ -109,7 +109,7 @@ export function LensCanvas({ hero = false }: { hero?: boolean }) {
           <button type="button" aria-pressed={interactive} onClick={() => setInteractive((on) => !on)}>{interactive ? "On" : "Off"}</button>
         </fieldset>
         <label>Corner radius <output>{radius === MAX_RADIUS ? "Auto" : `${radius}px`}</output><input aria-label="Corner radius" type="range" min="0" max={MAX_RADIUS} step="2" value={radius} onChange={(e) => setRadius(Number(e.target.value))} /></label>
-        <button type="button" className="text-button" onClick={() => { setReset((n) => n + 1); setVariant("regular"); setTint(undefined); setInteractive(true); setRadius(MAX_RADIUS); setSelected("") }}>Reset lenses ↺</button>
+        <button type="button" className="text-button" onClick={() => { setReset((n) => n + 1); setVariant("clear"); setTint(undefined); setInteractive(true); setRadius(MAX_RADIUS); setSelected("") }}>Reset lenses ↺</button>
       </div>}
       <div ref={stage} className={hero ? "hero-lenses" : `lab-canvas lab-canvas--${background}`} aria-label="Draggable glass canvas">
         {!hero && <div className="lab-art" aria-hidden="true">

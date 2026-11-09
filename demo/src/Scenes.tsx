@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { LiquidGlass, type LiquidGlassProps } from "@vepando/liquid-glass-react"
+import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
 
 const params = new URLSearchParams(location.search)
 const num = (k: string) => (params.has(k) ? Number(params.get(k)) : undefined)
@@ -44,20 +45,13 @@ const albums = [
 ]
 
 export function MusicScene() {
-  const [tab, setTab] = useState(0)
-  const [moving, setMoving] = useState(false)
-  const select = (i: number) => {
-    if (i === tab) return
-    setTab(i)
-    setMoving(true)
-    window.setTimeout(() => setMoving(false), 320)
-  }
+  const [tab, setTab] = useState("home")
   const tabs = [
-    [Icon.home, "Home"],
-    [Icon.grid, "New"],
-    [Icon.radio, "Radio"],
-    [Icon.lib, "Library"],
-  ] as const
+    { value: "home", label: "Home", icon: Icon.home },
+    { value: "new", label: "New", icon: Icon.grid },
+    { value: "radio", label: "Radio", icon: Icon.radio },
+    { value: "library", label: "Library", icon: Icon.lib },
+  ]
   return (
     <div className="phone">
       <div className="phone__scroll">
@@ -85,7 +79,7 @@ export function MusicScene() {
       </div>
 
       <div className="m-chrome">
-        <LiquidGlass radius={999} interactive className="m-player" {...overrides}>
+        <LiquidGlass radius={999} interactive className="m-player glass-bar" {...overrides}>
           <div className="m-player__row">
             <img src={`${import.meta.env.BASE_URL}img/art3.jpg`} className="m-player__art" alt="" />
             <div className="m-player__text">
@@ -98,24 +92,8 @@ export function MusicScene() {
         </LiquidGlass>
 
         <div className="m-tabrow">
-          <LiquidGlass radius={999} className="m-tabbar" {...overrides}>
-            <div className="m-tabs">
-              {tabs.map(([icon, label], i) => (
-                <button key={label} className={"m-tab" + (i === tab ? " m-tab--on" : "")} onClick={() => select(i)}>
-                  {icon}
-                  <span>{label}</span>
-                </button>
-              ))}
-            </div>
-          </LiquidGlass>
-          {/* The selection droplet is a sibling painted over the tab bar, so its
-              backdrop includes the bar and its icons - which it magnifies. */}
-          <div className="m-dropzone" style={{ "--i": tab } as React.CSSProperties}>
-            <div className={"m-drop" + (moving ? " m-drop--moving" : "")}>
-              <LiquidGlass radius={999} variant="clear" className="m-drop__glass" {...overrides} />
-            </div>
-          </div>
-          <LiquidGlass radius={999} interactive className="m-search" {...overrides}>
+          <GlassTabBar className="m-tabbar" aria-label="Sections" items={tabs} value={tab} onValueChange={setTab} />
+          <LiquidGlass radius={999} interactive className="m-search glass-bar" {...overrides}>
             <div className="m-search__icon">{Icon.search}</div>
           </LiquidGlass>
         </div>
@@ -127,7 +105,7 @@ export function MusicScene() {
 export function SiriScene() {
   return (
     <div className="siri">
-      <LiquidGlass radius={56} className="siri__panel dark" {...overrides}>
+      <LiquidGlass variant="clear" radius={56} className="siri__panel dark" {...overrides}>
         <p className="siri__text">It'll be fantastic weather for your upcoming tennis lesson this Sunday.</p>
         <div className="siri__card">
           <div>
@@ -148,18 +126,18 @@ export function SiriScene() {
 export function BannerScene() {
   return (
     <div className="banner">
-      <LiquidGlass radius={999} variant="clear" className="banner__title">
+      <LiquidGlass variant="clear" radius={999} className="banner__title">
         <div className="banner__titlerow">
           <span className="banner__logo">◐</span>
           <span>Liquid Glass</span>
         </div>
       </LiquidGlass>
-      <LiquidGlass radius={999} className="banner__sub dark">
+      <LiquidGlass variant="clear" radius={999} className="banner__sub dark">
         <div className="banner__subrow">Physically-based refraction for React · no WebGL</div>
       </LiquidGlass>
-      <LiquidGlass radius={999} className="banner__orb banner__orb--a" />
-      <LiquidGlass radius={999} className="banner__orb banner__orb--b" />
-      <LiquidGlass radius={40} className="banner__card" />
+      <LiquidGlass variant="clear" radius={999} className="banner__orb banner__orb--a" />
+      <LiquidGlass variant="clear" radius={999} className="banner__orb banner__orb--b" />
+      <LiquidGlass variant="clear" radius={40} className="banner__card" />
     </div>
   )
 }

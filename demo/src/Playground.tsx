@@ -49,15 +49,15 @@ export function Playground() {
       ) : (
         <>
           <div style={{ position: "fixed", top: 16, left: 0, right: 0, margin: "0 auto", width: "min(700px, calc(100% - 32px))", zIndex: 50 }}>
-            <LiquidGlass radius={32} style={{ height: 64 }} {...overrides}>
+            <LiquidGlass variant="clear" radius={32} style={{ height: 64 }} {...overrides}>
               <nav style={navStyle}><b>Your Logo</b><span>Features · Pricing · About</span><span>Get started</span></nav>
             </LiquidGlass>
           </div>
           <Draggable x={num("lx", 470)} y={num("ly", 130)}>
-            <LiquidGlass radius={num("radius", 60)} interactive style={{ width: num("lw", 260), height: num("lh", 260) }} {...overrides} />
+            <LiquidGlass variant="clear" radius={num("radius", 60)} interactive style={{ width: num("lw", 260), height: num("lh", 260) }} {...overrides} />
           </Draggable>
           <Draggable x={80} y={440}>
-            <LiquidGlass radius={999} interactive style={{ width: 120, height: 120 }} {...overrides} />
+            <LiquidGlass variant="clear" radius={999} interactive style={{ width: 120, height: 120 }} {...overrides} />
           </Draggable>
         </>
       )}

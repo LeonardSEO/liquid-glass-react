@@ -70,7 +70,7 @@ function ItemContent({ item }: { item: GlassTabBarItem }) {
  */
 export function GlassTabBar({ items, value, onValueChange, material = "regular", className, style, "aria-label": ariaLabel }: GlassTabBarProps) {
   const bar = useGlassSurface<HTMLDivElement>({ material })
-  const lens = useLiquidGlass({ variant: "lens", blur: 0, tint: "rgba(255,255,255,0.04)", radius: "auto" })
+  const lens = useLiquidGlass({ variant: "lens", blur: 0, dispersion: 0.14, tint: "rgba(255,255,255,0.04)", radius: "auto" })
 
   const [current, setCurrent] = useState(value)
   const [size, setSize] = useState({ width: 0, height: 0, slot: 0 })
@@ -369,7 +369,7 @@ export function GlassTabBar({ items, value, onValueChange, material = "regular",
       onPointerCancel={(event) => finishDrag(event, true)}
       onClick={onClick}
     >
-      <div {...bar.rootProps} ref={bar.ref} style={barStyle} aria-hidden="true">
+      <div {...bar.rootProps} ref={bar.ref} className={`${bar.rootProps.className} glass-bar`} style={barStyle} aria-hidden="true">
         {bar.wrap()}
       </div>
       <span ref={pill} className="glass-tab-bar__pill" aria-hidden="true" style={{ width: slot || undefined, height: height ? height - PAD * 2 : undefined }} />

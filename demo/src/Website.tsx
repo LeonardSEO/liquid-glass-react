@@ -20,7 +20,7 @@ function Gallery() {
   const artwork = artworks[index]
   return <section className="gallery-scene" aria-label="Interactive artwork showcase" style={{ backgroundImage: `url(${image(artwork.image)})`, backgroundPosition: artwork.position }}>
     <div className="gallery-heading"><span className="eyebrow">01 / THE LISTENING ROOM</span><h2>Artwork first.<br />Interface, lighter.</h2><p>Change the artwork. Watch the glass take on its colours.</p></div>
-    <LiquidGlass radius={40} className="gallery-player dark">
+    <LiquidGlass variant="clear" radius={40} className="gallery-player dark">
       <div className="gallery-cover"><img style={{ objectPosition: artwork.position }} src={image(artwork.image)} alt={`${artwork.title} album artwork`} /><span className="eyebrow">A STUDY IN SOUND & SURFACE</span></div>
       <div className="gallery-track" aria-live="polite"><span>SELECTED ARTWORK</span><h3>{artwork.title}</h3><p>{artwork.artist}</p></div>
       <div className="gallery-controls"><button type="button" aria-label="Previous artwork" onClick={() => setIndex((index + artworks.length - 1) % artworks.length)}>←</button><span>{String(index + 1).padStart(2, "0")} / 04</span><button type="button" aria-label="Next artwork" onClick={() => setIndex((index + 1) % artworks.length)}>→</button></div>
