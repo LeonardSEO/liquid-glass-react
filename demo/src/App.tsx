@@ -1,7 +1,6 @@
 import { Suspense, lazy } from "react"
 import { Bench } from "./Bench"
 import { BannerScene, MusicScene, SiriScene } from "./Scenes"
-import { OriginalDemo } from "./original/OriginalDemo"
 import { Playground } from "./Playground"
 import { params } from "./urlParams"
 import { Website } from "./Website"
@@ -12,7 +11,7 @@ const UiDemo = lazy(() => import("./UiDemo").then((m) => ({ default: m.UiDemo })
 const scene = params.get("scene")
 
 export default function App() {
-  if (!scene) return <Website />
+  if (!scene || !["all", "music", "siri", "ui", "bench", "banner", "playground"].includes(scene)) return <Website />
   if (scene === "ui")
     return (
       <Suspense fallback={null}>
@@ -22,7 +21,6 @@ export default function App() {
   if (scene === "bench") return <Bench />
   if (scene === "banner") return <BannerScene />
   if (scene === "playground") return <Playground />
-  if (scene === "original") return <OriginalDemo />
   return (
     <div className="stage">
       {(scene === "all" || scene === "music") && <MusicScene />}

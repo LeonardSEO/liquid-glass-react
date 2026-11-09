@@ -68,7 +68,6 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
 - [Gotchas](#gotchas)
 - [Static / zero-JS variant](#static--zero-js-variant)
 - [Demo](#demo)
-- [Before and after](#before-and-after)
 - [Credits](#credits)
 
 ## Features
@@ -375,8 +374,7 @@ puts the bend in the wrong place.
 **[Open the live demo](https://leonardseo.github.io/liquid-glass-react/)** — no installation required.
 
 [Glass lab](https://leonardseo.github.io/liquid-glass-react/?page=lab) ·
-[Showcase](https://leonardseo.github.io/liquid-glass-react/?page=showcase) ·
-[Classic demo](https://leonardseo.github.io/liquid-glass-react/?page=classic)
+[Showcase](https://leonardseo.github.io/liquid-glass-react/?page=showcase)
 
 Chromium shows the full refraction effect; other browsers get the frosted
 fallback. The demo deploys to GitHub Pages after successful checks on `main`.
@@ -394,31 +392,13 @@ npm run dev
 | `/` | Homepage with draggable glass and links to all demos |
 | `/?page=lab` | Squircle, orb and pill lenses; draggable with mouse, touch or arrow keys; live backdrop, style, tint, interactive and corner radius controls |
 | `/?page=showcase` | Interactive artwork gallery, music interface and weather panel |
-| `/?page=classic` | The original Music and Siri collection |
 | `/?scene=music` | Apple Music style app with a draggable tab bar, mini player and search button over album art |
 | `/?scene=siri` | Dark glass panel over the macOS Tahoe wallpaper |
 | `/?scene=playground` | Draggable glass over text on the wallpaper |
 | `/?scene=banner` | The header image of this README |
-| `/?scene=original` | The v1 technique, for comparison |
 
 The demo imports `@vepando/liquid-glass-react` by name; Vite aliases that name to
 `src/`, so you get HMR on the library source without a build step.
-
-## Before and after
-
-<table>
-  <tr>
-    <th>v1: one stretched static map, milky tint</th>
-    <th>Now: physical, per-element maps</th>
-  </tr>
-  <tr>
-    <td width="50%"><img src="docs/before-after.jpg" alt="Top: v1 original, bottom: v2" /></td>
-    <td width="50%">
-      <img src="docs/music-closeup.jpg" alt="Mini player and tab bar close-up" /><br/>
-      <img src="docs/siri-closeup.jpg" alt="Dark panel rim close-up" />
-    </td>
-  </tr>
-</table>
 
 ## For AI coding agents
 
