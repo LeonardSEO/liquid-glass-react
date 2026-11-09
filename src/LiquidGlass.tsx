@@ -10,7 +10,7 @@ import {
   useCallback,
   version,
 } from "react"
-import { type LiquidGlassOptions, useLiquidGlass } from "./useLiquidGlass"
+import { type LiquidGlassOptions, type LiquidGlassRootProps, useLiquidGlass } from "./useLiquidGlass"
 
 const isReact19 = parseInt(version, 10) >= 19
 
@@ -26,50 +26,42 @@ export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> &
     render?: ReactElement<Record<string, unknown>>
   }
 
-type PointerHandler = ((e: ReactPointerEvent<HTMLDivElement>) => void) | undefined
-
-function both(glass: (e: ReactPointerEvent<HTMLElement>) => void, own: PointerHandler) {
-  return (e: ReactPointerEvent<HTMLDivElement>) => {
-    glass(e)
-    own?.(e)
-  }
+// A Record so that adding an option without listing it here fails to compile.
+const OPTION_KEYS: Record<keyof LiquidGlassOptions, true> = {
+  variant: true,
+  radius: true,
+  bezel: true,
+  thickness: true,
+  tint: true,
+  ior: true,
+  profile: true,
+  refraction: true,
+  dispersion: true,
+  blur: true,
+  saturation: true,
+  specular: true,
+  lightAngle: true,
+  interactive: true,
 }
+
+type PointerKey = Extract<keyof LiquidGlassRootProps, `on${string}`>
+type DomProps = HTMLAttributes<HTMLDivElement>
 
 function setRef<T>(ref: ForwardedRef<T> | undefined, value: T | null) {
   if (typeof ref === "function") ref(value)
   else if (ref) ref.current = value
 }
 
-export const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function LiquidGlass(
-  {
-    children,
-    render,
-    variant,
-    radius = 32,
-    bezel,
-    thickness,
-    tint,
-    ior,
-    profile,
-    refraction,
-    dispersion,
-    blur,
-    saturation,
-    specular,
-    lightAngle,
-    interactive,
-    className,
-    style,
-    onPointerDown,
-    onPointerMove,
-    onPointerUp,
-    onPointerLeave,
-    onPointerCancel,
-    ...rest
-  },
-  forwardedRef,
-) {
-  const glass = useLiquidGlass({ variant, radius, bezel, thickness, tint, ior, profile, refraction, dispersion, blur, saturation, specular, lightAngle, interactive })
+function splitOptions(props: LiquidGlassOptions & DomProps) {
+  const options: Record<string, unknown> = {}
+  const dom: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(props)) (key in OPTION_KEYS ? options : dom)[key] = value
+  return { options: options as LiquidGlassOptions, dom: dom as DomProps }
+}
+
+export const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function LiquidGlass({ children, render, radius = 32, className, style, ...others }, forwardedRef) {
+  const { options, dom } = splitOptions(others)
+  const glass = useLiquidGlass({ ...options, radius })
   const { ref: glassRef, rootProps } = glass
 
   // React 19 keeps an element's ref in props; before that it sits on the
@@ -86,16 +78,22 @@ export const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function
     [glassRef, forwardedRef, renderRef],
   )
 
+  const pointerKeys = Object.keys(rootProps).filter((name) => name.startsWith("on")) as PointerKey[]
+  const pointerHandlers = Object.fromEntries(
+    pointerKeys.map((key) => [
+      key,
+      (event: ReactPointerEvent<HTMLDivElement>) => {
+        rootProps[key](event)
+        dom[key]?.(event)
+      },
+    ]),
+  )
   const props = {
-    ...rest,
+    ...dom,
+    ...pointerHandlers,
     ref,
     className: [rootProps.className, render?.props.className as string | undefined, className].filter(Boolean).join(" "),
     style: { ...(render?.props.style as CSSProperties | undefined), ...style, ...rootProps.style },
-    onPointerDown: both(rootProps.onPointerDown, onPointerDown),
-    onPointerMove: both(rootProps.onPointerMove, onPointerMove),
-    onPointerUp: both(rootProps.onPointerUp, onPointerUp),
-    onPointerLeave: both(rootProps.onPointerLeave, onPointerLeave),
-    onPointerCancel: both(rootProps.onPointerCancel, onPointerCancel),
   }
 
   if (render) return cloneElement(render, props, glass.wrap(children))

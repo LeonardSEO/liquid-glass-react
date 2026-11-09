@@ -16,6 +16,9 @@
   --lg-preset-blur: 15px;
   --lg-preset-saturation: 1.725;
   --lg-preset-brightness: 1.04;
+  --lg-preset-specular: 0.4875;
+  --lg-solid: rgb(245, 245, 247);
+  --lg-solid-contrast: rgba(255, 255, 255, 0.9);
   --lg-px: 50%;
   --lg-py: 50%;
 
@@ -39,9 +42,8 @@
   z-index: 1;
   background: var(--lg-tint);
   box-shadow: var(--lg-inner-shadow);
-}
-
-.lg__tint {
+  mask-image: var(--lg-mask, none);
+  -webkit-mask-image: var(--lg-mask, none);
   mask-size: 100% 100%;
   -webkit-mask-size: 100% 100%;
 }
@@ -49,7 +51,7 @@
 .lg__specular {
   z-index: 2;
   background-size: 100% 100%;
-  opacity: var(--lg-specular-opacity, 0.4875);
+  opacity: var(--lg-specular-opacity, var(--lg-preset-specular));
   mix-blend-mode: plus-lighter;
 }
 
@@ -91,40 +93,47 @@
   opacity: 1;
 }
 
-.lg--clear {
-  --lg-preset-blur: 0px;
+.lg--clear,
+.lg--lens {
   --lg-preset-saturation: 1.5;
-  --lg-tint: rgba(255, 255, 255, 0.06);
+  --lg-preset-specular: 1;
   --lg-shadow: 0 6px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
   --lg-inner-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 -10px 24px -18px rgba(0, 0, 0, 0.18);
-  --lg-specular-opacity: 1;
+}
+
+.lg--clear {
+  --lg-preset-blur: 0px;
+  --lg-tint: rgba(255, 255, 255, 0.06);
 }
 
 .lg--lens {
   --lg-preset-blur: 3px;
-  --lg-preset-saturation: 1.5;
   --lg-tint: rgba(255, 255, 255, 0.3);
-  --lg-shadow: 0 6px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
-  --lg-inner-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 -10px 24px -18px rgba(0, 0, 0, 0.18);
-  --lg-specular-opacity: 1;
 }
 
-/* Apple's glass follows the appearance of the view it sits in. */
-:is(.dark, [data-theme="dark"]) .lg--regular,
-.lg--regular:is(.dark, [data-theme="dark"]) {
+/* Glass follows the appearance of the view it sits in. */
+.lg--regular:where(.dark, [data-theme="dark"], .dark *, [data-theme="dark"] *) {
   --lg-preset-blur: 18px;
   --lg-preset-saturation: 1.55;
   --lg-preset-brightness: 0.788;
+  --lg-preset-specular: 0.025;
   --lg-tint: rgba(165, 165, 165, 0.1);
-  --lg-specular-opacity: 0.025;
   color: #fff;
 }
 
-:is(.dark, [data-theme="dark"]) .lg--clear,
-.lg--clear:is(.dark, [data-theme="dark"]) {
+.lg--clear:where(.dark, [data-theme="dark"], .dark *, [data-theme="dark"] *) {
   --lg-preset-brightness: 0.863;
   --lg-tint: rgba(0, 0, 0, 0.08);
   color: #fff;
+}
+
+.lg:where(.dark, [data-theme="dark"], .dark *, [data-theme="dark"] *) {
+  --lg-solid: rgb(22, 22, 24);
+  --lg-solid-contrast: rgba(8, 8, 10, 0.92);
+}
+
+.lg.lg--identity {
+  --lg-backdrop-override: none;
 }
 
 .lg--identity .lg__tint,
@@ -137,16 +146,18 @@
   --lg-tint: rgba(6, 6, 8, 0.82);
   --lg-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
   --lg-inner-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  --lg-solid: rgb(22, 22, 24);
+  --lg-solid-contrast: rgba(8, 8, 10, 0.92);
   color: #fff;
 }
 
 /* Safari / Firefox: no SVG refraction, so lean on frost + a bit more tint. */
-.lg--lens.lg--fallback,
-.lg--clear.lg--fallback {
+.lg--lens:where(.lg--fallback),
+.lg--clear:where(.lg--fallback) {
   --lg-tint: rgba(255, 255, 255, 0.45);
 }
 
-.lg--dark.lg--fallback {
+.lg--dark:where(.lg--fallback) {
   --lg-tint: rgba(8, 8, 10, 0.8);
 }
 
@@ -162,7 +173,6 @@
  * minifiers such as Lightning CSS collapse a backdrop-filter and
  * -webkit-backdrop-filter pair with equal values to the prefixed one alone,
  * and Chromium ignores that, which silently removes the glass.
- * !important is only for the tint mask, which is also set inline.
  */
 @media (prefers-reduced-transparency: reduce) {
   .lg {
@@ -170,13 +180,9 @@
   }
 
   .lg__tint {
-    background: rgb(245, 245, 247);
-    mask-image: none !important;
-    -webkit-mask-image: none !important;
-  }
-
-  .lg--dark .lg__tint {
-    background: rgb(22, 22, 24);
+    background: var(--lg-solid);
+    mask-image: none;
+    -webkit-mask-image: none;
   }
 
   .lg__specular,
@@ -192,13 +198,9 @@
   }
 
   .lg__tint {
-    background: rgba(255, 255, 255, 0.9);
-    mask-image: none !important;
-    -webkit-mask-image: none !important;
-  }
-
-  .lg--dark .lg__tint {
-    background: rgba(8, 8, 10, 0.92);
+    background: var(--lg-solid-contrast);
+    mask-image: none;
+    -webkit-mask-image: none;
   }
 }
 

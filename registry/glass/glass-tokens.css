@@ -1,12 +1,11 @@
 /*
  * Liquid Glass design tokens. Change the variables in :root and .dark to theme
  * every glass component. Rules use `.lg.glass-*` so they win over the engine's
- * own `.lg` defaults regardless of import order.
+ * own rules regardless of import order.
  */
 
 :root {
   --glass-radius-sm: 0.75rem;
-  --glass-radius-md: 1rem;
   --glass-radius-lg: 1.5rem;
   --glass-radius-xl: 2rem;
 
@@ -37,55 +36,33 @@
 
 .lg.glass-clear,
 .lg.glass-regular,
+.lg.glass-bar,
 .lg.glass-inset {
   color: var(--glass-foreground);
 }
 
-.lg.glass-inset,
-.lg.lg--fallback.glass-inset {
+.lg.glass-inset {
   --lg-tint: var(--glass-inset-tint);
   --lg-backdrop-override: none;
 }
 
-.lg.glass-primary,
-.lg.lg--fallback.glass-primary {
+.lg.glass-primary {
   --lg-tint: var(--glass-primary);
+  --lg-solid: rgb(29, 78, 216);
+  --lg-solid-contrast: rgb(29, 78, 216);
   --lg-specular-opacity: 0.1;
   color: var(--glass-primary-foreground);
 }
 
 /* Controls keep their labels readable over bright content in dark mode. */
-:is(.dark, [data-theme="dark"]) .lg.glass-regular {
-  --lg-preset-brightness: 0.7;
+.lg.glass-regular:is(.dark, [data-theme="dark"], .dark *, [data-theme="dark"] *) {
+  --lg-brightness: 0.7;
 }
 
 /* A coloured surface keeps its edge: without this the tint fades out across the rim into a halo. */
 .lg.glass-primary .lg__tint {
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-}
-
-/* The engine's solid fallbacks assume a light page unless tint="dark" is set. */
-@media (prefers-reduced-transparency: reduce) {
-  .dark .lg__tint,
-  [data-theme="dark"] .lg__tint {
-    background: rgb(22, 22, 24);
-  }
-
-  .lg.glass-primary .lg__tint {
-    background: rgb(29, 78, 216);
-  }
-}
-
-@media (prefers-contrast: more) {
-  .dark .lg__tint,
-  [data-theme="dark"] .lg__tint {
-    background: rgba(8, 8, 10, 0.92);
-  }
-
-  .lg.glass-primary .lg__tint {
-    background: rgb(29, 78, 216);
-  }
+  mask-image: none;
+  -webkit-mask-image: none;
 }
 
 /* Bars and players: the backdrop stays recognisable under a light frost. */
@@ -93,14 +70,13 @@
   --lg-blur: 7px;
   --lg-saturation: 1.1;
   --lg-tint: rgba(250, 250, 250, 0.4);
-  --lg-preset-brightness: 1;
+  --lg-brightness: 1;
   --lg-specular-opacity: 0.35;
 }
 
-:is(.dark, [data-theme="dark"]) .lg.glass-bar,
-.lg.glass-bar:is(.dark, [data-theme="dark"]) {
+.lg.glass-bar:is(.dark, [data-theme="dark"], .dark *, [data-theme="dark"] *) {
   --lg-tint: rgba(30, 30, 32, 0.42);
-  --lg-preset-brightness: 0.9;
+  --lg-brightness: 0.9;
   --lg-specular-opacity: 0.15;
 }
 

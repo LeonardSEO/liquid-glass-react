@@ -3,6 +3,7 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
 import { MusicScene, SiriScene } from "./Scenes"
 import { LensCanvas } from "./GlassLab"
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
+import { params } from "./urlParams"
 import "./website.css"
 
 const pages = [{ id: "overview", label: "Overview" }, { id: "lab", label: "Glass lab" }, { id: "showcase", label: "Showcase" }, { id: "classic", label: "Classic demo" }]
@@ -49,7 +50,7 @@ function Showcase() {
 }
 
 export function Website() {
-  const requested = new URLSearchParams(location.search).get("page") ?? "overview"
+  const requested = params.get("page") ?? "overview"
   const page = pages.some((item) => item.id === requested) ? requested : "overview"
   return <div className={`website website--${page}`}>
     <a className="skip-link" href="#content">Skip to content</a>

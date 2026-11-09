@@ -1,5 +1,6 @@
 import { useRef, useState, type CSSProperties, type RefObject } from "react"
 import { type GlassVariant, LiquidGlass } from "@vepando/liquid-glass-react"
+import "./website.css"
 
 const styles: GlassVariant[] = ["regular", "clear", "identity"]
 const tints = [["None", undefined], ["Blue", "rgba(10,132,255,0.35)"], ["Red", "rgba(255,69,58,0.35)"]] as const
@@ -39,8 +40,8 @@ function Lens({ shape, stage, variant, tint, interactive, radius, selected, onSe
       aria-label={`Move ${shape.name.toLowerCase()} lens`}
       aria-describedby="lens-instructions"
       style={{
-        "--lens-width": `${shape.width * (compact ? .8 : 1)}px`,
-        "--lens-height": `${shape.height * (compact ? .8 : 1)}px`,
+        "--lens-base-width": `${shape.width * (compact ? .8 : 1)}px`,
+        "--lens-base-height": `${shape.height * (compact ? .8 : 1)}px`,
         left: `calc(${position.x * 100}% - var(--lens-width) * ${position.x})`,
         top: `calc(${position.y * 100}% - var(--lens-height) * ${position.y})`,
         borderRadius: Math.min(shape.radius, radius),

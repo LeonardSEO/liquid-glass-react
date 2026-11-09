@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@vepando/liquid-glass-react/style.css'
+import '@/registry/glass/glass-tokens.css'
 import './index.css'
 import App from './App.tsx'
 

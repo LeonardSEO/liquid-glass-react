@@ -68,7 +68,7 @@ function ItemContent({ item }: { item: GlassTabBarItem }) {
  * has no backdrop to bend. Labels are drawn twice: the normal copy has a hole
  * where the lens is, and an accent copy shows only inside it.
  */
-export function GlassTabBar({ items, value, onValueChange, material = "regular", className, style, "aria-label": ariaLabel }: GlassTabBarProps) {
+export function GlassTabBar({ items, value, onValueChange, material = "bar", className, style, "aria-label": ariaLabel }: GlassTabBarProps) {
   const bar = useGlassSurface<HTMLDivElement>({ material })
   const lens = useLiquidGlass({ variant: "lens", blur: 0, dispersion: 0.14, tint: "rgba(255,255,255,0.04)", radius: "auto" })
 
@@ -93,7 +93,7 @@ export function GlassTabBar({ items, value, onValueChange, material = "regular",
   activeRef.current = activeIndex
 
   const center = useCallback((index: number) => PAD + metrics.current.slot * (index + 0.5), [])
-  const reducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches
+  const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches
 
   const paint = useCallback(() => {
     const { width, height, slot } = metrics.current
@@ -180,7 +180,7 @@ export function GlassTabBar({ items, value, onValueChange, material = "regular",
       const height = element.offsetHeight
       const next = { width, height, slot: (width - PAD * 2) / count }
       metrics.current = next
-      setSize((old) => (old.width === width && old.height === height ? old : next))
+      setSize((old) => (old.width === width && old.height === height && old.slot === next.slot ? old : next))
       const p = physics.current
       if (!frame.current && !drag.current) {
         p.tx = p.x = center(activeRef.current)
@@ -247,7 +247,7 @@ export function GlassTabBar({ items, value, onValueChange, material = "regular",
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return
     if (!metrics.current.slot) return
-    event.currentTarget.setPointerCapture?.(event.pointerId)
+    event.currentTarget.setPointerCapture(event.pointerId)
     const x = localX(event)
     const pressed = indexAt(x)
     const onActive = pressed === activeRef.current
@@ -369,7 +369,7 @@ export function GlassTabBar({ items, value, onValueChange, material = "regular",
       onPointerCancel={(event) => finishDrag(event, true)}
       onClick={onClick}
     >
-      <div {...bar.rootProps} ref={bar.ref} className={`${bar.rootProps.className} glass-bar`} style={barStyle} aria-hidden="true">
+      <div {...bar.rootProps} ref={bar.ref} style={barStyle} aria-hidden="true">
         {bar.wrap()}
       </div>
       <span ref={pill} className="glass-tab-bar__pill" aria-hidden="true" style={{ width: slot || undefined, height: height ? height - PAD * 2 : undefined }} />

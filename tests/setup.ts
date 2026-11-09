@@ -4,7 +4,7 @@ import { cleanup } from "@testing-library/react"
 // jsdom has no layout, canvas or ImageData. Geometry is covered by
 // maps.test.mjs; these tests only care how the component wires the maps up.
 vi.mock("../src/maps", () => ({
-  buildDisplacementMap: (shape: { width: number; height: number }) => ({ data: new Uint8ClampedArray(0), width: shape.width, height: shape.height, scale: 10 }),
+  buildDisplacementMap: vi.fn((shape: { width: number; height: number }) => ({ data: new Uint8ClampedArray(0), width: shape.width, height: shape.height, scale: 10 })),
   buildSpecularMap: () => ({}),
   buildInteriorMask: () => ({}),
   imageDataToUrl: () => "data:image/png;base64,AA==",
@@ -16,6 +16,7 @@ class ResizeObserverStub {
   disconnect() {}
 }
 vi.stubGlobal("ResizeObserver", ResizeObserverStub)
+vi.stubGlobal("matchMedia", () => ({ matches: false }))
 
 Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get: () => 120 })
 Object.defineProperty(HTMLElement.prototype, "offsetHeight", { configurable: true, get: () => 48 })

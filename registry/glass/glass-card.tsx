@@ -1,20 +1,19 @@
 "use client"
 
 import { type ComponentProps, forwardRef } from "react"
+import { mergeProps } from "@base-ui/react/merge-props"
 import { cn } from "@/lib/utils"
 import { type GlassMaterial, GlassStack, useGlassSurface } from "@/registry/glass/glass-material"
 
 export type GlassCardProps = ComponentProps<"div"> & { material?: GlassMaterial }
 
 /** Glass buttons inside a card render as inset glass, because the card hides the page from them. */
-export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(function GlassCard({ material = "regular", className, style, children, ...props }, forwardedRef) {
+export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(function GlassCard({ material = "regular", className, children, ...props }, forwardedRef) {
   const glass = useGlassSurface<HTMLDivElement>({ material, forwardedRef })
   return (
     <div
-      {...props}
-      {...glass.rootProps}
+      {...mergeProps<"div">(glass.rootProps, props)}
       ref={glass.ref}
-      style={{ ...style, ...glass.rootProps.style }}
       className={cn(glass.rootProps.className, "block rounded-(--glass-radius-lg)", className)}
     >
       <GlassStack.Provider value={true}>{glass.wrap(children)}</GlassStack.Provider>

@@ -121,7 +121,7 @@ you can render `<LiquidGlass>` straight from a server component. Put the
 CSS import in `app/layout.tsx`. Tested with `next build` and React 18/19
 SSR.
 
-**Prefer to own the code?** The source is three files in [`src/`](src).
+**Prefer to own the code?** The source is in [`src/`](src).
 The copy-paste version in
 [`skills/liquid-glass/assets/`](skills/liquid-glass/assets) works without
 the package.
@@ -357,8 +357,8 @@ For fixed-size elements, the same optics are available as a Python script
 that writes a PNG and prints the matching `scale`:
 
 ```bash
-pip install -r scripts/requirements.txt
-python3 scripts/generate-displacement-map.py --width 700 --height 64 --radius 32 \
+pip install -r skills/liquid-glass/scripts/requirements.txt
+python3 skills/liquid-glass/scripts/generate-displacement-map.py --width 700 --height 64 --radius 32 \
   --output public/liquid-lens-map.png
 # → Use it with: <feDisplacementMap scale="24.0" xChannelSelector="R" yChannelSelector="G" />
 ```
@@ -429,9 +429,8 @@ troubleshooting table for the common failure modes.
 src/                  the package: LiquidGlass.tsx · useLiquidGlass.tsx · maps.ts · liquid-glass.css · index.ts
 registry/glass/       source of the UI components; registry.json lists them for the shadcn CLI
 dist/                 build output (npm run build), published to npm
-examples/             LiquidGlassPill.tsx
 demo/                 Vite + React showcase
-scripts/              generate-displacement-map.py (static variant)
+scripts/              sync-skill.mjs (regenerates the skill's copy of src/)
 skills/liquid-glass/  skill for AI coding agents
 docs/                 images used in this README
 ```

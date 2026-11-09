@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { LiquidGlass } from "@vepando/liquid-glass-react"
+import { glassOverrides, params } from "./urlParams"
 
 // Internal measuring page: ?scene=bench&mode=same|varied|dense|panel|move|resize|scroll|nest
 // Results land on window.__bench for the Playwright script to read.
@@ -11,10 +12,9 @@ declare global {
   }
 }
 
-const params = new URLSearchParams(location.search)
 const mode = params.get("mode") ?? "same"
 const FRAMES = 240
-const dispersion = params.has("dispersion") ? Number(params.get("dispersion")) : undefined
+const { dispersion } = glassOverrides
 
 const background = {
   minHeight: "100vh",

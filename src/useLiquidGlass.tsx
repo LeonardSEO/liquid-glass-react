@@ -1,25 +1,11 @@
-import {
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react"
-import {
-  buildDisplacementMap,
-  buildInteriorMask,
-  buildSpecularMap,
-  imageDataToUrl,
-  type SurfaceProfile,
-} from "./maps"
+import { type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode, useId, useMemo, useState } from "react"
+import { GlassFilter, supportsSvgBackdrop } from "./GlassFilter"
+import { getGlassMaps } from "./glassMaps"
+import type { SurfaceProfile } from "./maps"
+import { useIsoLayoutEffect, useMeasuredGlass } from "./measure"
+import { type GlassVariant, VARIANTS } from "./variants"
 
-/** `regular` is calibrated against macOS's NSGlassEffectView. `clear` is see-through glass that bends what is behind it. `identity` renders no glass. */
-/** `lens` is an advanced, strongly refracting look that Apple has no equivalent for. */
-export type GlassVariant = "regular" | "clear" | "identity" | "lens"
+export type { GlassVariant } from "./variants"
 
 export type LiquidGlassOptions = {
   /** Glass style, as on Apple platforms. Default: "regular". */
@@ -71,90 +57,6 @@ export type LiquidGlassHandle = {
   wrap: (children?: ReactNode) => ReactNode
 }
 
-// useLayoutEffect warns during SSR on React 18; fall back to useEffect there.
-const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect
-
-let chromiumCache: boolean | undefined
-function supportsSvgBackdrop(): boolean {
-  if (chromiumCache !== undefined) return chromiumCache
-  if (typeof navigator === "undefined") return false
-  const ua = navigator.userAgent
-  // Only Blink renders SVG filters referenced from backdrop-filter. WebKit
-  // (Safari, and every iOS browser - CriOS/FxiOS) and Gecko do not.
-  chromiumCache = /Chrome\/\d+/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua)
-  return chromiumCache
-}
-
-type VariantDefaults = {
-  blur: number
-  saturation: number
-  refraction: number
-  dispersion: number
-  thicknessRatio: number
-  autoBezel: (minSide: number, radius: number) => number
-}
-
-// Rim as a fraction of the short side, as measured on the system material.
-const rimBezel = (fraction: number) => (minSide: number, radius: number) => Math.max(1.5, Math.min(minSide * fraction, Math.min(radius, minSide / 2)))
-const wideBezel = (minSide: number, radius: number) => Math.max(6, Math.min(minSide * 0.25, Math.min(radius, minSide / 2), 56))
-const REGULAR: VariantDefaults = { blur: 15, saturation: 1.725, refraction: 2, dispersion: 0, thicknessRatio: 3, autoBezel: rimBezel(0.03) }
-const VARIANTS: Record<GlassVariant, VariantDefaults> = {
-  regular: REGULAR,
-  // See-through: no frost, so the rim visibly bends the backdrop and splits its colours.
-  clear: { blur: 0, saturation: 1.5, refraction: 1.3, dispersion: 0.06, thicknessRatio: 1.5, autoBezel: wideBezel },
-  lens: {
-    blur: 3,
-    saturation: 1.5,
-    refraction: 1,
-    dispersion: 0.06,
-    thicknessRatio: 1.5,
-    autoBezel: wideBezel,
-  },
-  identity: REGULAR,
-}
-
-type Maps = { displacement: string; specular: string; mask: string; scale: number; width: number; height: number }
-
-const mapCache = new Map<string, Maps>()
-
-// One observer for all glass on the page: a theme switch on <html> can change
-// radius and bezel tokens without any element resizing or re-rendering.
-const themeListeners = new Set<() => void>()
-let themeObserver: MutationObserver | undefined
-function onThemeChange(listener: () => void): () => void {
-  themeListeners.add(listener)
-  if (!themeObserver) {
-    themeObserver = new MutationObserver(() => themeListeners.forEach((l) => l()))
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] })
-  }
-  return () => {
-    themeListeners.delete(listener)
-    if (themeListeners.size === 0) {
-      themeObserver?.disconnect()
-      themeObserver = undefined
-    }
-  }
-}
-
-/** Parses "12", "12px" or "0.75rem" to px. Anything else (including empty) is undefined. */
-function parseLength(value: string): number | undefined {
-  const match = /^\s*(-?[\d.]+)(px|rem)?\s*$/.exec(value)
-  if (!match) return undefined
-  const n = Number(match[1])
-  if (!Number.isFinite(n)) return undefined
-  if (match[2] !== "rem") return n
-  return n * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16)
-}
-
-function parseRadius(value: string, minSide: number): number {
-  // Computed longhands can be "24px" or "24px 12px" (elliptical): use the first.
-  const first = value.trim().split(/\s+/)[0] ?? ""
-  const n = parseFloat(first) || 0
-  return first.endsWith("%") ? (n / 100) * minSide : n
-}
-
-type Measured = { w: number; h: number; radius: number; bezel?: number; thickness?: number }
-
 export function useLiquidGlass({
   variant = "regular",
   radius: radiusOption = "auto",
@@ -171,82 +73,28 @@ export function useLiquidGlass({
   lightAngle = -135,
   interactive = false,
 }: LiquidGlassOptions = {}): LiquidGlassHandle {
-  const defaults = VARIANTS[variant]
-  const refraction = refractionOption ?? defaults.refraction
-  const dispersion = dispersionOption ?? defaults.dispersion
+  const geometry = VARIANTS[variant]
+  const refraction = refractionOption ?? geometry.refraction
+  const dispersion = dispersionOption ?? geometry.dispersion
   const filterId = "lg-" + useId().replace(/[^a-zA-Z0-9_-]/g, "")
   const [element, setElement] = useState<HTMLElement | null>(null)
-  const [measured, setMeasured] = useState<Measured | null>(null)
   const [svgSupported, setSvgSupported] = useState(false)
   const [pressed, setPressed] = useState(false)
 
-  const measure = useCallback(() => {
-    if (!element) return
-    const w = Math.round(element.offsetWidth)
-    const h = Math.round(element.offsetHeight)
-    const css = getComputedStyle(element)
-    const next: Measured = {
-      w,
-      h,
-      radius: parseRadius(css.borderTopLeftRadius, Math.min(w, h)),
-      bezel: parseLength(css.getPropertyValue("--lg-bezel")),
-      thickness: parseLength(css.getPropertyValue("--lg-thickness")),
-    }
-    setMeasured((m) =>
-      m && m.w === next.w && m.h === next.h && m.radius === next.radius && m.bezel === next.bezel && m.thickness === next.thickness ? m : next,
-    )
-  }, [element])
+  useIsoLayoutEffect(() => setSvgSupported(supportsSvgBackdrop()), [])
 
-  useIsoLayoutEffect(() => {
-    setSvgSupported(supportsSvgBackdrop())
-    if (!element) return
-    // Measure synchronously so the filter exists on first paint (and in
-    // background tabs, where ResizeObserver may not fire until visible).
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(element, { box: "border-box" })
-    const stopTheme = onThemeChange(measure)
-    return () => {
-      ro.disconnect()
-      stopTheme()
-    }
-  }, [element, measure])
-
-  // A changed class or prop can move the tokens without a resize. Cheap when
-  // nothing changed: setMeasured bails out on equal values.
-  useIsoLayoutEffect(measure)
-
-  const size = measured && measured.w >= 2 && measured.h >= 2 ? measured : null
+  const size = useMeasuredGlass(element)
   const radius = radiusOption === "auto" ? size?.radius : radiusOption
-  const bezelCss = bezelOption ?? size?.bezel
-  const thicknessCss = thicknessOption ?? size?.thickness
+  const bezelToken = bezelOption ?? size?.bezel
+  const thicknessToken = thicknessOption ?? size?.thickness
 
-  const maps = useMemo<Maps | null>(() => {
-    if (!size || radius === undefined) return null
-    const minSide = Math.min(size.w, size.h)
-    const bezel = bezelCss ?? defaults.autoBezel(minSide, radius)
-    const thickness = thicknessCss ?? bezel * defaults.thicknessRatio
-    const dpr = Math.min(2, typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1)
-    const key = [size.w, size.h, radius, bezel, thickness, ior, profile, lightAngle, dpr].join("|")
-    let base = mapCache.get(key)
-    if (!base) {
-      const shape = { width: size.w, height: size.h, radius }
-      const disp = buildDisplacementMap(shape, { bezel, thickness, ior, profile })
-      const spec = buildSpecularMap(shape, { angle: lightAngle, rimWidth: 1.2, glowWidth: Math.min(20, Math.max(4, bezel * 0.6)) }, dpr)
-      base = {
-        displacement: imageDataToUrl(disp),
-        specular: imageDataToUrl(spec),
-        mask: imageDataToUrl(buildInteriorMask(shape, bezel, 1)),
-        scale: disp.scale,
-        width: disp.width,
-        height: disp.height,
-      }
-      mapCache.set(key, base)
-      // Small LRU: identical controls (buttons, pills) share one set of maps.
-      if (mapCache.size > 64) mapCache.delete(mapCache.keys().next().value!)
-    }
-    return { ...base, scale: base.scale * refraction }
-  }, [size?.w, size?.h, radius, bezelCss, thicknessCss, ior, profile, refraction, lightAngle, defaults])
+  const maps = useMemo(() => {
+    if (variant === "identity" || !size || radius === undefined) return null
+    const minSide = Math.min(size.width, size.height)
+    const bezel = bezelToken ?? geometry.autoBezel(minSide, radius)
+    const thickness = thicknessToken ?? bezel * geometry.thicknessRatio
+    return getGlassMaps({ width: size.width, height: size.height, radius }, { bezel, thickness, ior, profile }, lightAngle)
+  }, [variant, size?.width, size?.height, radius, bezelToken, thicknessToken, ior, profile, lightAngle, geometry])
 
   const setPointer = (e: ReactPointerEvent<HTMLElement>) => {
     if (!element) return
@@ -255,22 +103,13 @@ export function useLiquidGlass({
     element.style.setProperty("--lg-py", `${((e.clientY - r.top) / r.height) * 100}%`)
   }
 
-  const identity = variant === "identity"
-  const useSvg = svgSupported && maps !== null && !identity
-  // Presets live in CSS so a dark theme can swap them without a re-render.
-  const blurVar = `var(--lg-blur, var(--lg-preset-blur, ${defaults.blur}px))`
-  const saturationVar = `var(--lg-saturation, var(--lg-preset-saturation, ${defaults.saturation}))`
-  const brightnessVar = "var(--lg-preset-brightness, 1.04)"
-  const backdrop = identity
-    ? "none"
-    : useSvg
-      ? `blur(${blurVar}) url(#${filterId}) saturate(${saturationVar}) brightness(${brightnessVar})`
-      : `blur(max(${blurVar}, 8px)) saturate(${saturationVar}) brightness(1.05)`
-
-  const s = maps?.scale ?? 0
+  const useSvg = svgSupported && maps !== null
+  const blurVar = "var(--lg-blur, var(--lg-preset-blur))"
+  const toneVars = "saturate(var(--lg-saturation, var(--lg-preset-saturation))) brightness(var(--lg-brightness, var(--lg-preset-brightness)))"
+  const backdrop = useSvg ? `blur(${blurVar}) url(#${filterId}) ${toneVars}` : `blur(max(${blurVar}, 8px)) ${toneVars}`
 
   const rootProps: LiquidGlassRootProps = {
-    className: ["lg", `lg--${variant}`, tint === "dark" && "lg--dark", interactive && "lg--interactive", pressed && "lg--pressed", !useSvg && !identity && "lg--fallback"]
+    className: ["lg", `lg--${variant}`, tint === "dark" && "lg--dark", interactive && "lg--interactive", pressed && "lg--pressed", !useSvg && "lg--fallback"]
       .filter(Boolean)
       .join(" "),
     style: {
@@ -304,52 +143,11 @@ export function useLiquidGlass({
   // positioned layers are block-level anyway; .lg__content sets display: block.
   const wrap = (children?: ReactNode) => (
     <>
-      <span
-        className="lg__tint"
-        style={maps ? { maskImage: `url(${maps.mask})`, WebkitMaskImage: `url(${maps.mask})` } : undefined}
-      />
+      <span className="lg__tint" style={maps ? ({ "--lg-mask": `url(${maps.mask})` } as CSSProperties) : undefined} />
       {maps && <span className="lg__specular" style={{ backgroundImage: `url(${maps.specular})` }} />}
       <span className="lg__glow" />
       <span className="lg__content">{children}</span>
-
-      {useSvg && maps && (
-        <svg className="lg__defs" aria-hidden="true" focusable="false" width="0" height="0">
-          <filter
-            id={filterId}
-            x="0"
-            y="0"
-            width={maps.width}
-            height={maps.height}
-            filterUnits="userSpaceOnUse"
-            primitiveUnits="userSpaceOnUse"
-            colorInterpolationFilters="sRGB"
-          >
-            <feImage
-              href={maps.displacement}
-              x="0"
-              y="0"
-              width={maps.width}
-              height={maps.height}
-              preserveAspectRatio="none"
-              result="map"
-            />
-            {dispersion > 0 ? (
-              <>
-                <feDisplacementMap in="SourceGraphic" in2="map" scale={s * (1 + dispersion)} xChannelSelector="R" yChannelSelector="G" result="dispR" />
-                <feColorMatrix in="dispR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r" />
-                <feDisplacementMap in="SourceGraphic" in2="map" scale={s} xChannelSelector="R" yChannelSelector="G" result="dispG" />
-                <feColorMatrix in="dispG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g" />
-                <feDisplacementMap in="SourceGraphic" in2="map" scale={s * (1 - dispersion)} xChannelSelector="R" yChannelSelector="G" result="dispB" />
-                <feColorMatrix in="dispB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b" />
-                <feComposite in="r" in2="g" operator="arithmetic" k2="1" k3="1" result="rg" />
-                <feComposite in="rg" in2="b" operator="arithmetic" k2="1" k3="1" />
-              </>
-            ) : (
-              <feDisplacementMap in="SourceGraphic" in2="map" scale={s} xChannelSelector="R" yChannelSelector="G" />
-            )}
-          </filter>
-        </svg>
-      )}
+      {useSvg && <GlassFilter id={filterId} maps={maps} scale={maps.scale * refraction} dispersion={dispersion} />}
     </>
   )
 

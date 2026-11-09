@@ -2,6 +2,7 @@
 
 import { type ComponentProps, type ReactNode, forwardRef } from "react"
 import { Dialog } from "@base-ui/react/dialog"
+import { mergeProps } from "@base-ui/react/merge-props"
 import { cn } from "@/lib/utils"
 import { GlassStack, type WithStringClassName, useGlassSurface } from "@/registry/glass/glass-material"
 
@@ -18,11 +19,9 @@ export const GlassDialogContent = forwardRef<HTMLDivElement, WithStringClassName
     <Dialog.Portal>
       <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/35 transition-opacity duration-200 data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none" />
       <Dialog.Popup
-        {...props}
-        {...glass.rootProps}
-        ref={glass.ref}
         // Needs inline layout: the engine's unlayered `.lg` rules beat utilities.
-        style={{ ...glass.rootProps.style, position: "fixed", top: "50%", left: "50%", translate: "-50% -50%" }}
+        {...mergeProps<typeof Dialog.Popup>(glass.rootProps, { style: { position: "fixed", top: "50%", left: "50%", translate: "-50% -50%" } }, props)}
+        ref={glass.ref}
         className={cn(
           glass.rootProps.className,
           "z-50 w-[min(32rem,calc(100vw-2rem))] max-h-[calc(100vh-2rem)] overflow-auto rounded-(--glass-radius-xl) focus-visible:outline-none",

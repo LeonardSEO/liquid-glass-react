@@ -1,15 +1,7 @@
 import { useState } from "react"
-import { LiquidGlass, type LiquidGlassProps } from "@vepando/liquid-glass-react"
+import { LiquidGlass } from "@vepando/liquid-glass-react"
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
-
-const params = new URLSearchParams(location.search)
-const num = (k: string) => (params.has(k) ? Number(params.get(k)) : undefined)
-/** Lets every scene be tuned from the URL: ?thickness=40&blur=2 ... */
-export const overrides: Partial<LiquidGlassProps> = Object.fromEntries(
-  ["bezel", "thickness", "ior", "refraction", "dispersion", "blur", "saturation", "specular"]
-    .filter((k) => params.has(k))
-    .map((k) => [k, num(k)]),
-)
+import { glassOverrides } from "./urlParams"
 
 const Icon = {
   play: <svg width="28" height="28" viewBox="0 0 24 24"><path d="M6 4l15 8-15 8z" fill="currentColor" /></svg>,
@@ -79,7 +71,7 @@ export function MusicScene() {
       </div>
 
       <div className="m-chrome">
-        <LiquidGlass radius={999} interactive className="m-player glass-bar" {...overrides}>
+        <LiquidGlass radius={999} interactive className="m-player glass-bar" {...glassOverrides}>
           <div className="m-player__row">
             <img src={`${import.meta.env.BASE_URL}img/art3.jpg`} className="m-player__art" alt="" />
             <div className="m-player__text">
@@ -93,7 +85,7 @@ export function MusicScene() {
 
         <div className="m-tabrow">
           <GlassTabBar className="m-tabbar" aria-label="Sections" items={tabs} value={tab} onValueChange={setTab} />
-          <LiquidGlass radius={999} interactive className="m-search glass-bar" {...overrides}>
+          <LiquidGlass radius={999} interactive className="m-search glass-bar" {...glassOverrides}>
             <div className="m-search__icon">{Icon.search}</div>
           </LiquidGlass>
         </div>
@@ -105,7 +97,7 @@ export function MusicScene() {
 export function SiriScene() {
   return (
     <div className="siri">
-      <LiquidGlass radius={56} className="siri__panel glass-bar dark" {...overrides}>
+      <LiquidGlass radius={56} className="siri__panel glass-bar dark" {...glassOverrides}>
         <p className="siri__text">It'll be fantastic weather for your upcoming tennis lesson this Sunday.</p>
         <div className="siri__card">
           <div>

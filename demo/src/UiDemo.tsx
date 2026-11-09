@@ -13,8 +13,7 @@ import {
 } from "@/registry/glass/glass-dialog"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "@/registry/glass/glass-tabs"
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
-
-const params = new URLSearchParams(location.search)
+import { params } from "./urlParams"
 
 type Backdrop = "wallpaper" | "stripes" | "solid"
 type Theme = "light" | "dark"
@@ -60,7 +59,6 @@ function TabBarDemo() {
 
 export function UiDemo() {
   const [backdrop, setBackdrop] = useState<Backdrop>((params.get("bg") as Backdrop) ?? "wallpaper")
-  // Follows the system until the visitor picks a theme here.
   const [chosenTheme, setChosenTheme] = useState<Theme | null>(params.get("theme") as Theme | null)
   const [system, setSystem] = useState(systemTheme)
   const theme = chosenTheme ?? system

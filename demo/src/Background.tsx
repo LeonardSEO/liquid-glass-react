@@ -14,3 +14,13 @@ export function Background() {
     </div>
   )
 }
+
+export function DemoNav() {
+  return (
+    <nav style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", color: "var(--wallpaper-ink)" }}>
+      <b>Your Logo</b>
+      <span>Features · Pricing · About</span>
+      <span>Get started</span>
+    </nav>
+  )
+}

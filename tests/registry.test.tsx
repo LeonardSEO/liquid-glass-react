@@ -59,7 +59,6 @@ test("GlassTabs switches panels and renders the glass indicator", () => {
     </GlassTabs>,
   )
   expect(screen.getByRole("tabpanel").textContent).toBe("first")
-  // Without the layers the indicator would have no tint, rim or filter.
   expect(document.querySelector("[role=tablist] .lg .lg__tint")).not.toBeNull()
   expect(document.querySelector("[role=tablist] .lg filter")).not.toBeNull()
   fireEvent.click(screen.getByRole("tab", { name: "B" }))
@@ -113,5 +112,15 @@ test("the lens is glass beside the bar, not nested in it", () => {
   const glass = container.querySelectorAll(".lg")
   expect(glass).toHaveLength(2)
   expect(glass[0].contains(glass[1])).toBe(false)
+  expect(glass[0].className).toContain("glass-bar")
+})
+
+test("glass components keep the consumer's handlers and style", () => {
+  const onPointerDown = vi.fn()
+  const { container } = render(<GlassCard onPointerDown={onPointerDown} style={{ width: 77 }}>x</GlassCard>)
+  const card = container.firstElementChild as HTMLElement
+  fireEvent.pointerDown(card)
+  expect(onPointerDown).toHaveBeenCalledOnce()
+  expect(card.style.width).toBe("77px")
 })
 

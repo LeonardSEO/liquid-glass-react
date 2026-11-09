@@ -5,12 +5,11 @@ description: Implement Apple-style "Liquid Glass" (iOS 26 / macOS 26) for web UI
 
 # Liquid Glass
 
-Three files in `assets/` make up the whole implementation:
+`assets/` holds the whole implementation, generated from the package source:
 
-- `LiquidGlass.tsx`: the React component (client component, SSR-safe)
-- `liquid-glass-maps.ts`: physics + map generation (displacement,
-  specular rim, tint mask)
-- `liquid-glass.css`: the layers and the light/dark tints
+- `LiquidGlass.tsx`, `useLiquidGlass.tsx`: the component and the hook
+- `maps.ts`: physics + map generation (displacement, specular rim, tint mask)
+- `liquid-glass.css`: the layers and the light/dark looks
 
 Read `references/theory.md` only when debugging or tuning.
 
@@ -31,9 +30,8 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
 The bundle is marked `"use client"`, so it can be used directly from
 Next.js server components.
 
-Alternative (no dependency): copy the three files from `assets/` into
-the project's components directory, next to each other, and import from
-there. That copy imports its own CSS.
+Alternative (no dependency): copy all of `assets/` into one folder in the
+project, import from its `index.ts`, and import `liquid-glass.css` once.
 
 ## Step 1b - Need real controls or your own element?
 
@@ -49,8 +47,6 @@ the package (1.1 or later):
 - **Tokens:** `radius="auto"` reads the CSS `border-radius`. `--lg-bezel`,
   `--lg-thickness`, `--lg-blur`, `--lg-saturation` and `--lg-tint` set the
   material from CSS.
-
-The copied files in `assets/` don't have these features and don't forward `ref`.
 
 Rules that apply to all of them:
 

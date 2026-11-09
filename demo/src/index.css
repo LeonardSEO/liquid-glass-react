@@ -6,7 +6,6 @@ html,body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display"
 .bg{position:relative;min-height:220vh;padding:140px 40px 80px;overflow:hidden;background:var(--wallpaper) center/cover fixed;color:var(--wallpaper-ink)}
 .bigtext{font-size:120px;font-weight:800;line-height:.95;letter-spacing:-4px;margin:0}
 .para{max-width:760px;font-size:20px;line-height:1.5}
-.toolbar{position:fixed;left:16px;bottom:16px;z-index:100;background:#fff;padding:6px 10px;border-radius:8px;font:12px monospace;box-shadow:0 1px 4px rgba(0,0,0,.2)}
 
 /* ---------- Music scene ---------- */
 .stage{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;gap:40px;padding:24px;background:var(--wallpaper) center/cover;flex-wrap:wrap}
@@ -28,11 +27,9 @@ html,body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display"
 .m-player__text span{font-size:14px;color:rgba(0,0,0,.62)}
 .m-player__btn{display:flex;color:#111}
 .m-tabrow{display:flex;gap:10px;align-items:center}
-.m-tabbar{flex:1;height:64px}
-.m-tabbar{--glass-foreground:#1c1c1e}
+.m-tabbar{flex:1;height:64px;--glass-foreground:#1c1c1e}
 .m-tabbar .glass-tab-bar__base,.m-tabbar [role=tablist],.m-tabbar .glass-tab-bar__accent{height:100%;box-sizing:border-box}
 .m-tabbar .glass-tab-bar__item{padding:2px;gap:2px;font:600 11px -apple-system,system-ui,sans-serif}
-.m-tabrow{position:relative}
 .m-search{width:64px;height:64px;flex:none}
 .m-search__icon{display:flex;align-items:center;justify-content:center;height:100%;color:#3a3a3c}
 

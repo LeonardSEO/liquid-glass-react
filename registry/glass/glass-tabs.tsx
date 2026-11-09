@@ -5,9 +5,7 @@ import { Tabs } from "@base-ui/react/tabs"
 import { cn } from "@/lib/utils"
 import { type WithStringClassName, useGlassSurface } from "@/registry/glass/glass-material"
 
-export const GlassTabs = forwardRef<HTMLDivElement, ComponentProps<typeof Tabs.Root>>(function GlassTabs(props, ref) {
-  return <Tabs.Root ref={ref} {...props} />
-})
+export const GlassTabs = Tabs.Root
 
 function GlassTabsIndicator() {
   const glass = useGlassSurface<HTMLSpanElement>({ material: "regular" })

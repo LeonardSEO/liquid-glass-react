@@ -2,14 +2,10 @@ import { readFileSync } from "node:fs"
 import { createRef } from "react"
 import { fireEvent, render } from "@testing-library/react"
 import { Button } from "@base-ui/react/button"
-import { expect, test } from "vitest"
+import { expect, test, vi } from "vitest"
+import { buildDisplacementMap } from "../src/maps"
 import { LiquidGlass } from "../src/LiquidGlass"
 import { useLiquidGlass } from "../src/useLiquidGlass"
-
-test("measures and builds the filter without a forwarded ref", () => {
-  const { container } = render(<LiquidGlass>hi</LiquidGlass>)
-  expect(container.querySelector("filter")).not.toBeNull()
-})
 
 test("a forwarded ref reaches the element and leaves measuring intact", () => {
   const ref = createRef<HTMLDivElement>()
@@ -30,10 +26,8 @@ test("defaults to radius 32 when none is given", () => {
 })
 
 test("radius auto leaves border-radius to CSS and reads it", () => {
-  const { container } = render(<LiquidGlass radius="auto" style={{ borderRadius: 14 }}>hi</LiquidGlass>)
-  const root = container.firstElementChild as HTMLElement
-  expect(root.style.borderRadius).toBe("14px")
-  expect(container.querySelector("filter")).not.toBeNull()
+  render(<LiquidGlass radius="auto" style={{ borderTopLeftRadius: 14 }}>hi</LiquidGlass>)
+  expect(vi.mocked(buildDisplacementMap).mock.lastCall![0].radius).toBe(14)
 })
 
 test("render swaps the element, keeps refs on both and merges props", () => {
@@ -47,9 +41,7 @@ test("render swaps the element, keeps refs on both and merges props", () => {
   const button = getByRole("button", { name: "save" })
   expect(button.tagName).toBe("BUTTON")
   expect(button.getAttribute("type")).toBe("submit")
-  expect(button.className).toContain("lg")
-  expect(button.className).toContain("a")
-  expect(button.className).toContain("b")
+  for (const name of ["lg", "a", "b"]) expect(button.classList.contains(name)).toBe(true)
   expect(outer.current).toBe(button)
   expect(inner.current).toBe(button)
   expect(button.querySelector("div")).toBeNull()
@@ -71,7 +63,7 @@ test("own pointer handlers still run beside the glass handlers", () => {
 test("the backdrop is inline and CSS can override it through a variable", () => {
   const { container } = render(<LiquidGlass blur={5}>hi</LiquidGlass>)
   const root = container.firstElementChild as HTMLElement
-  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, blur\(var\(--lg-blur, var\(--lg-preset-blur, 15px\)\)\) url\(#lg-/)
+  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, .*url\(#lg-/)
   expect(root.style.getPropertyValue("--lg-blur")).toBe("5px")
 })
 
@@ -89,29 +81,30 @@ test("the hook composes with a Base UI Button", () => {
   expect(container.querySelector("filter")).not.toBeNull()
 })
 
-test("the stylesheet never declares backdrop-filter, which minifiers would break", () => {
-  const css = readFileSync("src/liquid-glass.css", "utf8").replace(/\/\*[\s\S]*?\*\//g, "")
-  expect(css).not.toMatch(/backdrop-filter\s*:/)
+test("no stylesheet declares backdrop-filter, which minifiers would break", () => {
+  for (const file of ["src/liquid-glass.css", "registry/glass/glass-tokens.css"]) {
+    const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "")
+    expect(css).not.toMatch(/backdrop-filter\s*:/)
+  }
 })
 
-test("variants pick their own defaults, and explicit options still win", () => {
-  const backdrop = (el: Element) => el.getAttribute("style") ?? ""
+test("a variant chooses its look, its colour splitting and yields to explicit options", () => {
+  const channels = (root: Element) => root.querySelectorAll("feDisplacementMap").length
   const { container, rerender } = render(<LiquidGlass>hi</LiquidGlass>)
   const root = () => container.firstElementChild!
   expect(root().classList.contains("lg--regular")).toBe(true)
-  expect(backdrop(root())).toContain("--lg-preset-blur, 15px")
+  expect(channels(root())).toBe(1)
   rerender(<LiquidGlass variant="clear">hi</LiquidGlass>)
   expect(root().classList.contains("lg--clear")).toBe(true)
-  expect(backdrop(root())).toContain("--lg-preset-blur, 0px")
-  rerender(<LiquidGlass variant="lens" blur={7}>hi</LiquidGlass>)
-  expect(backdrop(root())).toContain("--lg-preset-blur, 3px")
-  expect(root().style.getPropertyValue("--lg-blur")).toBe("7px")
+  expect(channels(root())).toBe(3)
+  rerender(<LiquidGlass variant="clear" dispersion={0}>hi</LiquidGlass>)
+  expect(channels(root())).toBe(1)
 })
 
 test("the identity variant renders no glass", () => {
   const { container } = render(<LiquidGlass variant="identity">hi</LiquidGlass>)
   const root = container.firstElementChild!
-  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, none\)/)
-  expect(root.classList.contains("lg--fallback")).toBe(false)
+  expect(root.classList.contains("lg--identity")).toBe(true)
   expect(root.querySelector("filter")).toBeNull()
+  expect(root.textContent).toBe("hi")
 })

@@ -4,9 +4,11 @@ import "@vepando/liquid-glass-react/style.css"
 import "./glass-tokens.css"
 
 import { type ForwardedRef, createContext, useCallback, useContext } from "react"
-import { type LiquidGlassOptions, useLiquidGlass } from "@vepando/liquid-glass-react"
+import { type GlassVariant, type LiquidGlassOptions, useLiquidGlass } from "@vepando/liquid-glass-react"
 
-export type GlassMaterial = "regular" | "clear"
+export type GlassMaterial = "regular" | "clear" | "bar"
+
+const MATERIAL_VARIANT: Record<GlassMaterial, GlassVariant> = { regular: "regular", clear: "clear", bar: "regular" }
 
 /** Base UI also allows a className function; these components only take strings. */
 export type WithStringClassName<T> = Omit<T, "className"> & { className?: string }
@@ -25,9 +27,7 @@ type GlassSurfaceOptions<T> = Omit<LiquidGlassOptions, "radius"> & {
 
 export function useGlassSurface<T extends HTMLElement>({ material = "regular", forwardedRef, ...options }: GlassSurfaceOptions<T>) {
   const nested = useContext(GlassStack)
-  // Inset glass has no backdrop filter to spend dispersion on.
-  const dispersion = options.dispersion ?? (nested ? 0 : undefined)
-  const glass = useLiquidGlass({ variant: material, ...options, dispersion, radius: "auto" })
+  const glass = useLiquidGlass({ variant: MATERIAL_VARIANT[material], ...options, radius: "auto" })
   const glassRef = glass.ref
   const ref = useCallback(
     (element: T | null) => {

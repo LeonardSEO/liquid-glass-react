@@ -3,7 +3,7 @@
  *
  * The glass is modelled as a slab whose rim (the "bezel") rises from the
  * element's border to a flat plateau following a convex squircle profile -
- * the same soft flat-to-curve transition Apple uses. For every distance
+ * a soft flat-to-curve transition. For every distance
  * from the border we refract a straight-down view ray through that surface
  * with Snell's law (n = ior) and measure how far sideways it lands on the
  * content under the glass. That 1D curve is then swept around the element's
@@ -61,13 +61,10 @@ export function refractionProfile({ bezel, thickness, ior, profile }: OpticsOpti
   for (let i = 0; i < SAMPLES; i++) {
     const t = (i + 0.5) / SAMPLES
     const z = profileHeight(profile, t) * thickness
-    // dz/dd in px/px
     const slope = ((profileHeight(profile, t + h) - profileHeight(profile, t - h)) / (2 * h)) * (thickness / bezel)
-    // Surface normal in (inward, up) space: (-slope, 1) normalised.
     const inv = 1 / Math.hypot(slope, 1)
     const nx = -slope * inv
     const nz = inv
-    // Incident ray points straight down: I = (0, -1). cos(theta_i) = n·(-I) = nz.
     const cosi = nz
     const k = 1 - eta * eta * (1 - cosi * cosi)
     if (k < 0) {
@@ -75,9 +72,8 @@ export function refractionProfile({ bezel, thickness, ior, profile }: OpticsOpti
       continue
     }
     const f = eta * cosi - Math.sqrt(k)
-    const tx = f * nx // eta * Ix (= 0) + f * nx
+    const tx = f * nx
     const tz = -eta + f * nz
-    // Travel down through the glass (height z) to the content plane.
     out[i] = (tx / -tz) * z
   }
   return out
@@ -115,7 +111,7 @@ function roundedRectField(px: number, py: number, w: number, h: number, r: numbe
   }
 }
 
-export function clampShape(shape: GlassShape): GlassShape {
+function clampShape(shape: GlassShape): GlassShape {
   const width = Math.max(1, Math.round(shape.width))
   const height = Math.max(1, Math.round(shape.height))
   return { width, height, radius: Math.min(shape.radius, width / 2, height / 2) }
@@ -123,7 +119,7 @@ export function clampShape(shape: GlassShape): GlassShape {
 
 export type DisplacementMap = {
   /** RGBA pixels: R = x, G = y, 128 = no displacement. */
-  data: Uint8ClampedArray
+  data: Uint8ClampedArray<ArrayBuffer>
   width: number
   height: number
   /** Value for feDisplacementMap's `scale` attribute. */
@@ -148,7 +144,6 @@ export function buildDisplacementMap(shape: GlassShape, optics: OpticsOptions): 
       let vy = 0
       if (f.dist >= 0 && f.dist < bezel) {
         const s = profile[Math.min(SAMPLES - 1, Math.floor((f.dist / bezel) * SAMPLES))] / max
-        // Inward = -normal. Positive value means "sample from further inside".
         vx = -f.nx * s
         vy = -f.ny * s
       }
@@ -195,20 +190,16 @@ export function buildSpecularMap(shape: GlassShape, opts: SpecularOptions, dpr =
         continue
       }
       roundedRectField((x + 0.5) / dpr, (y + 0.5) / dpr, width, height, radius, f)
-      // Outside the shape, or deep inside where the glow has faded to nothing.
       if (f.dist < 0 || f.dist > cutoff) continue
       // Highlight is strongest where the rim faces the light, and on the
       // opposite side (light that crossed the glass and exits there).
       const facing = f.nx * lx + f.ny * ly
       const lit = Math.pow(Math.abs(facing), 1.6)
-      // Lit side full strength; the opposite rim catches the light that
-      // crossed the glass, a little weaker.
       const directional = facing < 0 ? lit : lit * 0.7
       const ambient = 0.3
       const line = Math.exp(-Math.pow(f.dist / opts.rimWidth, 2))
       const inner = Math.exp(-Math.pow((f.dist - opts.rimWidth * 2.2) / opts.rimWidth, 2)) * 0.35
       const glow = Math.exp(-f.dist / opts.glowWidth) * (0.06 + 0.3 * directional)
-      // Anti-alias the outer edge.
       const aa = Math.min(1, f.dist * dpr + 0.5)
       const a = ((line + inner) * (ambient + directional * 0.7) + glow) * aa
       const o = (y * W + x) * 4
@@ -224,7 +215,7 @@ export function imageDataToUrl(data: ImageData | DisplacementMap): string {
   canvas.width = data.width
   canvas.height = data.height
   const ctx = canvas.getContext("2d")!
-  const img = data instanceof ImageData ? data : new ImageData(data.data as unknown as Uint8ClampedArray<ArrayBuffer>, data.width, data.height)
+  const img = data instanceof ImageData ? data : new ImageData(data.data, data.width, data.height)
   ctx.putImageData(img, 0, 0)
   return canvas.toDataURL("image/png")
 }
