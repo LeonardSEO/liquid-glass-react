@@ -17,7 +17,15 @@ import {
   type SurfaceProfile,
 } from "./maps"
 
+/**
+ * `regular` and `clear` are calibrated against macOS's NSGlassEffectView styles.
+ * `lens` is the strongly refracting look of earlier versions. `identity` renders no glass.
+ */
+export type GlassVariant = "regular" | "clear" | "lens" | "identity"
+
 export type LiquidGlassOptions = {
+  /** Glass look. Options you set yourself override the variant. Default: "regular". */
+  variant?: GlassVariant
   /** Corner radius in px, or "auto" to read the element's CSS border-radius. Default: "auto". */
   radius?: number | "auto"
   /** Width of the curved, light-bending rim in px. Default: the `--lg-bezel` CSS variable, else derived from the element size. */
@@ -79,6 +87,33 @@ function supportsSvgBackdrop(): boolean {
   return chromiumCache
 }
 
+type VariantDefaults = {
+  blur: number
+  saturation: number
+  refraction: number
+  dispersion: number
+  thicknessRatio: number
+  autoBezel: (minSide: number, radius: number) => number
+}
+
+// Rim as a fraction of the short side, as measured on the system material.
+const rimBezel = (fraction: number) => (minSide: number, radius: number) => Math.max(1.5, Math.min(minSide * fraction, Math.min(radius, minSide / 2)))
+const REGULAR: VariantDefaults = { blur: 15, saturation: 1.725, refraction: 2, dispersion: 0, thicknessRatio: 3, autoBezel: rimBezel(0.03) }
+const VARIANTS: Record<GlassVariant, VariantDefaults> = {
+  regular: REGULAR,
+  clear: { blur: 21, saturation: 1.2, refraction: 1.906, dispersion: 0.0775, thicknessRatio: 3, autoBezel: rimBezel(0.0625) },
+  lens: {
+    blur: 3,
+    saturation: 1.5,
+    refraction: 1,
+    dispersion: 0.06,
+    thicknessRatio: 1.5,
+    // Apple's rim is roughly a quarter of the short side, capped for big panels.
+    autoBezel: (minSide, radius) => Math.max(6, Math.min(minSide * 0.25, Math.min(radius, minSide / 2), 56)),
+  },
+  identity: REGULAR,
+}
+
 type Maps = { displacement: string; specular: string; mask: string; scale: number; width: number; height: number }
 
 const mapCache = new Map<string, Maps>()
@@ -122,20 +157,24 @@ function parseRadius(value: string, minSide: number): number {
 type Measured = { w: number; h: number; radius: number; bezel?: number; thickness?: number }
 
 export function useLiquidGlass({
+  variant = "regular",
   radius: radiusOption = "auto",
   bezel: bezelOption,
   thickness: thicknessOption,
   tint = "light",
   ior = 1.5,
   profile = "squircle",
-  refraction = 1,
-  dispersion = 0.06,
+  refraction: refractionOption,
+  dispersion: dispersionOption,
   blur,
   saturation,
   specular,
   lightAngle = -135,
   interactive = false,
 }: LiquidGlassOptions = {}): LiquidGlassHandle {
+  const defaults = VARIANTS[variant]
+  const refraction = refractionOption ?? defaults.refraction
+  const dispersion = dispersionOption ?? defaults.dispersion
   const filterId = "lg-" + useId().replace(/[^a-zA-Z0-9_-]/g, "")
   const [element, setElement] = useState<HTMLElement | null>(null)
   const [measured, setMeasured] = useState<Measured | null>(null)
@@ -186,9 +225,8 @@ export function useLiquidGlass({
   const maps = useMemo<Maps | null>(() => {
     if (!size || radius === undefined) return null
     const minSide = Math.min(size.w, size.h)
-    // Apple's rim is roughly a quarter of the short side, capped for big panels.
-    const bezel = bezelCss ?? Math.max(6, Math.min(minSide * 0.25, Math.min(radius, minSide / 2), 56))
-    const thickness = thicknessCss ?? bezel * 1.5
+    const bezel = bezelCss ?? defaults.autoBezel(minSide, radius)
+    const thickness = thicknessCss ?? bezel * defaults.thicknessRatio
     const dpr = Math.min(2, typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1)
     const key = [size.w, size.h, radius, bezel, thickness, ior, profile, lightAngle, dpr].join("|")
     let base = mapCache.get(key)
@@ -209,7 +247,7 @@ export function useLiquidGlass({
       if (mapCache.size > 64) mapCache.delete(mapCache.keys().next().value!)
     }
     return { ...base, scale: base.scale * refraction }
-  }, [size?.w, size?.h, radius, bezelCss, thicknessCss, ior, profile, refraction, lightAngle])
+  }, [size?.w, size?.h, radius, bezelCss, thicknessCss, ior, profile, refraction, lightAngle, defaults])
 
   const setPointer = (e: ReactPointerEvent<HTMLElement>) => {
     if (!element) return
@@ -218,15 +256,20 @@ export function useLiquidGlass({
     element.style.setProperty("--lg-py", `${((e.clientY - r.top) / r.height) * 100}%`)
   }
 
-  const useSvg = svgSupported && maps !== null
-  const backdrop = useSvg
-    ? `blur(var(--lg-blur, 3px)) url(#${filterId}) saturate(var(--lg-saturation, 1.5)) brightness(1.04)`
-    : `blur(max(var(--lg-blur, 3px), 8px)) saturate(var(--lg-saturation, 1.5)) brightness(1.05)`
+  const identity = variant === "identity"
+  const useSvg = svgSupported && maps !== null && !identity
+  const blurVar = `var(--lg-blur, ${defaults.blur}px)`
+  const saturationVar = `var(--lg-saturation, ${defaults.saturation})`
+  const backdrop = identity
+    ? "none"
+    : useSvg
+      ? `blur(${blurVar}) url(#${filterId}) saturate(${saturationVar}) brightness(1.04)`
+      : `blur(max(${blurVar}, 8px)) saturate(${saturationVar}) brightness(1.05)`
 
   const s = maps?.scale ?? 0
 
   const rootProps: LiquidGlassRootProps = {
-    className: ["lg", tint === "dark" && "lg--dark", interactive && "lg--interactive", pressed && "lg--pressed", !useSvg && "lg--fallback"]
+    className: ["lg", `lg--${variant}`, tint === "dark" && "lg--dark", interactive && "lg--interactive", pressed && "lg--pressed", !useSvg && !identity && "lg--fallback"]
       .filter(Boolean)
       .join(" "),
     style: {

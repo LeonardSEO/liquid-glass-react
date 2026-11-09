@@ -28,7 +28,7 @@ export function useGlassSurface<T extends HTMLElement>({ material = "clear", for
   // The filter steps for dispersion are the main frame cost when many small
   // controls are visible, and inset glass has no filter to spend them on.
   const dispersion = options.dispersion ?? (material === "clear" || nested ? 0 : undefined)
-  const glass = useLiquidGlass({ ...options, dispersion, radius: "auto" })
+  const glass = useLiquidGlass({ variant: "lens", ...options, dispersion, radius: "auto" })
   const glassRef = glass.ref
   const ref = useCallback(
     (element: T | null) => {

@@ -44,6 +44,7 @@ export const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function
   {
     children,
     render,
+    variant,
     radius = 32,
     bezel,
     thickness,
@@ -68,7 +69,7 @@ export const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function
   },
   forwardedRef,
 ) {
-  const glass = useLiquidGlass({ radius, bezel, thickness, tint, ior, profile, refraction, dispersion, blur, saturation, specular, lightAngle, interactive })
+  const glass = useLiquidGlass({ variant, radius, bezel, thickness, tint, ior, profile, refraction, dispersion, blur, saturation, specular, lightAngle, interactive })
   const { ref: glassRef, rootProps } = glass
 
   // React 19 keeps an element's ref in props; before that it sits on the

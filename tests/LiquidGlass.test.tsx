@@ -71,7 +71,7 @@ test("own pointer handlers still run beside the glass handlers", () => {
 test("the backdrop is inline and CSS can override it through a variable", () => {
   const { container } = render(<LiquidGlass blur={5}>hi</LiquidGlass>)
   const root = container.firstElementChild as HTMLElement
-  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, blur\(var\(--lg-blur, 3px\)\) url\(#lg-/)
+  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, blur\(var\(--lg-blur, 15px\)\) url\(#lg-/)
   expect(root.style.getPropertyValue("--lg-blur")).toBe("5px")
 })
 
@@ -92,4 +92,26 @@ test("the hook composes with a Base UI Button", () => {
 test("the stylesheet never declares backdrop-filter, which minifiers would break", () => {
   const css = readFileSync("src/liquid-glass.css", "utf8").replace(/\/\*[\s\S]*?\*\//g, "")
   expect(css).not.toMatch(/backdrop-filter\s*:/)
+})
+
+test("variants pick their own defaults, and explicit options still win", () => {
+  const backdrop = (el: Element) => el.getAttribute("style") ?? ""
+  const { container, rerender } = render(<LiquidGlass>hi</LiquidGlass>)
+  const root = () => container.firstElementChild!
+  expect(root().classList.contains("lg--regular")).toBe(true)
+  expect(backdrop(root())).toContain("--lg-blur, 15px")
+  rerender(<LiquidGlass variant="clear">hi</LiquidGlass>)
+  expect(root().classList.contains("lg--clear")).toBe(true)
+  expect(backdrop(root())).toContain("--lg-blur, 21px")
+  rerender(<LiquidGlass variant="lens" blur={7}>hi</LiquidGlass>)
+  expect(backdrop(root())).toContain("--lg-blur, 3px")
+  expect(root().style.getPropertyValue("--lg-blur")).toBe("7px")
+})
+
+test("the identity variant renders no glass", () => {
+  const { container } = render(<LiquidGlass variant="identity">hi</LiquidGlass>)
+  const root = container.firstElementChild!
+  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, none\)/)
+  expect(root.classList.contains("lg--fallback")).toBe(false)
+  expect(root.querySelector("filter")).toBeNull()
 })

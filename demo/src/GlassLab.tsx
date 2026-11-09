@@ -72,7 +72,7 @@ function Lens({ shape, stage, blur, refraction, selected, onSelect, compact }: {
         setPosition((p) => ({ x: room.x ? clamp(p.x + delta.x * step / room.x) : 0, y: room.y ? clamp(p.y + delta.y * step / room.y) : 0 }))
       }}
     >
-      <LiquidGlass radius={shape.radius} blur={blur} refraction={refraction} tint="rgba(255,255,255,0.06)" className="lens-glass" />
+      <LiquidGlass variant="lens" radius={shape.radius} blur={blur} refraction={refraction} tint="rgba(255,255,255,0.06)" className="lens-glass" />
       <span className="lens-caption">{shape.name} <span aria-hidden="true">↗</span></span>
     </button>
   )

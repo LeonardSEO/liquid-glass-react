@@ -233,17 +233,18 @@ leave `bezel` and `thickness` unset to derive them from the measured size.
 
 | Prop | Default | Description |
 | --- | --- | --- |
+| `variant` | `"regular"` | Glass look. `"regular"` and `"clear"` are calibrated against macOS's `NSGlassEffectView` styles. `"lens"` is the strongly refracting look. `"identity"` renders no glass. Options you set yourself win over the variant. The defaults below are for `"regular"`. |
 | `radius` | `32` | Corner radius in px. `999` for pills and circles. `"auto"` reads the CSS `border-radius`, so `rem` and tokens work. |
-| `bezel` | auto | Width of the curved, light-bending rim. Auto uses the `--lg-bezel` CSS variable if set, else ≈ ¼ of the short side, capped by `radius` and 56. |
-| `thickness` | `1.5 × bezel` | Glass height. Taller glass bends more. Can also come from `--lg-thickness`. |
+| `bezel` | auto | Width of the curved, light-bending rim. Auto uses the `--lg-bezel` CSS variable if set, else 3% of the short side (6.25% for `clear`, ≈ ¼ capped at 56 for `lens`), capped by `radius`. |
+| `thickness` | `3 × bezel` (`1.5 ×` for `lens`) | Glass height. Taller glass bends more. Can also come from `--lg-thickness`. |
 | `ior` | `1.5` | Index of refraction (water ≈ 1.33). |
 | `profile` | `"squircle"` | Rim surface: `"squircle"`, `"circle"` or `"lip"`. |
-| `refraction` | `1` | Multiplier on top of the physical bend. |
-| `dispersion` | `0.06` | Colour separation. `0` disables it (single filter pass). |
-| `blur` | `3` | Frost in px. `0` = perfectly clear glass. Can also come from `--lg-blur`. |
-| `saturation` | `1.5` | Backdrop vibrancy. Can also come from `--lg-saturation`. |
+| `refraction` | `2` (`1` for `lens`) | Multiplier on top of the physical bend. |
+| `dispersion` | `0` (`0.0775` for `clear`, `0.06` for `lens`) | Colour separation. `0` disables it (single filter pass). |
+| `blur` | `15` (`21` for `clear`, `3` for `lens`) | Frost in px. `0` = perfectly clear glass. Can also come from `--lg-blur`. |
+| `saturation` | `1.725` (`1.2` for `clear`, `1.5` for `lens`) | Backdrop vibrancy. Can also come from `--lg-saturation`. |
 | `tint` | `"light"` | `"light"`, `"dark"` or any CSS colour. |
-| `specular` | `1` | Edge highlight strength, 0-1. |
+| `specular` | `0.4875` (`0.319` for `clear`, `1` for `lens`) | Edge highlight strength, 0-1. |
 | `lightAngle` | `-135` | Light direction in degrees (-90 = top, -135 = top-left). |
 | `interactive` | `false` | Press-to-grow and touch glow. |
 | `render` | - | Render as another element, e.g. `render={<button type="button" />}`. |
