@@ -57,8 +57,9 @@ Rules that apply to all of them:
 - One layer of glass per stack: nested glass has nothing to refract. Give
   controls on a glass surface `--lg-backdrop-override: none` (the components do
   this themselves).
-- Use `dispersion={0}` on small controls. With 50 in view while scrolling,
-  frame rate went from 33 to 59 fps in a software-rendered test.
+- Stick to Apple's options: `variant` (`regular`, `clear`, `identity`), `tint`,
+  `radius` and `interactive`. Dark glass comes from a `dark` class or
+  `data-theme="dark"` on the element or an ancestor.
 - Never declare `backdrop-filter` on `.lg` in CSS, because minifiers can reduce
   it to the `-webkit-` form, which Chromium ignores. Set
   `--lg-backdrop-override` instead.
@@ -77,8 +78,7 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
   component applies it as `border-radius` itself.
 - Give the element a real size (height/width via class or style). The map
   is generated for the measured size and regenerated on resize.
-- `tint="dark"` for dark sheets/panels; `interactive` for buttons.
-- Leave `bezel`/`thickness` on auto unless you need to tune them.
+- `interactive` for buttons.
 
 ## Step 3 - Layout rules that make or break the effect
 
@@ -115,7 +115,5 @@ is expected: only Blink renders SVG filters in `backdrop-filter`.
 | --- | --- | --- |
 | No refraction in Chrome, page visible "through" the glass | Backdrop root ancestor | Remove the filter/opacity/blend from the ancestor, or move the glass out of it |
 | Nested glass looks dark/empty | Inner glass is a child of outer glass | Make it a sibling positioned over it |
-| Too strong / too weak bend | Thickness | `thickness` (or `refraction` multiplier) |
-| Rainbow edges too strong | Dispersion | Lower `dispersion` (0 disables) |
-| Too milky / too clear | Tint, blur | `tint="rgba(255,255,255,.2)"`, `blur` |
+| Too milky / too clear | Variant | Switch between `variant="regular"` and `"clear"` |
 | Fixed-size element, want zero JS | - | `scripts/generate-displacement-map.py` + use the printed `scale` |

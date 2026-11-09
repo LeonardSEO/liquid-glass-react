@@ -17,38 +17,36 @@ import {
   type SurfaceProfile,
 } from "./maps"
 
-/**
- * `regular` and `clear` are calibrated against macOS's NSGlassEffectView styles.
- * `lens` is the strongly refracting look of earlier versions. `identity` renders no glass.
- */
-export type GlassVariant = "regular" | "clear" | "lens" | "identity"
+/** `regular` and `clear` are calibrated against macOS's NSGlassEffectView styles. `identity` renders no glass. */
+/** `lens` is an advanced, strongly refracting look that Apple has no equivalent for. */
+export type GlassVariant = "regular" | "clear" | "identity" | "lens"
 
 export type LiquidGlassOptions = {
-  /** Glass look. Options you set yourself override the variant. Default: "regular". */
+  /** Glass style, as on Apple platforms. Default: "regular". */
   variant?: GlassVariant
   /** Corner radius in px, or "auto" to read the element's CSS border-radius. Default: "auto". */
   radius?: number | "auto"
-  /** Width of the curved, light-bending rim in px. Default: the `--lg-bezel` CSS variable, else derived from the element size. */
+  /** @advanced Width of the curved, light-bending rim in px. Default: the `--lg-bezel` CSS variable, else derived from the element size. */
   bezel?: number
-  /** Glass height in px - higher = stronger refraction at the rim. Default: the `--lg-thickness` CSS variable, else 1.5 x bezel. */
+  /** @advanced Glass height in px - higher = stronger refraction at the rim. Default: the `--lg-thickness` CSS variable, else derived from the variant. */
   thickness?: number
-  /** Glass tint: "light", "dark", or any CSS color. */
+  /** Any CSS color, ideally translucent. */
   tint?: "light" | "dark" | (string & {})
-  /** Index of refraction (glass ≈ 1.5). */
+  /** @advanced Index of refraction (glass ≈ 1.5). */
   ior?: number
-  /** Rim surface profile. Apple uses a squircle. */
+  /** @advanced Rim surface profile. */
   profile?: SurfaceProfile
-  /** Extra multiplier on the physical refraction strength. */
+  /** @advanced Extra multiplier on the physical refraction strength. */
   refraction?: number
-  /** Chromatic dispersion: fraction of extra/less bend for red/blue. 0 disables. */
+  /** @advanced Chromatic dispersion: fraction of extra/less bend for red/blue. 0 disables. */
   dispersion?: number
-  /** Frost blur of the backdrop in px. 0 = perfectly clear glass. Default: the `--lg-blur` CSS variable, else 3. */
+  /** @advanced Frost blur of the backdrop in px. 0 = perfectly clear glass. Default: the `--lg-blur` CSS variable, else the variant. */
   blur?: number
-  /** Backdrop saturation multiplier. Default: the `--lg-saturation` CSS variable, else 1.5. */
+  /** @advanced Backdrop saturation multiplier. Default: the `--lg-saturation` CSS variable, else the variant. */
   saturation?: number
-  /** Specular rim strength 0..1. Default: the `--lg-specular-opacity` CSS variable, else 1. */
+  /** @advanced Specular rim strength 0..1. Default: the `--lg-specular-opacity` CSS variable, else the variant. */
   specular?: number
-  /** Light direction for the specular rim, degrees (-90 = top, -135 = top-left). */
+  /** @advanced Light direction for the specular rim, degrees (-90 = top, -135 = top-left). */
   lightAngle?: number
   /** Press-to-grow + touch glow, like iOS controls. */
   interactive?: boolean
@@ -108,7 +106,6 @@ const VARIANTS: Record<GlassVariant, VariantDefaults> = {
     refraction: 1,
     dispersion: 0.06,
     thicknessRatio: 1.5,
-    // Apple's rim is roughly a quarter of the short side, capped for big panels.
     autoBezel: (minSide, radius) => Math.max(6, Math.min(minSide * 0.25, Math.min(radius, minSide / 2), 56)),
   },
   identity: REGULAR,
@@ -258,12 +255,14 @@ export function useLiquidGlass({
 
   const identity = variant === "identity"
   const useSvg = svgSupported && maps !== null && !identity
-  const blurVar = `var(--lg-blur, ${defaults.blur}px)`
-  const saturationVar = `var(--lg-saturation, ${defaults.saturation})`
+  // Presets live in CSS so a dark theme can swap them without a re-render.
+  const blurVar = `var(--lg-blur, var(--lg-preset-blur, ${defaults.blur}px))`
+  const saturationVar = `var(--lg-saturation, var(--lg-preset-saturation, ${defaults.saturation}))`
+  const brightnessVar = "var(--lg-preset-brightness, 1.04)"
   const backdrop = identity
     ? "none"
     : useSvg
-      ? `blur(${blurVar}) url(#${filterId}) saturate(${saturationVar}) brightness(1.04)`
+      ? `blur(${blurVar}) url(#${filterId}) saturate(${saturationVar}) brightness(${brightnessVar})`
       : `blur(max(${blurVar}, 8px)) saturate(${saturationVar}) brightness(1.05)`
 
   const s = maps?.scale ?? 0

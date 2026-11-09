@@ -23,7 +23,7 @@ export type GlassButtonProps = WithStringClassName<ComponentProps<typeof Button>
 }
 
 export const GlassButton = forwardRef<HTMLElement, GlassButtonProps>(function GlassButton(
-  { variant = "secondary", size = "md", material = "clear", loading = false, disabled = false, className, children, ...props },
+  { variant = "secondary", size = "md", material = "regular", loading = false, disabled = false, className, children, ...props },
   forwardedRef,
 ) {
   const inactive = disabled || loading

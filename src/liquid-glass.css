@@ -13,6 +13,9 @@
   --lg-tint: rgba(249, 249, 249, 0.48);
   --lg-shadow: none;
   --lg-inner-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.145);
+  --lg-preset-blur: 15px;
+  --lg-preset-saturation: 1.725;
+  --lg-preset-brightness: 1.04;
   --lg-px: 50%;
   --lg-py: 50%;
 
@@ -89,16 +92,41 @@
 }
 
 .lg--clear {
+  --lg-preset-blur: 21px;
+  --lg-preset-saturation: 1.2;
   --lg-tint: rgba(227, 227, 227, 0.27);
   --lg-inner-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.195);
   --lg-specular-opacity: 0.319;
 }
 
 .lg--lens {
+  --lg-preset-blur: 3px;
+  --lg-preset-saturation: 1.5;
   --lg-tint: rgba(255, 255, 255, 0.3);
   --lg-shadow: 0 6px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
   --lg-inner-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 -10px 24px -18px rgba(0, 0, 0, 0.18);
   --lg-specular-opacity: 1;
+}
+
+/* Apple's glass follows the appearance of the view it sits in. */
+:is(.dark, [data-theme="dark"]) .lg--regular,
+.lg--regular:is(.dark, [data-theme="dark"]) {
+  --lg-preset-blur: 18px;
+  --lg-preset-saturation: 1.55;
+  --lg-preset-brightness: 0.788;
+  --lg-tint: rgba(165, 165, 165, 0.1);
+  --lg-specular-opacity: 0.025;
+  color: #fff;
+}
+
+:is(.dark, [data-theme="dark"]) .lg--clear,
+.lg--clear:is(.dark, [data-theme="dark"]) {
+  --lg-preset-blur: 20.5px;
+  --lg-preset-saturation: 1.295;
+  --lg-preset-brightness: 0.863;
+  --lg-tint: rgba(135, 135, 135, 0.14);
+  --lg-specular-opacity: 0.101;
+  color: #fff;
 }
 
 .lg--identity .lg__tint,

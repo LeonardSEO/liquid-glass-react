@@ -1,5 +1,9 @@
 import { useRef, useState, type CSSProperties, type RefObject } from "react"
-import { LiquidGlass } from "@vepando/liquid-glass-react"
+import { type GlassVariant, LiquidGlass } from "@vepando/liquid-glass-react"
+
+const styles: GlassVariant[] = ["regular", "clear", "identity"]
+const tints = [["None", undefined], ["Blue", "rgba(10,132,255,0.35)"], ["Red", "rgba(255,69,58,0.35)"]] as const
+const MAX_RADIUS = 120
 
 const shapes = [
   { name: "Squircle", width: 216, height: 216, radius: 56, x: .55, y: .24 },
@@ -10,11 +14,13 @@ const shapes = [
 type Position = { x: number; y: number }
 const clamp = (n: number) => Math.max(0, Math.min(1, n))
 
-function Lens({ shape, stage, blur, refraction, selected, onSelect, compact }: {
+function Lens({ shape, stage, variant, tint, interactive, radius, selected, onSelect, compact }: {
   shape: typeof shapes[number]
   stage: RefObject<HTMLDivElement | null>
-  blur: number
-  refraction: number
+  variant: GlassVariant
+  tint?: string
+  interactive: boolean
+  radius: number
   selected: boolean
   onSelect: () => void
   compact: boolean
@@ -37,7 +43,7 @@ function Lens({ shape, stage, blur, refraction, selected, onSelect, compact }: {
         "--lens-height": `${shape.height * (compact ? .8 : 1)}px`,
         left: `calc(${position.x * 100}% - var(--lens-width) * ${position.x})`,
         top: `calc(${position.y * 100}% - var(--lens-height) * ${position.y})`,
-        borderRadius: shape.radius,
+        borderRadius: Math.min(shape.radius, radius),
       } as CSSProperties}
       onFocus={onSelect}
       onPointerDown={(event) => {
@@ -72,7 +78,7 @@ function Lens({ shape, stage, blur, refraction, selected, onSelect, compact }: {
         setPosition((p) => ({ x: room.x ? clamp(p.x + delta.x * step / room.x) : 0, y: room.y ? clamp(p.y + delta.y * step / room.y) : 0 }))
       }}
     >
-      <LiquidGlass variant="lens" radius={shape.radius} blur={blur} refraction={refraction} tint="rgba(255,255,255,0.06)" className="lens-glass" />
+      <LiquidGlass variant={variant} tint={tint} interactive={interactive} radius={Math.min(shape.radius, radius)} className="lens-glass" />
       <span className="lens-caption">{shape.name} <span aria-hidden="true">↗</span></span>
     </button>
   )
@@ -81,8 +87,10 @@ function Lens({ shape, stage, blur, refraction, selected, onSelect, compact }: {
 export function LensCanvas({ hero = false }: { hero?: boolean }) {
   const stage = useRef<HTMLDivElement>(null)
   const [background, setBackground] = useState("light")
-  const [blur, setBlur] = useState(0)
-  const [refraction, setRefraction] = useState(1.3)
+  const [variant, setVariant] = useState<GlassVariant>("regular")
+  const [tint, setTint] = useState<string | undefined>(undefined)
+  const [interactive, setInteractive] = useState(true)
+  const [radius, setRadius] = useState(MAX_RADIUS)
   const [selected, setSelected] = useState("")
   const [reset, setReset] = useState(0)
   return (
@@ -91,21 +99,29 @@ export function LensCanvas({ hero = false }: { hero?: boolean }) {
         <fieldset className="surface-picker"><legend>Backdrop</legend>
           {["light", "dark", "type"].map((value) => <button type="button" key={value} aria-pressed={background === value} onClick={() => setBackground(value)}>{value}</button>)}
         </fieldset>
-        <label>Refraction <output>{refraction.toFixed(1)}×</output><input aria-label="Refraction" type="range" min="0" max="2.5" step="0.1" value={refraction} onChange={(e) => setRefraction(Number(e.target.value))} /></label>
-        <label>Frost <output>{blur}px</output><input aria-label="Frost" type="range" min="0" max="12" step="1" value={blur} onChange={(e) => setBlur(Number(e.target.value))} /></label>
-        <button type="button" className="text-button" onClick={() => { setReset((n) => n + 1); setBlur(0); setRefraction(1.3); setSelected("") }}>Reset lenses ↺</button>
+        <fieldset className="surface-picker"><legend>Style</legend>
+          {styles.map((value) => <button type="button" key={value} aria-pressed={variant === value} onClick={() => setVariant(value)}>{value}</button>)}
+        </fieldset>
+        <fieldset className="surface-picker"><legend>Tint</legend>
+          {tints.map(([name, value]) => <button type="button" key={name} aria-pressed={tint === value} onClick={() => setTint(value)}>{name}</button>)}
+        </fieldset>
+        <fieldset className="surface-picker"><legend>Interactive</legend>
+          <button type="button" aria-pressed={interactive} onClick={() => setInteractive((on) => !on)}>{interactive ? "On" : "Off"}</button>
+        </fieldset>
+        <label>Corner radius <output>{radius === MAX_RADIUS ? "Auto" : `${radius}px`}</output><input aria-label="Corner radius" type="range" min="0" max={MAX_RADIUS} step="2" value={radius} onChange={(e) => setRadius(Number(e.target.value))} /></label>
+        <button type="button" className="text-button" onClick={() => { setReset((n) => n + 1); setVariant("regular"); setTint(undefined); setInteractive(true); setRadius(MAX_RADIUS); setSelected("") }}>Reset lenses ↺</button>
       </div>}
       <div ref={stage} className={hero ? "hero-lenses" : `lab-canvas lab-canvas--${background}`} aria-label="Draggable glass canvas">
         {!hero && <div className="lab-art" aria-hidden="true">
           <span className="lab-edition">THE MATERIAL STUDY / 001</span>
           <div className="lab-type">Liquid<br />in motion.</div>
-          <p>Letters bend. Colours split.<br />A different perspective, wherever you move.</p>
+          <p>Regular, or clear. Tinted, or not.<br />A different light, wherever you move.</p>
           <div className="lab-stripes" />
           <span className="lab-coordinate">Aa Bb Cc &nbsp; 0123456789 &nbsp; ✳</span>
         </div>}
-        {shapes.map((shape) => <Lens key={`${reset}-${shape.name}`} shape={shape} stage={stage} blur={blur} refraction={refraction} selected={selected === shape.name} onSelect={() => setSelected(shape.name)} compact={hero} />)}
+        {shapes.map((shape) => <Lens key={`${reset}-${shape.name}`} shape={shape} stage={stage} variant={variant} tint={tint} interactive={interactive} radius={radius} selected={selected === shape.name} onSelect={() => setSelected(shape.name)} compact={hero} />)}
       </div>
-      <p id="lens-instructions" className={hero ? "hero-instructions" : "lab-instructions"}>Drag any shape. Or focus it and use arrow keys; Shift moves faster.{!hero && <span> {selected || "Three shapes"} · live refraction</span>}</p>
+      <p id="lens-instructions" className={hero ? "hero-instructions" : "lab-instructions"}>Drag any shape. Or focus it and use arrow keys; Shift moves faster.{!hero && <span> {selected || "Three shapes"} · live glass</span>}</p>
     </>
   )
 }

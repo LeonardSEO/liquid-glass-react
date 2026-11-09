@@ -12,6 +12,7 @@ import {
   GlassDialogTrigger,
 } from "@/registry/glass/glass-dialog"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "@/registry/glass/glass-tabs"
+import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
 
 const params = new URLSearchParams(location.search)
 
@@ -43,6 +44,19 @@ function Example({ title, item, code, children }: { title: string; item: string;
 }
 
 const panelText = "rounded-2xl bg-(--glass-track) p-4 text-sm text-(--glass-foreground)"
+
+const icon = (d: string) => <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={d} /></svg>
+const tabBarItems = [
+  { value: "home", label: "Home", icon: icon("M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z") },
+  { value: "new", label: "New", icon: icon("M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z") },
+  { value: "radio", label: "Radio", icon: icon("M12 9a3 3 0 100 6 3 3 0 000-6zM6.3 5.3a9 9 0 000 13.4l1.4-1.4a7 7 0 010-10.6zM17.7 5.3l-1.4 1.4a7 7 0 010 10.6l1.4 1.4a9 9 0 000-13.4z") },
+  { value: "library", label: "Library", icon: icon("M5 8h14v13H5zM7 5h10v2H7zM9 2h6v2H9z") },
+]
+
+function TabBarDemo() {
+  const [tab, setTab] = useState("home")
+  return <GlassTabBar aria-label="Sections" items={tabBarItems} value={tab} onValueChange={setTab} />
+}
 
 export function UiDemo() {
   const [backdrop, setBackdrop] = useState<Backdrop>((params.get("bg") as Backdrop) ?? "wallpaper")
@@ -101,6 +115,14 @@ export function UiDemo() {
           <GlassButton loading>Saving</GlassButton>
           <GlassButton disabled>Disabled</GlassButton>
         </div>
+      </Example>
+
+      <Example
+        title="Tab bar"
+        item="glass-tab-bar"
+        code={`<GlassTabBar\n  aria-label="Sections"\n  value={tab}\n  onValueChange={setTab}\n  items={[{ value: "home", label: "Home", icon: <Home /> }, ...]}\n/>`}
+      >
+        <TabBarDemo />
       </Example>
 
       <Example

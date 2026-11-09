@@ -33,6 +33,14 @@
       "files": [{ "path": "registry/glass/glass-tabs.tsx", "type": "registry:ui" }]
     },
     {
+      "name": "glass-tab-bar",
+      "type": "registry:ui",
+      "title": "Glass Tab Bar",
+      "description": "An iOS-style tab bar or navigation with a magnifying glass lens you can drag between items.",
+      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-tab-bar.tsx", "type": "registry:ui" }]
+    },
+    {
       "name": "glass-dialog",
       "type": "registry:ui",
       "title": "Glass Dialog",

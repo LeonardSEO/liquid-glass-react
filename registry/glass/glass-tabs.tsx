@@ -10,7 +10,7 @@ export const GlassTabs = forwardRef<HTMLDivElement, ComponentProps<typeof Tabs.R
 })
 
 function GlassTabsIndicator() {
-  const glass = useGlassSurface<HTMLSpanElement>({ material: "clear" })
+  const glass = useGlassSurface<HTMLSpanElement>({ material: "regular" })
   return (
     <Tabs.Indicator
       {...glass.rootProps}

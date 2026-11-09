@@ -112,7 +112,7 @@ export function MusicScene() {
               backdrop includes the bar and its icons - which it magnifies. */}
           <div className="m-dropzone" style={{ "--i": tab } as React.CSSProperties}>
             <div className={"m-drop" + (moving ? " m-drop--moving" : "")}>
-              <LiquidGlass radius={999} tint="rgba(255,255,255,0.05)" blur={0} saturation={1.2} className="m-drop__glass" {...overrides} />
+              <LiquidGlass radius={999} variant="clear" className="m-drop__glass" {...overrides} />
             </div>
           </div>
           <LiquidGlass radius={999} interactive className="m-search" {...overrides}>
@@ -127,7 +127,7 @@ export function MusicScene() {
 export function SiriScene() {
   return (
     <div className="siri">
-      <LiquidGlass radius={56} className="siri__panel" tint="dark" {...overrides}>
+      <LiquidGlass radius={56} className="siri__panel dark" {...overrides}>
         <p className="siri__text">It'll be fantastic weather for your upcoming tennis lesson this Sunday.</p>
         <div className="siri__card">
           <div>
@@ -148,13 +148,13 @@ export function SiriScene() {
 export function BannerScene() {
   return (
     <div className="banner">
-      <LiquidGlass radius={999} className="banner__title" tint="rgba(255,255,255,0.12)" blur={2}>
+      <LiquidGlass radius={999} variant="clear" className="banner__title">
         <div className="banner__titlerow">
           <span className="banner__logo">◐</span>
           <span>Liquid Glass</span>
         </div>
       </LiquidGlass>
-      <LiquidGlass radius={999} className="banner__sub" tint="dark" blur={6}>
+      <LiquidGlass radius={999} className="banner__sub dark">
         <div className="banner__subrow">Physically-based refraction for React · no WebGL</div>
       </LiquidGlass>
       <LiquidGlass radius={999} className="banner__orb banner__orb--a" />

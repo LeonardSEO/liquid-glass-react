@@ -71,7 +71,7 @@ test("own pointer handlers still run beside the glass handlers", () => {
 test("the backdrop is inline and CSS can override it through a variable", () => {
   const { container } = render(<LiquidGlass blur={5}>hi</LiquidGlass>)
   const root = container.firstElementChild as HTMLElement
-  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, blur\(var\(--lg-blur, 15px\)\) url\(#lg-/)
+  expect(root.getAttribute("style")).toMatch(/backdrop-filter: var\(--lg-backdrop-override, blur\(var\(--lg-blur, var\(--lg-preset-blur, 15px\)\)\) url\(#lg-/)
   expect(root.style.getPropertyValue("--lg-blur")).toBe("5px")
 })
 
@@ -99,12 +99,12 @@ test("variants pick their own defaults, and explicit options still win", () => {
   const { container, rerender } = render(<LiquidGlass>hi</LiquidGlass>)
   const root = () => container.firstElementChild!
   expect(root().classList.contains("lg--regular")).toBe(true)
-  expect(backdrop(root())).toContain("--lg-blur, 15px")
+  expect(backdrop(root())).toContain("--lg-preset-blur, 15px")
   rerender(<LiquidGlass variant="clear">hi</LiquidGlass>)
   expect(root().classList.contains("lg--clear")).toBe(true)
-  expect(backdrop(root())).toContain("--lg-blur, 21px")
+  expect(backdrop(root())).toContain("--lg-preset-blur, 21px")
   rerender(<LiquidGlass variant="lens" blur={7}>hi</LiquidGlass>)
-  expect(backdrop(root())).toContain("--lg-blur, 3px")
+  expect(backdrop(root())).toContain("--lg-preset-blur, 3px")
   expect(root().style.getPropertyValue("--lg-blur")).toBe("7px")
 })
 

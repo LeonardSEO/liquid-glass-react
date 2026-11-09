@@ -14,18 +14,11 @@
   --glass-muted-foreground: rgb(50, 50, 58);
   --glass-primary: rgba(29, 78, 216, 0.92);
   --glass-primary-foreground: rgb(255, 255, 255);
+  --glass-accent: rgb(0, 72, 190);
+  --glass-tab-pill: rgba(255, 255, 255, 0.62);
   --glass-ring: rgb(37, 99, 235);
   --glass-track: rgba(255, 255, 255, 0.72);
 
-  /* Small controls: mostly clear. Needs enough tint to keep labels readable. */
-  --glass-clear-tint: rgba(255, 255, 255, 0.62);
-  --glass-clear-blur: 6px;
-  /* Cards and toolbars. */
-  --glass-regular-tint: rgba(255, 255, 255, 0.66);
-  --glass-regular-blur: 14px;
-  /* Large surfaces with running text, such as dialogs. */
-  --glass-reading-tint: rgba(255, 255, 255, 0.82);
-  --glass-reading-blur: 28px;
   /* Controls that sit on other glass and have no backdrop of their own. */
   --glass-inset-tint: rgba(255, 255, 255, 0.5);
 }
@@ -35,39 +28,17 @@
   --glass-foreground: rgb(250, 250, 252);
   --glass-muted-foreground: rgb(214, 214, 222);
   --glass-primary: rgba(29, 78, 216, 0.95);
+  --glass-accent: rgb(160, 210, 255);
+  --glass-tab-pill: rgba(0, 0, 0, 0.5);
   --glass-ring: rgb(147, 197, 253);
   --glass-track: rgba(15, 15, 20, 0.72);
-  --glass-clear-tint: rgba(12, 12, 16, 0.66);
-  --glass-regular-tint: rgba(12, 12, 16, 0.8);
-  --glass-reading-tint: rgba(12, 12, 16, 0.84);
   --glass-inset-tint: rgba(255, 255, 255, 0.14);
 }
 
 .lg.glass-clear,
 .lg.glass-regular,
-.lg.glass-reading,
 .lg.glass-inset {
   color: var(--glass-foreground);
-}
-
-.lg.glass-clear,
-.lg.lg--fallback.glass-clear {
-  --lg-tint: var(--glass-clear-tint);
-  --lg-blur: var(--glass-clear-blur);
-}
-
-.lg.glass-regular,
-.lg.lg--fallback.glass-regular {
-  --lg-tint: var(--glass-regular-tint);
-  --lg-blur: var(--glass-regular-blur);
-  --lg-bezel: 12px;
-}
-
-.lg.glass-reading,
-.lg.lg--fallback.glass-reading {
-  --lg-tint: var(--glass-reading-tint);
-  --lg-blur: var(--glass-reading-blur);
-  --lg-bezel: 14px;
 }
 
 .lg.glass-inset,
@@ -79,7 +50,13 @@
 .lg.glass-primary,
 .lg.lg--fallback.glass-primary {
   --lg-tint: var(--glass-primary);
+  --lg-specular-opacity: 0.1;
   color: var(--glass-primary-foreground);
+}
+
+/* Controls keep their labels readable over bright content in dark mode. */
+:is(.dark, [data-theme="dark"]) .lg.glass-regular {
+  --lg-preset-brightness: 0.7;
 }
 
 /* A coloured surface keeps its edge: without this the tint fades out across the rim into a halo. */
@@ -108,5 +85,70 @@
 
   .lg.glass-primary .lg__tint {
     background: rgb(29, 78, 216);
+  }
+}
+
+.glass-tab-bar {
+  position: relative;
+  display: inline-block;
+  color: var(--glass-foreground);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.glass-tab-bar__pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  border-radius: 9999px;
+  background: var(--glass-tab-pill);
+  box-shadow: inset 0 0 0 0.5px rgba(120, 120, 128, 0.35);
+  pointer-events: none;
+}
+
+.glass-tab-bar__base {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-tab-bar__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  color: var(--glass-accent);
+  pointer-events: none;
+}
+
+.glass-tab-bar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 21px;
+  border: 0;
+  border-radius: 9999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: inherit;
+}
+
+.glass-tab-bar__item:focus-visible {
+  outline: 2px solid var(--glass-ring);
+  outline-offset: -3px;
+}
+
+@media (forced-colors: active) {
+  .glass-tab-bar__pill {
+    background: Highlight;
   }
 }

@@ -4,6 +4,7 @@ import { expect, test, vi } from "vitest"
 import { GlassButton } from "../registry/glass/glass-button"
 import { GlassCard } from "../registry/glass/glass-card"
 import { GlassDialog, GlassDialogContent, GlassDialogTitle, GlassDialogTrigger } from "../registry/glass/glass-dialog"
+import { GlassTabBar } from "../registry/glass/glass-tab-bar"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "../registry/glass/glass-tabs"
 
 test("GlassButton is a real button whose ref and clicks work", () => {
@@ -42,7 +43,7 @@ test("a button inside a card becomes inset glass, outside it does not", () => {
       </GlassCard>
     </>,
   )
-  expect(screen.getByRole("button", { name: "Outside" }).className).toContain("glass-clear")
+  expect(screen.getByRole("button", { name: "Outside" }).className).toContain("glass-regular")
   expect(screen.getByRole("button", { name: "Inside" }).className).toContain("glass-inset")
 })
 
@@ -77,6 +78,40 @@ test("GlassDialog opens as a labelled dialog with glass and inset children", asy
   )
   fireEvent.click(screen.getByRole("button", { name: "Open" }))
   const dialog = await screen.findByRole("dialog", { name: "Title" })
-  expect(dialog.className).toContain("glass-reading")
+  expect(dialog.className).toContain("glass-regular")
   expect(screen.getByRole("button", { name: "Inner" }).className).toContain("glass-inset")
 })
+
+const tabBarItems = [
+  { value: "home", label: "Home" },
+  { value: "radio", label: "Radio" },
+  { value: "library", label: "Library" },
+]
+
+test("the tab bar exposes one selected tab and moves it with the arrow keys", () => {
+  const onValueChange = vi.fn()
+  render(<GlassTabBar aria-label="Sections" items={tabBarItems} value="home" onValueChange={onValueChange} />)
+  const tabs = screen.getAllByRole("tab")
+  expect(tabs).toHaveLength(3)
+  expect(tabs[0].getAttribute("aria-selected")).toBe("true")
+  tabs[0].focus()
+  fireEvent.keyDown(tabs[0], { key: "ArrowRight" })
+  expect(onValueChange).toHaveBeenCalledWith("radio")
+  expect(screen.getByRole("tab", { name: "Radio" }).getAttribute("aria-selected")).toBe("true")
+  expect(document.activeElement).toBe(screen.getByRole("tab", { name: "Radio" }))
+})
+
+test("items with an href become a navigation with the current page marked", () => {
+  render(<GlassTabBar aria-label="Main" value="b" items={[{ value: "a", label: "A", href: "?a" }, { value: "b", label: "B", href: "?b" }]} />)
+  expect(screen.getByRole("navigation", { name: "Main" })).toBeTruthy()
+  expect(screen.getByRole("link", { name: "B" }).getAttribute("aria-current")).toBe("page")
+  expect(screen.getByRole("link", { name: "A" }).getAttribute("aria-current")).toBeNull()
+})
+
+test("the lens is glass beside the bar, not nested in it", () => {
+  const { container } = render(<GlassTabBar aria-label="Sections" items={tabBarItems} value="home" />)
+  const glass = container.querySelectorAll(".lg")
+  expect(glass).toHaveLength(2)
+  expect(glass[0].contains(glass[1])).toBe(false)
+})
+

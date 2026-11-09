@@ -3,7 +3,7 @@
  *
  * The glass is modelled as a slab whose rim (the "bezel") rises from the
  * element's border to a flat plateau following a convex squircle profile -
- * the same soft flat-to-curve transition Apple uses. For every distance
+ * a soft flat-to-curve transition. For every distance
  * from the border we refract a straight-down view ray through that surface
  * with Snell's law (n = ior) and measure how far sideways it lands on the
  * content under the glass. That 1D curve is then swept around the element's

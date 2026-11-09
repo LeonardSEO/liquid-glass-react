@@ -13,7 +13,7 @@ export const GlassDialogContent = forwardRef<HTMLDivElement, WithStringClassName
   { className, children, ...props },
   forwardedRef,
 ) {
-  const glass = useGlassSurface<HTMLDivElement>({ material: "reading", forwardedRef })
+  const glass = useGlassSurface<HTMLDivElement>({ material: "regular", forwardedRef })
   return (
     <Dialog.Portal>
       <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/35 transition-opacity duration-200 data-ending-style:opacity-0 data-starting-style:opacity-0 motion-reduce:transition-none" />

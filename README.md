@@ -204,13 +204,20 @@ import { GlassButton } from "@/components/ui/glass-button"
 <GlassButton loading>Saving</GlassButton>
 ```
 
-Materials set how much the glass gives way to legibility:
+`GlassTabBar` is an iOS-style tab bar or navigation: a quiet pill at rest, and
+a magnifying lens you can drag between items. Give items an `href` for a
+navigation; without one they become tabs with arrow-key support.
+
+```tsx
+<GlassTabBar aria-label="Sections" value={tab} onValueChange={setTab} items={items} />
+```
+
+Materials follow Apple's glass styles:
 
 | Material | Used for | Character |
 | --- | --- | --- |
-| `clear` | Buttons, tab indicator | Light blur, no colour dispersion |
-| `regular` | Cards | More blur and tint |
-| `reading` | Dialogs | Mostly opaque, for running text |
+| `regular` | Default for every component | Frosted and bright, for controls and surfaces with text |
+| `clear` | Glass over rich media | More transparent. Check that text on it stays legible |
 
 **One layer of glass per stack.** A `backdrop-filter` hides the page from
 everything inside it, so glass nested in glass has nothing to refract.
@@ -219,34 +226,21 @@ inside them switches to inset glass, which keeps the rim and tint but has no
 backdrop of its own. For the same reason the track of `GlassTabsList` is not
 glass, so the indicator moving over it can refract.
 
-**Performance.** Measured with 50 elements in view while scrolling, colour
-dispersion was the main frame cost, so `clear` turns it off. Maps are built
+**Performance.** Maps are built
 once per distinct size and shared, so a page of uniform controls is cheap.
 Fifty *different* sizes at once take noticeably longer on slow devices (about
 225 ms under 4× CPU throttling, in one block on first render).
 
 ## Props
 
-For most uses, set the size with CSS and optionally choose `radius`,
-`tint` and `interactive`. The optical controls below are optional tuning;
-leave `bezel` and `thickness` unset to derive them from the measured size.
+Set the size with CSS and choose from the same options Apple's glass offers:
 
 | Prop | Default | Description |
 | --- | --- | --- |
-| `variant` | `"regular"` | Glass look. `"regular"` and `"clear"` are calibrated against macOS's `NSGlassEffectView` styles. `"lens"` is the strongly refracting look. `"identity"` renders no glass. Options you set yourself win over the variant. The defaults below are for `"regular"`. |
+| `variant` | `"regular"` | Glass style: `"regular"`, `"clear"` or `"identity"` (no glass). Matched against macOS's `NSGlassEffectView`, in light and in dark (add a `dark` class or `data-theme="dark"` on the glass or an ancestor). |
 | `radius` | `32` | Corner radius in px. `999` for pills and circles. `"auto"` reads the CSS `border-radius`, so `rem` and tokens work. |
-| `bezel` | auto | Width of the curved, light-bending rim. Auto uses the `--lg-bezel` CSS variable if set, else 3% of the short side (6.25% for `clear`, ≈ ¼ capped at 56 for `lens`), capped by `radius`. |
-| `thickness` | `3 × bezel` (`1.5 ×` for `lens`) | Glass height. Taller glass bends more. Can also come from `--lg-thickness`. |
-| `ior` | `1.5` | Index of refraction (water ≈ 1.33). |
-| `profile` | `"squircle"` | Rim surface: `"squircle"`, `"circle"` or `"lip"`. |
-| `refraction` | `2` (`1` for `lens`) | Multiplier on top of the physical bend. |
-| `dispersion` | `0` (`0.0775` for `clear`, `0.06` for `lens`) | Colour separation. `0` disables it (single filter pass). |
-| `blur` | `15` (`21` for `clear`, `3` for `lens`) | Frost in px. `0` = perfectly clear glass. Can also come from `--lg-blur`. |
-| `saturation` | `1.725` (`1.2` for `clear`, `1.5` for `lens`) | Backdrop vibrancy. Can also come from `--lg-saturation`. |
-| `tint` | `"light"` | `"light"`, `"dark"` or any CSS colour. |
-| `specular` | `0.4875` (`0.319` for `clear`, `1` for `lens`) | Edge highlight strength, 0-1. |
-| `lightAngle` | `-135` | Light direction in degrees (-90 = top, -135 = top-left). |
-| `interactive` | `false` | Press-to-grow and touch glow. |
+| `tint` | none | Any CSS colour, ideally translucent. |
+| `interactive` | `false` | Press-to-grow and touch glow, for controls. |
 | `render` | - | Render as another element, e.g. `render={<button type="button" />}`. |
 
 Every other `div` prop (`className`, `style`, `onClick`, `role`, …) is
@@ -288,20 +282,6 @@ coordinate system of the generated filter, not physical device pixels.
   <nav>…</nav>
 </LiquidGlass>
 ```
-
-The geometry props (`radius`, `bezel`, `thickness`, `blur`) take numbers
-in CSS pixels. Explicit values stay fixed when the root font size
-changes; they do not accept `rem` strings or CSS variables. A design
-system that needs those values to follow font-relative tokens must
-resolve the tokens to CSS pixels and update the props. The default bezel
-adapts within its documented limits; it is not proportional scaling of
-every optical parameter.
-
-`ior` must be finite and greater than zero, and `thickness` must be finite
-and non-negative. Invalid optical inputs throw a `RangeError`. The map
-builders clamp the bezel to at least one CSS pixel and at most half the
-short side (with a one-pixel minimum); the low-level `refractionProfile`
-requires a finite positive bezel.
 
 ## How it works
 
@@ -408,7 +388,7 @@ npm run dev
 | URL | Scene |
 | --- | --- |
 | `/` | Homepage with draggable glass and links to all demos |
-| `/?page=lab` | Squircle, orb and pill lenses; draggable with mouse, touch or arrow keys; live backdrop, refraction and frost controls |
+| `/?page=lab` | Squircle, orb and pill lenses; draggable with mouse, touch or arrow keys; live backdrop, style, tint, interactive and corner radius controls |
 | `/?page=showcase` | Interactive artwork gallery, music interface and weather panel |
 | `/?page=classic` | The original Music and Siri collection |
 | `/?scene=music` | Apple Music style tab bar with sliding droplet, mini player and search button over album art |
@@ -416,9 +396,6 @@ npm run dev
 | `/?scene=playground` | Draggable lenses over text, stripes and a grid |
 | `/?scene=banner` | The header image of this README |
 | `/?scene=original` | The v1 technique, for comparison |
-
-Every prop can be tuned from the URL, for example
-`/?scene=playground&thickness=80&dispersion=0.2&blur=0`.
 
 The demo imports `@vepando/liquid-glass-react` by name; Vite aliases that name to
 `src/`, so you get HMR on the library source without a build step.
