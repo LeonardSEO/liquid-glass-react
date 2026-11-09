@@ -80,7 +80,7 @@ function Lens({ shape, stage, variant, tint, interactive, radius, selected, onSe
       }}
     >
       <LiquidGlass variant={variant} tint={tint} interactive={interactive} radius={Math.min(shape.radius, radius)} className="lens-glass" />
-      <span className="lens-caption">{shape.name} <span aria-hidden="true">↗</span></span>
+      <span className="lens-caption">{variant}</span>
     </button>
   )
 }
@@ -110,12 +110,12 @@ export function LensCanvas({ hero = false }: { hero?: boolean }) {
           <button type="button" aria-pressed={interactive} onClick={() => setInteractive((on) => !on)}>{interactive ? "On" : "Off"}</button>
         </fieldset>
         <label>Corner radius <output>{radius === MAX_RADIUS ? "Auto" : `${radius}px`}</output><input aria-label="Corner radius" type="range" min="0" max={MAX_RADIUS} step="2" value={radius} onChange={(e) => setRadius(Number(e.target.value))} /></label>
-        <button type="button" className="text-button" onClick={() => { setReset((n) => n + 1); setVariant("clear"); setTint(undefined); setInteractive(true); setRadius(MAX_RADIUS); setSelected("") }}>Reset lenses ↺</button>
+        <button type="button" className="text-button" onClick={() => { setReset((n) => n + 1); setVariant("clear"); setTint(undefined); setInteractive(true); setRadius(MAX_RADIUS); setSelected("") }}>Reset</button>
       </div>}
       <div ref={stage} className={hero ? "hero-lenses" : `lab-canvas lab-canvas--${background}`} aria-label="Draggable glass canvas">
         {!hero && <div className="lab-art" aria-hidden="true">
-          <span className="lab-edition">THE MATERIAL STUDY / 001</span>
-          <div className="lab-type">Liquid<br />in motion.</div>
+          <span className="lab-edition">Material study</span>
+          <div className="lab-type">Liquid<br />in motion</div>
           <p>Regular, or clear. Tinted, or not.<br />A different light, wherever you move.</p>
           <div className="lab-stripes" />
           <span className="lab-coordinate">Aa Bb Cc &nbsp; 0123456789 &nbsp; ✳</span>
