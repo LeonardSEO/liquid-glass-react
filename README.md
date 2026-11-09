@@ -35,7 +35,8 @@ catches a bright edge highlight.
 This library models that rim as an actual lens. It traces light through
 it with **Snell's law**, writes the result into an SVG displacement map
 sized to each element, and lets the browser apply it in its normal
-`backdrop-filter` pass.
+`backdrop-filter` pass. `variant="clear"` shows that lens at full strength;
+the default `regular` is frosted like Apple's system glass.
 
 ```bash
 npm install @vepando/liquid-glass-react
@@ -51,7 +52,7 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
 ```
 
 <p align="center">
-  <img src="docs/showcase.jpg" alt="Music app tab bar with sliding glass droplet and mini player; dark Siri-style glass panel" width="100%" />
+  <img src="docs/showcase.jpg" alt="Music app with a draggable glass tab bar and mini player; frosted weather panel" width="100%" />
 </p>
 
 ## Contents
@@ -82,20 +83,22 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
   the refracted backdrop shows bright at the edge, as in Apple's glass.
 - **Angle-dependent specular.** A crisp edge line plus a soft inner glow
   that follows a configurable light direction.
-- **Chromatic dispersion.** R, G and B bend by slightly different amounts
-  for a faint colour fringe on high-contrast edges.
+- **Regular and clear.** `regular` is frosted and matched against macOS's
+  system glass. `clear` is see-through and bends what is behind it.
+- **Chromatic dispersion.** On `clear`, R, G and B bend by slightly different
+  amounts for a faint colour fringe on high-contrast edges.
 - **Touch interaction.** `interactive` adds a springy press-to-grow and a
   glow from the touch point.
-- **Light and dark tints**, or any CSS colour.
+- **Light and dark.** Glass follows a `dark` class or `data-theme="dark"`,
+  and `tint` takes any CSS colour.
 - **SSR safe.** A frosted fallback renders on the server and upgrades on
   mount, without hydration mismatches.
 - **Cached maps.** Identical controls share maps. New sizes and optical
   settings generate maps synchronously; large panels and continuous
   resizing can be expensive. SVG backdrop rendering still costs work
-  every frame, especially with dispersion. Many-element rendering has
-  not been benchmarked across browsers and devices.
+  every frame, especially with dispersion.
 - **Zero dependencies.** React 18+ is the only peer dependency. ESM +
-  CJS + TypeScript types, about 5 KB gzipped.
+  CJS + TypeScript types, about 8 KB gzipped including the CSS.
 
 ## Install
 
@@ -155,7 +158,7 @@ Tailwind; equivalent CSS works too.
 **Dark sheet / panel**
 
 ```tsx
-<LiquidGlass radius={56} tint="dark" className="p-12">
+<LiquidGlass radius={56} className="dark p-12">
   <p className="text-white text-4xl">It'll be fantastic weather…</p>
 </LiquidGlass>
 ```
@@ -168,26 +171,27 @@ glass as a *sibling* positioned over the outer one, not as a child (see
 <div className="relative">
   <LiquidGlass radius={999} className="h-16">{tabs}</LiquidGlass>
   <div className="absolute inset-1 pointer-events-none">
-    <LiquidGlass radius={999} blur={0} tint="rgba(255,255,255,.05)"
+    <LiquidGlass variant="clear" radius={999}
       style={{ width: "25%", height: "100%", transform: `translateX(${active * 100}%)` }} />
   </div>
 </div>
 ```
 
-A full working version, including the stretch while it slides, is in
-[`demo/src/Scenes.tsx`](demo/src/Scenes.tsx).
+For a complete draggable version, use [`GlassTabBar`](#ui-components).
 
 ## UI components
 
-Ready-made, themeable components for real apps: **Button, Tabs, Dialog and
-Card**. They are built on [Base UI](https://base-ui.com) for keyboard and
-screen reader behaviour, and installed as source code through the
-[shadcn](https://ui.shadcn.com) CLI, so they live in your project and you
-(or your coding agent) can change them.
+Ready-made, themeable components for real apps: **Button, Tabs, Tab Bar,
+Dialog and Card**. Button, Tabs and Dialog use
+[Base UI](https://base-ui.com) for keyboard and screen reader behaviour. All
+of them install as source code through the [shadcn](https://ui.shadcn.com)
+CLI, so they live in your project and you (or your coding agent) can change
+them.
 
 ```bash
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-button.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tabs.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tab-bar.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-dialog.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-card.json
 ```
@@ -216,7 +220,8 @@ Materials follow Apple's glass styles:
 
 | Material | Used for | Character |
 | --- | --- | --- |
-| `regular` | Default for every component | Frosted and bright, for controls and surfaces with text |
+| `regular` | Default for buttons, tabs, cards and dialogs | Frosted and bright, for controls and surfaces with text |
+| `bar` | Default for `GlassTabBar` | Light frost, the backdrop stays recognisable |
 | `clear` | Glass over rich media | See-through, with a refracting rim. Check that text on it stays legible |
 
 **One layer of glass per stack.** A `backdrop-filter` hides the page from
@@ -226,8 +231,7 @@ inside them switches to inset glass, which keeps the rim and tint but has no
 backdrop of its own. For the same reason the track of `GlassTabsList` is not
 glass, so the indicator moving over it can refract.
 
-**Performance.** Maps are built
-once per distinct size and shared, so a page of uniform controls is cheap.
+**Performance.** Maps are built once per distinct size and shared, so a page of uniform controls is cheap.
 Fifty *different* sizes at once take noticeably longer on slow devices (about
 225 ms under 4× CPU throttling, in one block on first render).
 
@@ -391,9 +395,9 @@ npm run dev
 | `/?page=lab` | Squircle, orb and pill lenses; draggable with mouse, touch or arrow keys; live backdrop, style, tint, interactive and corner radius controls |
 | `/?page=showcase` | Interactive artwork gallery, music interface and weather panel |
 | `/?page=classic` | The original Music and Siri collection |
-| `/?scene=music` | Apple Music style tab bar with sliding droplet, mini player and search button over album art |
+| `/?scene=music` | Apple Music style app with a draggable tab bar, mini player and search button over album art |
 | `/?scene=siri` | Dark glass panel over the macOS Tahoe wallpaper |
-| `/?scene=playground` | Draggable lenses over text, stripes and a grid |
+| `/?scene=playground` | Draggable glass over text on the wallpaper |
 | `/?scene=banner` | The header image of this README |
 | `/?scene=original` | The v1 technique, for comparison |
 
@@ -405,7 +409,7 @@ The demo imports `@vepando/liquid-glass-react` by name; Vite aliases that name t
 <table>
   <tr>
     <th>v1: one stretched static map, milky tint</th>
-    <th>v2: physical, per-element, clear rim</th>
+    <th>Now: physical, per-element maps</th>
   </tr>
   <tr>
     <td width="50%"><img src="docs/before-after.jpg" alt="Top: v1 original, bottom: v2" /></td>
@@ -426,7 +430,7 @@ troubleshooting table for the common failure modes.
 ## Repository layout
 
 ```
-src/                  the package: LiquidGlass.tsx · useLiquidGlass.tsx · maps.ts · liquid-glass.css · index.ts
+src/                  the package: components, hook, variants, optics maps and liquid-glass.css
 registry/glass/       source of the UI components; registry.json lists them for the shadcn CLI
 dist/                 build output (npm run build), published to npm
 demo/                 Vite + React showcase
@@ -454,6 +458,7 @@ npm run build      # tsup → dist/ (ESM, CJS, .d.ts, style.css)
 npm run typecheck
 npm test           # geometry and component tests; Node 22.18+ or 24+
 npm run registry:build  # shadcn registry → demo/public/r
+npm run skill:sync      # copies src/ into the skill; tests fail if it is stale
 cd demo && npm install && npm run dev
 ```
 
