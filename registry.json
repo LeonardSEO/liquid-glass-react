@@ -8,7 +8,7 @@
       "type": "registry:ui",
       "title": "Glass material",
       "description": "Design tokens and the shared hook behind every Liquid Glass component.",
-      "dependencies": ["@vepando/liquid-glass-react@^1.1.0"],
+      "dependencies": ["@vepando/liquid-glass-react@^1.2.0"],
       "files": [
         { "path": "registry/glass/glass-material.ts", "type": "registry:ui" },
         { "path": "registry/glass/glass-tokens.css", "type": "registry:ui" }
