@@ -217,7 +217,7 @@ Materials follow Apple's glass styles:
 | Material | Used for | Character |
 | --- | --- | --- |
 | `regular` | Default for every component | Frosted and bright, for controls and surfaces with text |
-| `clear` | Glass over rich media | More transparent. Check that text on it stays legible |
+| `clear` | Glass over rich media | See-through, with a refracting rim. Check that text on it stays legible |
 
 **One layer of glass per stack.** A `backdrop-filter` hides the page from
 everything inside it, so glass nested in glass has nothing to refract.
@@ -237,7 +237,7 @@ Set the size with CSS and choose from the same options Apple's glass offers:
 
 | Prop | Default | Description |
 | --- | --- | --- |
-| `variant` | `"regular"` | Glass style: `"regular"`, `"clear"` or `"identity"` (no glass). Matched against macOS's `NSGlassEffectView`, in light and in dark (add a `dark` class or `data-theme="dark"` on the glass or an ancestor). |
+| `variant` | `"regular"` | Glass style: `"regular"` (frosted, matched against macOS's `NSGlassEffectView`), `"clear"` (see-through, bends what is behind it) or `"identity"` (no glass). Add a `dark` class or `data-theme="dark"` on the glass or an ancestor for dark mode. |
 | `radius` | `32` | Corner radius in px. `999` for pills and circles. `"auto"` reads the CSS `border-radius`, so `rem` and tokens work. |
 | `tint` | none | Any CSS colour, ideally translucent. |
 | `interactive` | `false` | Press-to-grow and touch glow, for controls. |

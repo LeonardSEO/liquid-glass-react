@@ -102,7 +102,7 @@ test("variants pick their own defaults, and explicit options still win", () => {
   expect(backdrop(root())).toContain("--lg-preset-blur, 15px")
   rerender(<LiquidGlass variant="clear">hi</LiquidGlass>)
   expect(root().classList.contains("lg--clear")).toBe(true)
-  expect(backdrop(root())).toContain("--lg-preset-blur, 21px")
+  expect(backdrop(root())).toContain("--lg-preset-blur, 0px")
   rerender(<LiquidGlass variant="lens" blur={7}>hi</LiquidGlass>)
   expect(backdrop(root())).toContain("--lg-preset-blur, 3px")
   expect(root().style.getPropertyValue("--lg-blur")).toBe("7px")

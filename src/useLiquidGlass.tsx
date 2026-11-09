@@ -17,7 +17,7 @@ import {
   type SurfaceProfile,
 } from "./maps"
 
-/** `regular` and `clear` are calibrated against macOS's NSGlassEffectView styles. `identity` renders no glass. */
+/** `regular` is calibrated against macOS's NSGlassEffectView. `clear` is see-through glass that bends what is behind it. `identity` renders no glass. */
 /** `lens` is an advanced, strongly refracting look that Apple has no equivalent for. */
 export type GlassVariant = "regular" | "clear" | "identity" | "lens"
 
@@ -96,17 +96,19 @@ type VariantDefaults = {
 
 // Rim as a fraction of the short side, as measured on the system material.
 const rimBezel = (fraction: number) => (minSide: number, radius: number) => Math.max(1.5, Math.min(minSide * fraction, Math.min(radius, minSide / 2)))
+const wideBezel = (minSide: number, radius: number) => Math.max(6, Math.min(minSide * 0.25, Math.min(radius, minSide / 2), 56))
 const REGULAR: VariantDefaults = { blur: 15, saturation: 1.725, refraction: 2, dispersion: 0, thicknessRatio: 3, autoBezel: rimBezel(0.03) }
 const VARIANTS: Record<GlassVariant, VariantDefaults> = {
   regular: REGULAR,
-  clear: { blur: 21, saturation: 1.2, refraction: 1.906, dispersion: 0.0775, thicknessRatio: 3, autoBezel: rimBezel(0.0625) },
+  // See-through: no frost, so the rim visibly bends the backdrop and splits its colours.
+  clear: { blur: 0, saturation: 1.5, refraction: 1.3, dispersion: 0.06, thicknessRatio: 1.5, autoBezel: wideBezel },
   lens: {
     blur: 3,
     saturation: 1.5,
     refraction: 1,
     dispersion: 0.06,
     thicknessRatio: 1.5,
-    autoBezel: (minSide, radius) => Math.max(6, Math.min(minSide * 0.25, Math.min(radius, minSide / 2), 56)),
+    autoBezel: wideBezel,
   },
   identity: REGULAR,
 }
