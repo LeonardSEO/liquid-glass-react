@@ -97,7 +97,8 @@
   --lg-specular-opacity: 0.35;
 }
 
-:is(.dark, [data-theme="dark"]) .lg.glass-bar {
+:is(.dark, [data-theme="dark"]) .lg.glass-bar,
+.lg.glass-bar:is(.dark, [data-theme="dark"]) {
   --lg-tint: rgba(30, 30, 32, 0.42);
   --lg-preset-brightness: 0.9;
   --lg-specular-opacity: 0.15;

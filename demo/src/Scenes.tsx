@@ -105,7 +105,7 @@ export function MusicScene() {
 export function SiriScene() {
   return (
     <div className="siri">
-      <LiquidGlass variant="clear" radius={56} className="siri__panel dark" {...overrides}>
+      <LiquidGlass radius={56} className="siri__panel glass-bar dark" {...overrides}>
         <p className="siri__text">It'll be fantastic weather for your upcoming tennis lesson this Sunday.</p>
         <div className="siri__card">
           <div>
@@ -132,7 +132,7 @@ export function BannerScene() {
           <span>Liquid Glass</span>
         </div>
       </LiquidGlass>
-      <LiquidGlass variant="clear" radius={999} className="banner__sub dark">
+      <LiquidGlass radius={999} className="banner__sub glass-bar dark">
         <div className="banner__subrow">Physically-based refraction for React · no WebGL</div>
       </LiquidGlass>
       <LiquidGlass variant="clear" radius={999} className="banner__orb banner__orb--a" />
