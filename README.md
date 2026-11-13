@@ -181,7 +181,7 @@ For a complete draggable version, use [`GlassTabBar`](#ui-components).
 ## UI components
 
 Ready-made, themeable components for real apps: **Button, Switch, Slider,
-Tabs, Tab Bar, Dialog and Card**. Button, Tabs and Dialog use
+Segmented Control, Tabs, Tab Bar, Dialog and Card**. Button, Tabs and Dialog use
 [Base UI](https://base-ui.com) for keyboard and screen reader behaviour. All
 of them install as source code through the [shadcn](https://ui.shadcn.com)
 CLI, so they live in your project and you (or your coding agent) can change
@@ -191,6 +191,7 @@ them.
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-button.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-switch.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-slider.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-segmented-control.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tabs.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tab-bar.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-dialog.json
@@ -232,6 +233,15 @@ while you drag it, and follows the arrow, Page and Home/End keys. It takes
 
 ```tsx
 <GlassSlider aria-label="Volume" value={volume} onValueChange={setVolume} />
+```
+
+`GlassSegmentedControl` picks one value from a few: a white pill marks the
+choice and rises into a glass lens that you can drag to another segment. It is
+a radio group, so arrow keys move and select. Use `GlassTabs` instead when
+each choice shows its own panel.
+
+```tsx
+<GlassSegmentedControl aria-label="View" value={view} onValueChange={setView} items={items} />
 ```
 
 Materials follow Apple's glass styles:

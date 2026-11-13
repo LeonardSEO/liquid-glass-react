@@ -22,7 +22,8 @@
       "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
       "files": [
         { "path": "registry/glass/glass-spring.ts", "type": "registry:ui" },
-        { "path": "registry/glass/glass-lens-thumb.tsx", "type": "registry:ui" }
+        { "path": "registry/glass/glass-lens-thumb.tsx", "type": "registry:ui" },
+        { "path": "registry/glass/glass-lens-track.tsx", "type": "registry:ui" }
       ]
     },
     {
@@ -49,6 +50,14 @@
       "description": "An iOS 26 slider: a white capsule on a thin track that lifts into a clear glass lens while you drag it.",
       "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-lens.json"],
       "files": [{ "path": "registry/glass/glass-slider.tsx", "type": "registry:ui" }]
+    },
+    {
+      "name": "glass-segmented-control",
+      "type": "registry:ui",
+      "title": "Glass Segmented Control",
+      "description": "An iOS 26 segmented control: a white pill that rises into a glass lens you can drag between segments.",
+      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-lens.json"],
+      "files": [{ "path": "registry/glass/glass-segmented-control.tsx", "type": "registry:ui" }]
     },
     {
       "name": "glass-tabs",

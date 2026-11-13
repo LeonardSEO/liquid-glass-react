@@ -5,6 +5,7 @@ import { LensCanvas } from "./GlassLab"
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
 import { GlassSwitch } from "@/registry/glass/glass-switch"
 import { GlassSlider } from "@/registry/glass/glass-slider"
+import { GlassSegmentedControl } from "@/registry/glass/glass-segmented-control"
 import { params } from "./urlParams"
 import "./website.css"
 
@@ -54,11 +55,11 @@ function SettingsPanel() {
     { label: "Bluetooth", on: true },
     { label: "Personal Hotspot", on: false },
   ]
-  return <div className="settings-panel" role="group" aria-label="Settings">{rows.map((row) => <div key={row.label} className="settings-row"><span>{row.label}</span><GlassSwitch defaultChecked={row.on} aria-label={row.label} /></div>)}<div className="settings-row settings-slider"><span aria-hidden="true">☼</span><GlassSlider aria-label="Brightness" defaultValue={62} /><span aria-hidden="true">☀</span></div></div>
+  return <div className="settings-panel" role="group" aria-label="Settings"><div className="settings-row settings-appearance"><GlassSegmentedControl aria-label="Appearance" defaultValue="light" items={[{ value: "light", label: "Light" }, { value: "dark", label: "Dark" }, { value: "auto", label: "Automatic" }]} /></div>{rows.map((row) => <div key={row.label} className="settings-row"><span>{row.label}</span><GlassSwitch defaultChecked={row.on} aria-label={row.label} /></div>)}<div className="settings-row settings-slider"><span aria-hidden="true">☼</span><GlassSlider aria-label="Brightness" defaultValue={62} /><span aria-hidden="true">☀</span></div></div>
 }
 
 function Showcase() {
-  return <><header className="page-intro"><span className="eyebrow">Showcase</span><h1>Glass over<br />real interfaces</h1><p>Change the artwork, scroll the music library and drag the tab bar.</p></header><Gallery /><section className="interface-section"><div className="interface-copy"><span className="eyebrow">Tab bar</span><h2>Drag through<br />the music app</h2><p>Scroll inside the phone, then drag the lens across the tabs. It bends what sits beneath it and settles on the nearest tab.</p><a href="?scene=music">Open the standalone demo ↗</a></div><MusicScene /></section><section className="switch-section"><div className="interface-copy"><span className="eyebrow">Switch and slider</span><h2>Toggle, hold<br />and drag</h2><p>Press a switch and its white capsule lifts into clear glass that magnifies the track, then slides across. Drag the brightness slider and its thumb does the same while it follows your finger.</p><a href="?scene=ui">See all components ↗</a></div><SettingsPanel /></section><section className="weather-section"><div><span className="eyebrow">Panel</span><h2>Frosted glass<br />over a wallpaper</h2><p>A dark glass panel with a bright forecast card on top.</p><a href="?scene=siri">Open the standalone demo ↗</a></div><SiriScene /></section></>
+  return <><header className="page-intro"><span className="eyebrow">Showcase</span><h1>Glass over<br />real interfaces</h1><p>Change the artwork, scroll the music library and drag the tab bar.</p></header><Gallery /><section className="interface-section"><div className="interface-copy"><span className="eyebrow">Tab bar</span><h2>Drag through<br />the music app</h2><p>Scroll inside the phone, then drag the lens across the tabs. It bends what sits beneath it and settles on the nearest tab.</p><a href="?scene=music">Open the standalone demo ↗</a></div><MusicScene /></section><section className="switch-section"><div className="interface-copy"><span className="eyebrow">Switch, slider and segments</span><h2>Toggle, hold<br />and drag</h2><p>Press a switch and its white capsule lifts into clear glass that magnifies the track, then slides across. Drag the brightness slider or the appearance segments and the glass follows your finger.</p><a href="?scene=ui">See all components ↗</a></div><SettingsPanel /></section><section className="weather-section"><div><span className="eyebrow">Panel</span><h2>Frosted glass<br />over a wallpaper</h2><p>A dark glass panel with a bright forecast card on top.</p><a href="?scene=siri">Open the standalone demo ↗</a></div><SiriScene /></section></>
 }
 
 export function Website() {

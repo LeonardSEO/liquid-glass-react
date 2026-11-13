@@ -7,6 +7,7 @@ import { GlassDialog, GlassDialogContent, GlassDialogTitle, GlassDialogTrigger }
 import { GlassTabBar } from "../registry/glass/glass-tab-bar"
 import { GlassSwitch } from "../registry/glass/glass-switch"
 import { GlassSlider } from "../registry/glass/glass-slider"
+import { GlassSegmentedControl } from "../registry/glass/glass-segmented-control"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "../registry/glass/glass-tabs"
 
 test("GlassButton is a real button whose ref and clicks work", () => {
@@ -192,4 +193,35 @@ test("a controlled GlassSlider follows its value and a disabled one ignores keys
   fireEvent.keyDown(control, { key: "ArrowRight" })
   expect(control.getAttribute("aria-valuenow")).toBe("1")
   expect(control.tabIndex).toBe(-1)
+})
+
+test("GlassSegmentedControl is a radio group that arrow keys move through, skipping disabled segments", () => {
+  const onValueChange = vi.fn()
+  render(
+    <form data-testid="form">
+      <GlassSegmentedControl
+        aria-label="Range"
+        name="range"
+        onValueChange={onValueChange}
+        items={[{ value: "day", label: "Day" }, { value: "week", label: "Week", disabled: true }, { value: "month", label: "Month" }]}
+      />
+    </form>,
+  )
+  const group = screen.getByRole("radiogroup", { name: "Range" })
+  expect(group.parentElement?.querySelector(".lg filter")).not.toBeNull()
+  const day = screen.getByRole("radio", { name: "Day" })
+  expect(day.getAttribute("aria-checked")).toBe("true")
+  fireEvent.keyDown(day, { key: "ArrowRight" })
+  expect(screen.getByRole("radio", { name: "Month" }).getAttribute("aria-checked")).toBe("true")
+  expect(onValueChange).toHaveBeenLastCalledWith("month")
+  expect(new FormData(screen.getByTestId("form") as HTMLFormElement).get("range")).toBe("month")
+  fireEvent.click(screen.getByRole("radio", { name: "Day" }), { detail: 0 })
+  expect(day.getAttribute("aria-checked")).toBe("true")
+})
+
+test("a controlled GlassSegmentedControl follows its value", () => {
+  const items = [{ value: "a", label: "A" }, { value: "b", label: "B" }]
+  const { rerender } = render(<GlassSegmentedControl aria-label="Pick" value="a" items={items} />)
+  rerender(<GlassSegmentedControl aria-label="Pick" value="b" items={items} />)
+  expect(screen.getByRole("radio", { name: "B" }).getAttribute("aria-checked")).toBe("true")
 })

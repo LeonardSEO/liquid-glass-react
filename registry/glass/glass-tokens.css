@@ -27,6 +27,10 @@
 
   --glass-slider-fill: rgb(0, 136, 255);
   --glass-slider-track: rgba(120, 120, 128, 0.2);
+
+  --glass-segmented-track: rgba(120, 120, 128, 0.12);
+  --glass-segmented-pill: rgb(255, 255, 255);
+  --glass-segmented-foreground: rgb(0, 0, 0);
 }
 
 .dark,
@@ -43,6 +47,9 @@
   --glass-switch-off: rgba(120, 120, 128, 0.36);
   --glass-slider-fill: rgb(0, 145, 255);
   --glass-slider-track: rgba(120, 120, 128, 0.36);
+  --glass-segmented-track: rgba(120, 120, 128, 0.24);
+  --glass-segmented-pill: rgb(99, 99, 102);
+  --glass-segmented-foreground: rgb(255, 255, 255);
 }
 
 .lg.glass-clear,
@@ -305,6 +312,101 @@
   }
 
   .glass-slider__fill {
+    background: Highlight;
+  }
+}
+
+/* Segmented control: a 30px track with a white pill that rises into a lens. */
+.glass-segmented {
+  position: relative;
+  display: inline-block;
+  height: 30px;
+  min-height: 30px;
+  border-radius: 9999px;
+  background: var(--glass-segmented-track);
+  color: var(--glass-segmented-foreground);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.glass-segmented[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.glass-segmented__pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  border-radius: 9999px;
+  background: var(--glass-segmented-pill);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+}
+
+.glass-segmented__base,
+.glass-segmented__accent {
+  box-sizing: border-box;
+}
+
+.glass-segmented__base {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+
+.glass-segmented__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  height: 100%;
+  pointer-events: none;
+}
+
+.glass-segmented__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 9999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  /* UISegmentedControl's 13 point label. */
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: inherit;
+}
+
+.glass-segmented__item[data-selected] {
+  font-weight: 600;
+}
+
+.glass-segmented__item:disabled:not(.glass-segmented[data-disabled] *) {
+  opacity: 0.35;
+}
+
+.glass-segmented__item:focus-visible {
+  outline: 2px solid var(--glass-ring);
+  outline-offset: -2px;
+}
+
+@media (forced-colors: active) {
+  .glass-segmented {
+    border: 1px solid CanvasText;
+  }
+
+  .glass-segmented__pill {
     background: Highlight;
   }
 }

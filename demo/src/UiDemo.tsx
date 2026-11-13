@@ -15,6 +15,7 @@ import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "@/re
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
 import { GlassSwitch } from "@/registry/glass/glass-switch"
 import { GlassSlider } from "@/registry/glass/glass-slider"
+import { GlassSegmentedControl } from "@/registry/glass/glass-segmented-control"
 import { params } from "./urlParams"
 
 type Backdrop = "wallpaper" | "stripes" | "solid"
@@ -138,6 +139,21 @@ export function UiDemo() {
           <GlassSlider aria-label="Volume" defaultValue={55} data-sample="slider" />
           <GlassSlider aria-label="Speed" defaultValue={2} min={0} max={4} step={1} />
           <GlassSlider aria-label="Disabled" defaultValue={30} disabled />
+        </div>
+      </Example>
+
+      <Example
+        title="Segmented control"
+        item="glass-segmented-control"
+        code={`<GlassSegmentedControl\n  aria-label="View"\n  value={view}\n  onValueChange={setView}\n  items={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }]}\n/>`}
+      >
+        <div className="flex flex-col items-start gap-4">
+          <GlassSegmentedControl aria-label="Sample" items={[{ value: "segmented", label: "Segmented" }, { value: "control", label: "Control" }]} />
+          <GlassSegmentedControl
+            aria-label="Range"
+            defaultValue="week"
+            items={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }, { value: "year", label: "Year" }]}
+          />
         </div>
       </Example>
 
