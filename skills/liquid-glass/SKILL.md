@@ -38,9 +38,13 @@ project, import from its `index.ts`, and import `liquid-glass.css` once.
 Don't wrap interactive controls in the `div` component. Use one of these from
 the package (1.1 or later):
 
-- **Ready-made components:** Button, Tabs, Dialog and Card install as source
-  in shadcn projects with Tailwind v4, for example:
-  `npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-button.json`
+- **Ready-made components:** Button, Switch, Slider, Segmented Control,
+  Toolbar, Input, Menu, Tabs, Tab Bar, Dialog and Card install as source in
+  shadcn projects with Tailwind v4. Use them before building a control by hand,
+  for example:
+  `npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-switch.json`
+  The install names are `glass-` plus the component in kebab case
+  (`glass-segmented-control`, `glass-tab-bar`, …).
 - **Your own element:** `useLiquidGlass(options)` returns `ref`, `rootProps`
   and `wrap(children)`. Put all three on one element, or use
   `<LiquidGlass render={<button type="button" />}>`.
