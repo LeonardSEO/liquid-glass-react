@@ -38,6 +38,8 @@ const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : use
 const PAD = 4
 const LENS_WIDTH = 1.2
 const LENS_HEIGHT = 1.18
+/** Width of the refracting rim as a share of the lens height. */
+const LENS_RIM = 0.17
 const DRAG_THRESHOLD = 6
 const MOVE = { stiffness: 420, damping: 30 }
 const GROW = { stiffness: 380, damping: 26 }
@@ -70,10 +72,22 @@ function ItemContent({ item }: { item: GlassTabBarItem }) {
  */
 export function GlassTabBar({ items, value, onValueChange, material = "bar", className, style, "aria-label": ariaLabel }: GlassTabBarProps) {
   const bar = useGlassSurface<HTMLDivElement>({ material })
-  const lens = useLiquidGlass({ variant: "lens", blur: 0, dispersion: 0.14, tint: "rgba(255,255,255,0.04)", radius: "auto" })
-
   const [current, setCurrent] = useState(value)
   const [size, setSize] = useState({ width: 0, height: 0, slot: 0 })
+
+  // The same optics as the switch's lens: a narrow rim and a clear middle, no colour fringe.
+  const rim = size.height ? Math.round(size.height * LENS_HEIGHT * LENS_RIM) : undefined
+  const lens = useLiquidGlass({
+    variant: "lens",
+    blur: 0,
+    saturation: 1.1,
+    dispersion: 0,
+    refraction: 1.2,
+    bezel: rim,
+    thickness: rim && rim * 2,
+    tint: "rgba(255,255,255,0.04)",
+    radius: "auto",
+  })
 
   const root = useRef<HTMLDivElement>(null)
   const base = useRef<HTMLDivElement>(null)
