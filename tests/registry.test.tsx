@@ -5,6 +5,7 @@ import { GlassButton } from "../registry/glass/glass-button"
 import { GlassCard } from "../registry/glass/glass-card"
 import { GlassDialog, GlassDialogContent, GlassDialogTitle, GlassDialogTrigger } from "../registry/glass/glass-dialog"
 import { GlassTabBar } from "../registry/glass/glass-tab-bar"
+import { GlassSwitch } from "../registry/glass/glass-switch"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "../registry/glass/glass-tabs"
 
 test("GlassButton is a real button whose ref and clicks work", () => {
@@ -124,3 +125,35 @@ test("glass components keep the consumer's handlers and style", () => {
   expect(card.style.width).toBe("77px")
 })
 
+
+test("GlassSwitch is a switch that toggles from a pointer or the keyboard and submits with a form", () => {
+  const onCheckedChange = vi.fn()
+  render(
+    <form data-testid="form">
+      <GlassSwitch aria-label="Wi-Fi" name="wifi" onCheckedChange={onCheckedChange} />
+    </form>,
+  )
+  const control = screen.getByRole("switch", { name: "Wi-Fi" })
+  expect(control.getAttribute("aria-checked")).toBe("false")
+  expect(control.querySelector(".lg filter")).not.toBeNull()
+  fireEvent.pointerDown(control, { pointerId: 1, button: 0 })
+  fireEvent.pointerUp(control, { pointerId: 1, button: 0 })
+  fireEvent.click(control, { detail: 1 })
+  expect(control.getAttribute("aria-checked")).toBe("true")
+  expect(onCheckedChange).toHaveBeenLastCalledWith(true)
+  expect(new FormData(screen.getByTestId("form") as HTMLFormElement).get("wifi")).toBe("on")
+  fireEvent.click(control, { detail: 0 })
+  expect(control.getAttribute("aria-checked")).toBe("false")
+  expect(onCheckedChange).toHaveBeenCalledTimes(2)
+})
+
+test("a controlled GlassSwitch follows its checked prop and a disabled one ignores input", () => {
+  const { rerender } = render(<GlassSwitch aria-label="Sync" checked={false} />)
+  const control = screen.getByRole("switch", { name: "Sync" })
+  fireEvent.click(control, { detail: 0 })
+  expect(control.getAttribute("aria-checked")).toBe("false")
+  rerender(<GlassSwitch aria-label="Sync" checked />)
+  expect(control.getAttribute("aria-checked")).toBe("true")
+  rerender(<GlassSwitch aria-label="Sync" checked disabled />)
+  expect((control as HTMLButtonElement).disabled).toBe(true)
+})

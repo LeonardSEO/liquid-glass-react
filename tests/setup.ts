@@ -18,6 +18,9 @@ class ResizeObserverStub {
 vi.stubGlobal("ResizeObserver", ResizeObserverStub)
 vi.stubGlobal("matchMedia", () => ({ matches: false }))
 
+// jsdom has no pointer capture.
+Element.prototype.setPointerCapture ??= () => {}
+
 Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get: () => 120 })
 Object.defineProperty(HTMLElement.prototype, "offsetHeight", { configurable: true, get: () => 48 })
 Object.defineProperty(navigator, "userAgent", { configurable: true, get: () => "Mozilla/5.0 Chrome/140.0.0.0 Safari/537.36" })

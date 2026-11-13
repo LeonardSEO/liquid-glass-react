@@ -3,6 +3,7 @@ import { LiquidGlass } from "@vepando/liquid-glass-react"
 import { MusicScene, SiriScene } from "./Scenes"
 import { LensCanvas } from "./GlassLab"
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
+import { GlassSwitch } from "@/registry/glass/glass-switch"
 import { params } from "./urlParams"
 import "./website.css"
 
@@ -45,8 +46,18 @@ function Overview() {
   </>
 }
 
+function SettingsPanel() {
+  const rows = [
+    { label: "Airplane Mode", on: false },
+    { label: "Wi-Fi", on: true },
+    { label: "Bluetooth", on: true },
+    { label: "Personal Hotspot", on: false },
+  ]
+  return <div className="settings-panel" role="group" aria-label="Settings">{rows.map((row) => <div key={row.label} className="settings-row"><span>{row.label}</span><GlassSwitch defaultChecked={row.on} aria-label={row.label} /></div>)}</div>
+}
+
 function Showcase() {
-  return <><header className="page-intro"><span className="eyebrow">Showcase</span><h1>Glass over<br />real interfaces</h1><p>Change the artwork, scroll the music library and drag the tab bar.</p></header><Gallery /><section className="interface-section"><div className="interface-copy"><span className="eyebrow">Tab bar</span><h2>Drag through<br />the music app</h2><p>Scroll inside the phone, then drag the lens across the tabs. It bends what sits beneath it and settles on the nearest tab.</p><a href="?scene=music">Open the standalone demo ↗</a></div><MusicScene /></section><section className="weather-section"><div><span className="eyebrow">Panel</span><h2>Frosted glass<br />over a wallpaper</h2><p>A dark glass panel with a bright forecast card on top.</p><a href="?scene=siri">Open the standalone demo ↗</a></div><SiriScene /></section></>
+  return <><header className="page-intro"><span className="eyebrow">Showcase</span><h1>Glass over<br />real interfaces</h1><p>Change the artwork, scroll the music library and drag the tab bar.</p></header><Gallery /><section className="interface-section"><div className="interface-copy"><span className="eyebrow">Tab bar</span><h2>Drag through<br />the music app</h2><p>Scroll inside the phone, then drag the lens across the tabs. It bends what sits beneath it and settles on the nearest tab.</p><a href="?scene=music">Open the standalone demo ↗</a></div><MusicScene /></section><section className="switch-section"><div className="interface-copy"><span className="eyebrow">Switch</span><h2>Toggle and<br />hold the switch</h2><p>Press it and the white capsule lifts into clear glass that magnifies the track. Hold it to keep the glass; let go and it slides across, then turns white again.</p><a href="?scene=ui">See all components ↗</a></div><SettingsPanel /></section><section className="weather-section"><div><span className="eyebrow">Panel</span><h2>Frosted glass<br />over a wallpaper</h2><p>A dark glass panel with a bright forecast card on top.</p><a href="?scene=siri">Open the standalone demo ↗</a></div><SiriScene /></section></>
 }
 
 export function Website() {

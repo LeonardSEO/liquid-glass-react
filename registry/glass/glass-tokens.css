@@ -20,6 +20,10 @@
 
   /* Controls that sit on other glass and have no backdrop of their own. */
   --glass-inset-tint: rgba(255, 255, 255, 0.5);
+
+  --glass-switch-on: rgb(52, 199, 89);
+  --glass-switch-off: rgba(120, 120, 128, 0.16);
+  --glass-switch-knob: rgb(255, 255, 255);
 }
 
 .dark,
@@ -32,6 +36,8 @@
   --glass-ring: rgb(147, 197, 253);
   --glass-track: rgba(15, 15, 20, 0.72);
   --glass-inset-tint: rgba(255, 255, 255, 0.14);
+  --glass-switch-on: rgb(48, 209, 88);
+  --glass-switch-off: rgba(120, 120, 128, 0.36);
 }
 
 .lg.glass-clear,
@@ -141,5 +147,98 @@
 @media (forced-colors: active) {
   .glass-tab-bar__pill {
     background: Highlight;
+  }
+}
+
+/* Switch: a 63 × 28 track with a capsule that turns into a glass lens while touched. */
+.glass-switch {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 63px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: none;
+  vertical-align: middle;
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.glass-switch:focus-visible {
+  outline: 2px solid var(--glass-ring);
+  outline-offset: 2px;
+}
+
+.glass-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.glass-switch__track {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--glass-switch-off);
+  transition: background-color 0.25s ease;
+}
+
+.glass-switch[data-checked] .glass-switch__track {
+  background: var(--glass-switch-on);
+}
+
+.glass-switch__thumb,
+.glass-switch__glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 54px;
+  height: 35px;
+  border-radius: 9999px;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.lg.glass-switch__thumb {
+  position: absolute;
+  --lg-shadow: none;
+  --lg-brightness: 1.03;
+  --lg-inner-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  transition: none;
+}
+
+/* While touched: a soft shadow and a halo in the colour of the track. */
+.glass-switch__glow {
+  opacity: 0;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12), 0 0 28px 4px rgba(0, 0, 0, 0.04);
+}
+
+.glass-switch[data-checked] .glass-switch__glow {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.1), 0 0 30px 6px color-mix(in srgb, var(--glass-switch-on) 30%, transparent);
+}
+
+.glass-switch__knob {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--glass-switch-knob);
+  box-shadow: 0 4px 11px rgba(0, 0, 0, 0.15), 0 4px 1.5px rgba(0, 0, 0, 0.06);
+}
+
+@media (forced-colors: active) {
+  .glass-switch__track {
+    border: 1px solid CanvasText;
+  }
+
+  .glass-switch[data-checked] .glass-switch__track {
+    background: Highlight;
+  }
+
+  .glass-switch__knob {
+    background: CanvasText;
   }
 }

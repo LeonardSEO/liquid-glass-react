@@ -24,6 +24,14 @@
       "files": [{ "path": "registry/glass/glass-button.tsx", "type": "registry:ui" }]
     },
     {
+      "name": "glass-switch",
+      "type": "registry:ui",
+      "title": "Glass Switch",
+      "description": "An iOS 26 switch: a white capsule that turns into a clear glass lens as it toggles, and stays glass while held.",
+      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-switch.tsx", "type": "registry:ui" }]
+    },
+    {
       "name": "glass-tabs",
       "type": "registry:ui",
       "title": "Glass Tabs",

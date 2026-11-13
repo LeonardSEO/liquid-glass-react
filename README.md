@@ -180,8 +180,8 @@ For a complete draggable version, use [`GlassTabBar`](#ui-components).
 
 ## UI components
 
-Ready-made, themeable components for real apps: **Button, Tabs, Tab Bar,
-Dialog and Card**. Button, Tabs and Dialog use
+Ready-made, themeable components for real apps: **Button, Switch, Tabs, Tab
+Bar, Dialog and Card**. Button, Tabs and Dialog use
 [Base UI](https://base-ui.com) for keyboard and screen reader behaviour. All
 of them install as source code through the [shadcn](https://ui.shadcn.com)
 CLI, so they live in your project and you (or your coding agent) can change
@@ -189,6 +189,7 @@ them.
 
 ```bash
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-button.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-switch.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tabs.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tab-bar.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-dialog.json
@@ -213,6 +214,15 @@ navigation; without one they become tabs with arrow-key support.
 
 ```tsx
 <GlassTabBar aria-label="Sections" value={tab} onValueChange={setTab} items={items} />
+```
+
+`GlassSwitch` is the iOS 26 switch: a white capsule that lifts into a clear
+glass lens when pressed, stays glass while held and turns white again once it
+has slid across. Use `checked` and `onCheckedChange`, or `defaultChecked`; give
+it a `name` to submit it with a form.
+
+```tsx
+<GlassSwitch aria-label="Wi-Fi" checked={wifi} onCheckedChange={setWifi} />
 ```
 
 Materials follow Apple's glass styles:

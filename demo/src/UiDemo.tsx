@@ -13,6 +13,7 @@ import {
 } from "@/registry/glass/glass-dialog"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "@/registry/glass/glass-tabs"
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
+import { GlassSwitch } from "@/registry/glass/glass-switch"
 import { params } from "./urlParams"
 
 type Backdrop = "wallpaper" | "stripes" | "solid"
@@ -121,6 +122,14 @@ export function UiDemo() {
         code={`<GlassTabBar\n  aria-label="Sections"\n  value={tab}\n  onValueChange={setTab}\n  items={[{ value: "home", label: "Home", icon: <Home /> }, ...]}\n/>`}
       >
         <TabBarDemo />
+      </Example>
+
+      <Example title="Switch" item="glass-switch" code={`<GlassSwitch aria-label="Wi-Fi" checked={on} onCheckedChange={setOn} />`}>
+        <div className="flex flex-wrap items-center gap-6">
+          <GlassSwitch aria-label="On" defaultChecked data-sample="switch-on" />
+          <GlassSwitch aria-label="Off" data-sample="switch-off" />
+          <GlassSwitch aria-label="Disabled" disabled defaultChecked />
+        </div>
       </Example>
 
       <Example
