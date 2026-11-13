@@ -77,6 +77,32 @@
       "files": [{ "path": "registry/glass/glass-tab-bar.tsx", "type": "registry:ui" }]
     },
     {
+      "name": "glass-toolbar",
+      "type": "registry:ui",
+      "title": "Glass Toolbar",
+      "description": "A floating group of actions on one shared glass capsule. Arrow keys move between its buttons.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["utils", "https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-toolbar.tsx", "type": "registry:ui" }]
+    },
+    {
+      "name": "glass-input",
+      "type": "registry:ui",
+      "title": "Glass Input",
+      "description": "A text field on glass with an optional icon and clear button, such as a search field.",
+      "registryDependencies": ["utils", "https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-input.tsx", "type": "registry:ui" }]
+    },
+    {
+      "name": "glass-menu",
+      "type": "registry:ui",
+      "title": "Glass Menu",
+      "description": "A menu that morphs out of its glass button and shrinks back into it, as in iOS 26.",
+      "dependencies": ["@base-ui/react"],
+      "registryDependencies": ["utils", "https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [{ "path": "registry/glass/glass-menu.tsx", "type": "registry:ui" }]
+    },
+    {
       "name": "glass-dialog",
       "type": "registry:ui",
       "title": "Glass Dialog",

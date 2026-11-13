@@ -8,6 +8,9 @@ import { GlassTabBar } from "../registry/glass/glass-tab-bar"
 import { GlassSwitch } from "../registry/glass/glass-switch"
 import { GlassSlider } from "../registry/glass/glass-slider"
 import { GlassSegmentedControl } from "../registry/glass/glass-segmented-control"
+import { GlassInput } from "../registry/glass/glass-input"
+import { GlassMenu, GlassMenuContent, GlassMenuItem, GlassMenuSeparator, GlassMenuTrigger } from "../registry/glass/glass-menu"
+import { GlassToolbar, GlassToolbarButton, GlassToolbarSeparator } from "../registry/glass/glass-toolbar"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "../registry/glass/glass-tabs"
 
 test("GlassButton is a real button whose ref and clicks work", () => {
@@ -224,4 +227,67 @@ test("a controlled GlassSegmentedControl follows its value", () => {
   const { rerender } = render(<GlassSegmentedControl aria-label="Pick" value="a" items={items} />)
   rerender(<GlassSegmentedControl aria-label="Pick" value="b" items={items} />)
   expect(screen.getByRole("radio", { name: "B" }).getAttribute("aria-checked")).toBe("true")
+})
+
+test("GlassToolbar is a labelled toolbar of real buttons on one glass surface", () => {
+  const onClick = vi.fn()
+  render(
+    <GlassToolbar aria-label="Editing">
+      <GlassToolbarButton aria-label="Undo" onClick={onClick}>U</GlassToolbarButton>
+      <GlassToolbarSeparator />
+      <GlassToolbarButton wide>Done</GlassToolbarButton>
+    </GlassToolbar>,
+  )
+  const toolbar = screen.getByRole("toolbar", { name: "Editing" })
+  expect(toolbar.className).toContain("glass-regular")
+  expect(toolbar.querySelectorAll("filter")).toHaveLength(1)
+  expect(screen.getByRole("separator")).not.toBeNull()
+  fireEvent.click(screen.getByRole("button", { name: "Undo" }))
+  expect(onClick).toHaveBeenCalledOnce()
+})
+
+test("a glass button inside a toolbar renders as inset glass", () => {
+  render(
+    <GlassToolbar aria-label="Bar">
+      <GlassButton>Inner</GlassButton>
+    </GlassToolbar>,
+  )
+  expect(screen.getByRole("button", { name: "Inner" }).className).toContain("glass-inset")
+})
+
+test("GlassInput clears its own text and calls onClear", () => {
+  const onClear = vi.fn()
+  render(<GlassInput aria-label="Search" type="search" clearable defaultValue="glass" onClear={onClear} />)
+  const field = screen.getByRole("searchbox", { name: "Search" }) as HTMLInputElement
+  expect(field.closest(".lg")?.querySelector("filter")).not.toBeNull()
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }))
+  expect(field.value).toBe("")
+  expect(onClear).toHaveBeenCalledOnce()
+  expect(screen.queryByRole("button", { name: "Clear" })).toBeNull()
+  fireEvent.change(field, { target: { value: "lens" } })
+  expect(screen.getByRole("button", { name: "Clear" })).not.toBeNull()
+})
+
+test("GlassMenu opens a glass menu from its trigger and runs the chosen item", async () => {
+  const onCopy = vi.fn()
+  render(
+    <GlassToolbar aria-label="Bar">
+      <GlassMenu>
+        <GlassMenuTrigger render={<GlassToolbarButton aria-label="More" />}>…</GlassMenuTrigger>
+        <GlassMenuContent>
+          <GlassMenuItem onClick={onCopy}>Copy</GlassMenuItem>
+          <GlassMenuSeparator />
+          <GlassMenuItem destructive>Delete</GlassMenuItem>
+        </GlassMenuContent>
+      </GlassMenu>
+    </GlassToolbar>,
+  )
+  fireEvent.click(screen.getByRole("button", { name: "More" }))
+  const menu = await screen.findByRole("menu")
+  // Portalled out of the toolbar, so it is real glass rather than inset glass.
+  expect(menu.className).toContain("glass-regular")
+  expect(menu.className).not.toContain("glass-inset")
+  expect(screen.getByRole("menuitem", { name: "Delete" }).className).toContain("glass-menu__item--destructive")
+  fireEvent.click(screen.getByRole("menuitem", { name: "Copy" }))
+  expect(onCopy).toHaveBeenCalledOnce()
 })

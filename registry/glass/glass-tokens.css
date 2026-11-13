@@ -31,6 +31,12 @@
   --glass-segmented-track: rgba(120, 120, 128, 0.12);
   --glass-segmented-pill: rgb(255, 255, 255);
   --glass-segmented-foreground: rgb(0, 0, 0);
+
+  --glass-input-placeholder: rgba(60, 60, 67, 0.6);
+  --glass-input-clear: rgba(60, 60, 67, 0.3);
+  --glass-input-clear-mark: rgb(255, 255, 255);
+  --glass-toolbar-press: rgba(0, 0, 0, 0.08);
+  --glass-destructive: rgb(255, 56, 60);
 }
 
 .dark,
@@ -50,6 +56,11 @@
   --glass-segmented-track: rgba(120, 120, 128, 0.24);
   --glass-segmented-pill: rgb(99, 99, 102);
   --glass-segmented-foreground: rgb(255, 255, 255);
+  --glass-input-placeholder: rgba(235, 235, 245, 0.6);
+  --glass-input-clear: rgba(235, 235, 245, 0.3);
+  --glass-input-clear-mark: rgb(28, 28, 30);
+  --glass-toolbar-press: rgba(255, 255, 255, 0.14);
+  --glass-destructive: rgb(255, 66, 69);
 }
 
 .lg.glass-clear,
@@ -409,5 +420,317 @@
 
   .glass-segmented__pill {
     background: Highlight;
+  }
+}
+
+/*
+ * Toolbar: icon buttons on one shared glass capsule. Rules are scoped to the
+ * toolbar so a page's own `button { font: inherit }` cannot win.
+ */
+.glass-toolbar {
+  display: inline-flex;
+  vertical-align: middle;
+  border-radius: 9999px;
+}
+
+.glass-toolbar .glass-toolbar__items {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+  padding: 4px;
+}
+
+.glass-toolbar .glass-toolbar__button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, transform 0.35s cubic-bezier(0.2, 1.6, 0.35, 1);
+}
+
+.glass-toolbar .glass-toolbar__button--wide {
+  width: auto;
+  padding: 0 16px;
+}
+
+.glass-toolbar .glass-toolbar__button:hover {
+  background: var(--glass-toolbar-press);
+}
+
+.glass-toolbar .glass-toolbar__button:active {
+  background: var(--glass-toolbar-press);
+  transform: scale(1.12);
+}
+
+.glass-toolbar .glass-toolbar__button:focus-visible {
+  outline: 2px solid var(--glass-ring);
+  outline-offset: -2px;
+}
+
+.glass-toolbar .glass-toolbar__button:disabled,
+.glass-toolbar .glass-toolbar__button[data-disabled] {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
+  transform: none;
+}
+
+.glass-toolbar .glass-toolbar__separator {
+  flex: none;
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: currentColor;
+  opacity: 0.15;
+}
+
+/* Input: a capsule of glass around a native text field. */
+.glass-input {
+  display: block;
+  height: 44px;
+  border-radius: 9999px;
+  cursor: text;
+}
+
+.glass-input--lg {
+  height: 52px;
+}
+
+.glass-input--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.glass-input:focus-within {
+  outline: 2px solid var(--glass-ring);
+  outline-offset: 2px;
+}
+
+.glass-input .glass-input__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 0 14px;
+}
+
+.glass-input .glass-input__icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--glass-input-placeholder);
+}
+
+.glass-input .glass-input__field {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+/* The capsule shows the focus ring; a page's own ring on the bare field would double it. */
+.glass-input .glass-input__field:focus-visible {
+  outline: none;
+}
+
+.glass-input .glass-input__field::placeholder {
+  color: var(--glass-input-placeholder);
+  opacity: 1;
+}
+
+/* The native search cancel button would sit next to ours. */
+.glass-input .glass-input__field::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.glass-input .glass-input__clear {
+  display: inline-flex;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--glass-input-clear);
+  cursor: pointer;
+}
+
+.glass-input .glass-input__clear:focus-visible {
+  outline: 2px solid var(--glass-ring);
+  outline-offset: 2px;
+  border-radius: 9999px;
+}
+
+@media (forced-colors: active) {
+  .glass-toolbar .glass-toolbar__separator {
+    background: CanvasText;
+  }
+
+  .glass-input {
+    border: 1px solid CanvasText;
+  }
+}
+
+/*
+ * Menu: a glass panel laid over its trigger. It starts clipped to the
+ * trigger's capsule (--anchor-width/height come from the positioner) and
+ * grows to its own shape, so the button seems to become the menu.
+ */
+.glass-menu-positioner {
+  z-index: 50;
+  outline: none;
+}
+
+.lg.glass-menu {
+  --glass-menu-top: 0px;
+  --glass-menu-bottom: calc(100% - var(--anchor-height));
+  --glass-menu-left: 0px;
+  --glass-menu-right: calc(100% - var(--anchor-width));
+  --glass-menu-from: inset(var(--glass-menu-top) var(--glass-menu-right) var(--glass-menu-bottom) var(--glass-menu-left) round calc(var(--anchor-height) / 2));
+  position: relative;
+  display: block;
+  min-width: max(220px, var(--anchor-width));
+  max-height: var(--available-height);
+  overflow: auto;
+  border-radius: 26px;
+  outline: none;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* Wider than the panel so its shadow shows once it has grown. */
+  clip-path: inset(-48px round 74px);
+  transition: clip-path 0.5s cubic-bezier(0.3, 1.25, 0.4, 1);
+}
+
+.lg.glass-menu[data-side="top"] {
+  --glass-menu-top: calc(100% - var(--anchor-height));
+  --glass-menu-bottom: 0px;
+}
+
+.lg.glass-menu[data-align="end"] {
+  --glass-menu-left: calc(100% - var(--anchor-width));
+  --glass-menu-right: 0px;
+}
+
+.lg.glass-menu[data-align="center"] {
+  --glass-menu-left: calc((100% - var(--anchor-width)) / 2);
+  --glass-menu-right: calc((100% - var(--anchor-width)) / 2);
+}
+
+.lg.glass-menu[data-starting-style],
+.lg.glass-menu[data-ending-style] {
+  clip-path: var(--glass-menu-from);
+}
+
+.lg.glass-menu[data-ending-style] {
+  transition-duration: 0.32s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The trigger hides while the menu stands in for it, and returns once it has shrunk back. */
+.glass-menu-trigger {
+  transition: opacity 0.12s ease 0.26s;
+}
+
+.lg.glass-menu-trigger {
+  transition: transform 0.45s cubic-bezier(0.2, 1.6, 0.35, 1), box-shadow 0.3s ease, opacity 0.12s ease 0.26s;
+}
+
+.glass-menu-trigger[data-popup-open] {
+  opacity: 0;
+  transition-delay: 0s;
+}
+
+.glass-menu .glass-menu__items {
+  display: block;
+  padding: 6px;
+  opacity: 1;
+  transition: opacity 0.25s ease 0.1s;
+}
+
+.glass-menu[data-starting-style] .glass-menu__items,
+.glass-menu[data-ending-style] .glass-menu__items {
+  opacity: 0;
+  transition-duration: 0.12s;
+  transition-delay: 0s;
+}
+
+.glass-menu .glass-menu__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 18px;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: default;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.glass-menu .glass-menu__item[data-highlighted] {
+  background: var(--glass-toolbar-press);
+}
+
+.glass-menu .glass-menu__item[data-disabled] {
+  opacity: 0.35;
+}
+
+.glass-menu .glass-menu__item--destructive {
+  color: var(--glass-destructive);
+}
+
+.glass-menu .glass-menu__icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.glass-menu .glass-menu__separator {
+  height: 1px;
+  margin: 6px 14px;
+  background: currentColor;
+  opacity: 0.12;
+}
+
+.glass-menu .glass-menu__group-label {
+  padding: 8px 14px 4px;
+  font-size: 13px;
+  color: var(--glass-muted-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg.glass-menu,
+  .glass-menu .glass-menu__items,
+  .glass-menu-trigger,
+  .lg.glass-menu-trigger {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .glass-menu .glass-menu__item[data-highlighted] {
+    background: Highlight;
+    color: HighlightText;
   }
 }

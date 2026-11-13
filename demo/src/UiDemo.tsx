@@ -16,6 +16,9 @@ import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
 import { GlassSwitch } from "@/registry/glass/glass-switch"
 import { GlassSlider } from "@/registry/glass/glass-slider"
 import { GlassSegmentedControl } from "@/registry/glass/glass-segmented-control"
+import { GlassInput } from "@/registry/glass/glass-input"
+import { GlassToolbar, GlassToolbarButton, GlassToolbarSeparator } from "@/registry/glass/glass-toolbar"
+import { GlassMenu, GlassMenuContent, GlassMenuGroup, GlassMenuGroupLabel, GlassMenuItem, GlassMenuSeparator, GlassMenuTrigger } from "@/registry/glass/glass-menu"
 import { params } from "./urlParams"
 
 type Backdrop = "wallpaper" | "stripes" | "solid"
@@ -48,6 +51,7 @@ function Example({ title, item, code, children }: { title: string; item: string;
 const panelText = "rounded-2xl bg-(--glass-track) p-4 text-sm text-(--glass-foreground)"
 
 const icon = (d: string) => <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={d} /></svg>
+const line = (d: string, size = 22) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 const tabBarItems = [
   { value: "home", label: "Home", icon: icon("M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z") },
   { value: "new", label: "New", icon: icon("M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z") },
@@ -154,6 +158,58 @@ export function UiDemo() {
             defaultValue="week"
             items={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }, { value: "month", label: "Month" }, { value: "year", label: "Year" }]}
           />
+        </div>
+      </Example>
+
+      <Example
+        title="Toolbar"
+        item="glass-toolbar"
+        code={`<GlassToolbar aria-label="Editing">\n  <GlassToolbarButton aria-label="Undo"><Undo /></GlassToolbarButton>\n  <GlassToolbarSeparator />\n  <GlassToolbarButton wide>Done</GlassToolbarButton>\n</GlassToolbar>`}
+      >
+        <GlassToolbar aria-label="Editing">
+          <GlassToolbarButton aria-label="Undo">{line("M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3")}</GlassToolbarButton>
+          <GlassToolbarButton aria-label="Redo">{line("M15 14l5-5-5-5M20 9H9a5 5 0 0 0 0 10h3")}</GlassToolbarButton>
+          <GlassToolbarSeparator />
+          <GlassToolbarButton aria-label="Delete">{line("M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3")}</GlassToolbarButton>
+          <GlassToolbarButton wide>Done</GlassToolbarButton>
+        </GlassToolbar>
+      </Example>
+
+      <Example title="Input" item="glass-input" code={`<GlassInput type="search" placeholder="Search" icon={<Search />} clearable />`}>
+        <div className="flex w-full max-w-md flex-col gap-4">
+          <GlassInput type="search" aria-label="Search" placeholder="Search" icon={line("M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4", 18)} clearable defaultValue="Liquid glass" />
+          <GlassInput aria-label="Name" placeholder="Your name" size="lg" />
+          <GlassInput aria-label="Disabled" placeholder="Disabled" disabled />
+        </div>
+      </Example>
+
+      <Example
+        title="Menu"
+        item="glass-menu"
+        code={`<GlassMenu>\n  <GlassMenuTrigger render={<GlassButton size="icon" aria-label="More" />}>…</GlassMenuTrigger>\n  <GlassMenuContent>\n    <GlassMenuItem icon={<Copy />}>Copy</GlassMenuItem>\n    <GlassMenuSeparator />\n    <GlassMenuItem destructive icon={<Trash />}>Delete</GlassMenuItem>\n  </GlassMenuContent>\n</GlassMenu>`}
+      >
+        <div className="flex w-full max-w-md items-center justify-between">
+          <GlassMenu>
+            <GlassMenuTrigger render={<GlassButton size="icon" aria-label="More" />}>{line("M5 12h.01M12 12h.01M19 12h.01", 22)}</GlassMenuTrigger>
+            <GlassMenuContent>
+              <GlassMenuItem icon={line("M8 8h11v11H8zM5 16V5h11", 20)}>Copy</GlassMenuItem>
+              <GlassMenuItem icon={line("M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6", 20)}>Share</GlassMenuItem>
+              <GlassMenuItem icon={line("M4 20h4L19 9l-4-4L4 16zM14 6l4 4", 20)}>Rename</GlassMenuItem>
+              <GlassMenuSeparator />
+              <GlassMenuItem destructive icon={line("M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3", 20)}>Delete</GlassMenuItem>
+            </GlassMenuContent>
+          </GlassMenu>
+          <GlassMenu>
+            <GlassMenuTrigger render={<GlassButton />}>Sort by</GlassMenuTrigger>
+            <GlassMenuContent align="end">
+              <GlassMenuGroup>
+                <GlassMenuGroupLabel>Sort by</GlassMenuGroupLabel>
+                <GlassMenuItem>Name</GlassMenuItem>
+                <GlassMenuItem>Date</GlassMenuItem>
+                <GlassMenuItem>Size</GlassMenuItem>
+              </GlassMenuGroup>
+            </GlassMenuContent>
+          </GlassMenu>
         </div>
       </Example>
 

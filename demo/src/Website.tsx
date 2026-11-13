@@ -6,6 +6,9 @@ import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
 import { GlassSwitch } from "@/registry/glass/glass-switch"
 import { GlassSlider } from "@/registry/glass/glass-slider"
 import { GlassSegmentedControl } from "@/registry/glass/glass-segmented-control"
+import { GlassInput } from "@/registry/glass/glass-input"
+import { GlassToolbar, GlassToolbarButton, GlassToolbarSeparator } from "@/registry/glass/glass-toolbar"
+import { GlassMenu, GlassMenuContent, GlassMenuItem, GlassMenuSeparator, GlassMenuTrigger } from "@/registry/glass/glass-menu"
 import { params } from "./urlParams"
 import "./website.css"
 
@@ -78,8 +81,39 @@ function SettingsPanel() {
   return <div className="settings-panel" data-theme={theme} role="group" aria-label="Settings"><div className="settings-row settings-appearance"><GlassSegmentedControl aria-label="Appearance" value={appearance} onValueChange={setAppearance} items={appearances} /></div>{rows.map((row) => <div key={row.label} className="settings-row"><span>{row.label}</span><GlassSwitch defaultChecked={row.on} aria-label={row.label} /></div>)}<div className="settings-row settings-slider"><span aria-hidden="true">☼</span><GlassSlider aria-label="Brightness" defaultValue={62} /><span aria-hidden="true">☀</span></div></div>
 }
 
+const symbol = (d: string, size = 22) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
+const places = ["Lake Tahoe", "Emerald Bay", "Sand Harbor", "Sierra Nevada", "Mount Tallac", "Fallen Leaf Lake", "South Lake", "Carnelian Bay"]
+
+function BrowserScene() {
+  const [query, setQuery] = useState("")
+  const found = places.filter((place) => place.toLowerCase().includes(query.trim().toLowerCase()))
+  return <section className="browser-scene" aria-label="Search field and toolbar on glass" style={{ backgroundImage: `url(${image("tahoe-light")})` }}>
+    <div className="browser-search">
+      <GlassInput type="search" aria-label="Search places" placeholder="Search places" value={query} onChange={(event) => setQuery(event.target.value)} clearable onClear={() => setQuery("")} icon={symbol("M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4", 18)} trailing={<button type="button" className="browser-mic" aria-label="Dictate">{symbol("M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3", 18)}</button>} />
+      <ul className="browser-results" aria-live="polite">{found.length ? found.map((place) => <li key={place}>{place}</li>) : <li>No places match “{query.trim()}”</li>}</ul>
+    </div>
+    <GlassToolbar className="browser-toolbar" aria-label="Browser">
+      <GlassToolbarButton aria-label="Back">{symbol("M15 5l-7 7 7 7")}</GlassToolbarButton>
+      <GlassToolbarButton aria-label="Forward" disabled>{symbol("M9 5l7 7-7 7")}</GlassToolbarButton>
+      <GlassToolbarSeparator />
+      <GlassToolbarButton aria-label="Share">{symbol("M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6")}</GlassToolbarButton>
+      <GlassToolbarButton aria-label="Bookmarks">{symbol("M6 3h12v18l-6-4-6 4z")}</GlassToolbarButton>
+      <GlassMenu>
+        <GlassMenuTrigger render={<GlassToolbarButton aria-label="Tabs" />}>{symbol("M8 8h11v11H8zM5 16V5h11")}</GlassMenuTrigger>
+        <GlassMenuContent side="top" align="end">
+          <GlassMenuItem icon={symbol("M12 5v14M5 12h14", 20)}>New Tab</GlassMenuItem>
+          <GlassMenuItem icon={symbol("M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z", 20)}>New Private Tab</GlassMenuItem>
+          <GlassMenuItem icon={symbol("M6 3h12v18l-6-4-6 4z", 20)}>Add Bookmark</GlassMenuItem>
+          <GlassMenuSeparator />
+          <GlassMenuItem destructive icon={symbol("M6 6l12 12M18 6L6 18", 20)}>Close All Tabs</GlassMenuItem>
+        </GlassMenuContent>
+      </GlassMenu>
+    </GlassToolbar>
+  </section>
+}
+
 function Showcase() {
-  return <><header className="page-intro"><span className="eyebrow">Showcase</span><h1>Glass over<br />real interfaces</h1><p>Change the artwork, scroll the music library and drag the tab bar.</p></header><Gallery /><section className="interface-section"><div className="interface-copy"><span className="eyebrow">Tab bar</span><h2>Drag through<br />the music app</h2><p>Scroll inside the phone, then drag the lens across the tabs. It bends what sits beneath it and settles on the nearest tab.</p><a href="?scene=music">Open the standalone demo ↗</a></div><MusicScene /></section><section className="switch-section"><div className="interface-copy"><span className="eyebrow">Switch, slider and segments</span><h2>Toggle, hold<br />and drag</h2><p>Press a switch and its white capsule lifts into clear glass that magnifies the track, then slides across. Drag the brightness slider or the appearance segments and the glass follows your finger.</p><a href="?scene=ui">See all components ↗</a></div><SettingsPanel /></section><section className="weather-section"><div><span className="eyebrow">Panel</span><h2>Frosted glass<br />over a wallpaper</h2><p>A dark glass panel with a bright forecast card on top.</p><a href="?scene=siri">Open the standalone demo ↗</a></div><SiriScene /></section></>
+  return <><header className="page-intro"><span className="eyebrow">Showcase</span><h1>Glass over<br />real interfaces</h1><p>Change the artwork, scroll the music library and drag the tab bar.</p></header><Gallery /><section className="interface-section"><div className="interface-copy"><span className="eyebrow">Tab bar</span><h2>Drag through<br />the music app</h2><p>Scroll inside the phone, then drag the lens across the tabs. It bends what sits beneath it and settles on the nearest tab.</p><a href="?scene=music">Open the standalone demo ↗</a></div><MusicScene /></section><section className="switch-section"><div className="interface-copy"><span className="eyebrow">Switch, slider and segments</span><h2>Toggle, hold<br />and drag</h2><p>Press a switch and its white capsule lifts into clear glass that magnifies the track, then slides across. Drag the brightness slider or the appearance segments and the glass follows your finger.</p><a href="?scene=ui">See all components ↗</a></div><SettingsPanel /></section><section className="interface-section browser-section"><div className="interface-copy"><span className="eyebrow">Search field, toolbar and menu</span><h2>Search and act<br />on glass</h2><p>Type in the search field to filter the places, then clear it. Below, one shared glass capsule holds the toolbar. Its tabs button grows into a menu and shrinks back into the button.</p><a href="?scene=ui">See all components ↗</a></div><BrowserScene /></section><section className="weather-section"><div><span className="eyebrow">Panel</span><h2>Frosted glass<br />over a wallpaper</h2><p>A dark glass panel with a bright forecast card on top.</p><a href="?scene=siri">Open the standalone demo ↗</a></div><SiriScene /></section></>
 }
 
 export function Website() {

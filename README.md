@@ -181,8 +181,9 @@ For a complete draggable version, use [`GlassTabBar`](#ui-components).
 ## UI components
 
 Ready-made, themeable components for real apps: **Button, Switch, Slider,
-Segmented Control, Tabs, Tab Bar, Dialog and Card**. Button, Tabs and Dialog use
-[Base UI](https://base-ui.com) for keyboard and screen reader behaviour. All
+Segmented Control, Toolbar, Input, Menu, Tabs, Tab Bar, Dialog and Card**.
+Button, Toolbar, Menu, Tabs and Dialog use [Base UI](https://base-ui.com) for
+keyboard and screen reader behaviour. All
 of them install as source code through the [shadcn](https://ui.shadcn.com)
 CLI, so they live in your project and you (or your coding agent) can change
 them.
@@ -192,6 +193,9 @@ npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-bu
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-switch.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-slider.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-segmented-control.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-toolbar.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-input.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-menu.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tabs.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tab-bar.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-dialog.json
@@ -242,6 +246,35 @@ each choice shows its own panel.
 
 ```tsx
 <GlassSegmentedControl aria-label="View" value={view} onValueChange={setView} items={items} />
+```
+
+`GlassToolbar` puts a group of actions on one shared glass capsule; arrow keys
+move between its buttons. `GlassInput` is a text field on glass with an
+optional `icon`, `trailing` slot and `clearable` button, such as a search field.
+
+```tsx
+<GlassToolbar aria-label="Editing">
+  <GlassToolbarButton aria-label="Undo"><Undo /></GlassToolbarButton>
+  <GlassToolbarSeparator />
+  <GlassToolbarButton wide>Done</GlassToolbarButton>
+</GlassToolbar>
+
+<GlassInput type="search" placeholder="Search" icon={<Search />} clearable />
+```
+
+`GlassMenu` morphs out of its button, as in iOS 26: the glass grows from the
+button's capsule into the menu and shrinks back into it when it closes. Render
+the trigger as a glass button; `align` and `side` choose which way it grows.
+
+```tsx
+<GlassMenu>
+  <GlassMenuTrigger render={<GlassButton size="icon" aria-label="More" />}><Ellipsis /></GlassMenuTrigger>
+  <GlassMenuContent align="end">
+    <GlassMenuItem icon={<Copy />}>Copy</GlassMenuItem>
+    <GlassMenuSeparator />
+    <GlassMenuItem destructive icon={<Trash />}>Delete</GlassMenuItem>
+  </GlassMenuContent>
+</GlassMenu>
 ```
 
 Materials follow Apple's glass styles:
