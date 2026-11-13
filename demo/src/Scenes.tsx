@@ -118,18 +118,11 @@ export function SiriScene() {
 export function BannerScene() {
   return (
     <div className="banner">
-      <LiquidGlass variant="clear" radius={999} className="banner__title">
-        <div className="banner__titlerow">
-          <span className="banner__logo">◐</span>
-          <span>Liquid Glass</span>
-        </div>
-      </LiquidGlass>
-      <LiquidGlass radius={999} className="banner__sub glass-bar dark">
-        <div className="banner__subrow">Physically-based refraction for React · no WebGL</div>
-      </LiquidGlass>
-      <LiquidGlass variant="clear" radius={999} className="banner__orb banner__orb--a" />
-      <LiquidGlass variant="clear" radius={999} className="banner__orb banner__orb--b" />
-      <LiquidGlass variant="clear" radius={40} className="banner__card" />
+      <h1 className="banner__wordmark">Liquid Glass</h1>
+      <p className="banner__sub">Real refraction for React. No WebGL.</p>
+      {/* One clear lens over the wordmark, with the narrow rim of the components: the
+          letters stay clear in its middle and bend at its edges. */}
+      <LiquidGlass variant="clear" dispersion={0} bezel={34} thickness={68} refraction={1.2} radius={999} className="banner__lens" />
     </div>
   )
 }

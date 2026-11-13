@@ -20,4 +20,12 @@ The GIF at the top of the project readme (`docs/demo.gif`), made with
    ffmpeg -i renders/readme.gif -vf "scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=192:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle" -loop 0 ../demo.gif
    ```
 
+The banner at the top of the readme comes from the demo's `?scene=banner`:
+
+```bash
+cd docs/film/recorder
+node banner.mjs banner.png
+sips -s format jpeg -s formatOptions 90 banner.png --out ../../banner.jpg
+```
+
 `SPEC.md` describes the film shot by shot; `REVIEW.md` records what was checked.

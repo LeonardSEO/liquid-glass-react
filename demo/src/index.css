@@ -43,14 +43,8 @@ html,body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display"
 .siri__right{text-align:right;font-size:24px;font-weight:500;display:flex;flex-direction:column;justify-content:flex-end}
 .siri__sun{font-size:40px;color:#ffd60a}
 
-/* ---------- Banner (docs/banner.png) ---------- */
-.banner{position:relative;width:1280px;height:480px;overflow:hidden;background:var(--wallpaper-dark) center 40%/cover}
-.lg.banner__title{position:absolute;left:96px;top:120px;height:150px;width:660px}
-.banner__titlerow{display:flex;align-items:center;gap:22px;height:100%;padding:0 48px;color:#fff;font-size:84px;font-weight:700;letter-spacing:-2.5px;text-shadow:0 2px 18px rgba(0,0,0,.35)}
-.banner__logo{font-size:72px;opacity:.95}
-.lg.banner__sub{position:absolute;left:110px;top:298px;height:62px;width:600px}
-.banner__subrow{display:flex;align-items:center;height:100%;padding:0 30px;color:#fff;font-size:21px;font-weight:500;letter-spacing:-.2px}
-.lg.lg.banner__orb{position:absolute}
-.lg.banner__orb--a{left:860px;top:70px;width:190px;height:190px}
-.lg.banner__orb--b{left:1085px;top:250px;width:110px;height:110px}
-.lg.banner__card{position:absolute;left:820px;top:300px;width:230px;height:150px}
+/* ---------- Banner (docs/banner.jpg, rendered at 2x from ?scene=banner) ---------- */
+.banner{position:relative;width:1280px;height:480px;overflow:hidden;background:var(--wallpaper-light) center 38%/cover;color:#202322;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif}
+.banner__wordmark{position:absolute;left:84px;top:96px;margin:0;font-size:176px;font-weight:700;line-height:1;letter-spacing:-.055em;white-space:nowrap}
+.banner__sub{position:absolute;left:92px;top:316px;margin:0;font-size:30px;font-weight:500;letter-spacing:-.02em}
+.lg.banner__lens{position:absolute;left:512px;top:62px;width:496px;height:248px}

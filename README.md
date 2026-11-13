@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.jpg" alt="Liquid Glass for React: glass pills and orbs refracting the macOS Tahoe wallpaper" width="100%" />
+  <img src="docs/banner.jpg" alt="The words Liquid Glass, with a clear glass lens over Glass that bends the wallpaper at its rim" width="100%" />
 </p>
 
 <h1 align="center">Liquid Glass for React</h1>
