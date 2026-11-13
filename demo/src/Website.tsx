@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { LiquidGlass } from "@vepando/liquid-glass-react"
 import { MusicScene, SiriScene } from "./Scenes"
 import { LensCanvas } from "./GlassLab"
@@ -48,6 +48,23 @@ function Overview() {
   </>
 }
 
+const darkScheme = typeof window !== "undefined" ? window.matchMedia("(prefers-color-scheme: dark)") : null
+
+/** Follows the system's light or dark appearance. */
+function useSystemDark() {
+  const [dark, setDark] = useState(() => darkScheme?.matches ?? false)
+  useEffect(() => {
+    if (!darkScheme) return
+    const update = () => setDark(darkScheme.matches)
+    darkScheme.addEventListener("change", update)
+    return () => darkScheme.removeEventListener("change", update)
+  }, [])
+  return dark
+}
+
+const appearances = [{ value: "light", label: "Light" }, { value: "dark", label: "Dark" }, { value: "auto", label: "Automatic" }]
+
+/** A settings panel that switches its own appearance; the rest of the page stays as it is. */
 function SettingsPanel() {
   const rows = [
     { label: "Airplane Mode", on: false },
@@ -55,7 +72,10 @@ function SettingsPanel() {
     { label: "Bluetooth", on: true },
     { label: "Personal Hotspot", on: false },
   ]
-  return <div className="settings-panel" role="group" aria-label="Settings"><div className="settings-row settings-appearance"><GlassSegmentedControl aria-label="Appearance" defaultValue="light" items={[{ value: "light", label: "Light" }, { value: "dark", label: "Dark" }, { value: "auto", label: "Automatic" }]} /></div>{rows.map((row) => <div key={row.label} className="settings-row"><span>{row.label}</span><GlassSwitch defaultChecked={row.on} aria-label={row.label} /></div>)}<div className="settings-row settings-slider"><span aria-hidden="true">☼</span><GlassSlider aria-label="Brightness" defaultValue={62} /><span aria-hidden="true">☀</span></div></div>
+  const [appearance, setAppearance] = useState("light")
+  const systemDark = useSystemDark()
+  const theme = appearance === "auto" ? (systemDark ? "dark" : "light") : appearance
+  return <div className="settings-panel" data-theme={theme} role="group" aria-label="Settings"><div className="settings-row settings-appearance"><GlassSegmentedControl aria-label="Appearance" value={appearance} onValueChange={setAppearance} items={appearances} /></div>{rows.map((row) => <div key={row.label} className="settings-row"><span>{row.label}</span><GlassSwitch defaultChecked={row.on} aria-label={row.label} /></div>)}<div className="settings-row settings-slider"><span aria-hidden="true">☼</span><GlassSlider aria-label="Brightness" defaultValue={62} /><span aria-hidden="true">☀</span></div></div>
 }
 
 function Showcase() {

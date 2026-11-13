@@ -368,7 +368,8 @@
   pointer-events: none;
 }
 
-.glass-segmented__item {
+/* Scoped to the control so a page's own `button { font: inherit }` cannot win. */
+.glass-segmented .glass-segmented__item {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -388,15 +389,15 @@
   cursor: inherit;
 }
 
-.glass-segmented__item[data-selected] {
+.glass-segmented .glass-segmented__item[data-selected] {
   font-weight: 600;
 }
 
-.glass-segmented__item:disabled:not(.glass-segmented[data-disabled] *) {
+.glass-segmented:not([data-disabled]) .glass-segmented__item:disabled {
   opacity: 0.35;
 }
 
-.glass-segmented__item:focus-visible {
+.glass-segmented .glass-segmented__item:focus-visible {
   outline: 2px solid var(--glass-ring);
   outline-offset: -2px;
 }
