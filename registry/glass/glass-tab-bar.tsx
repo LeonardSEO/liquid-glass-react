@@ -8,12 +8,13 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react"
 import { useLiquidGlass } from "@vepando/liquid-glass-react"
+import { lensOptics } from "@/registry/glass/glass-lens-thumb"
 import { type GlassMaterial, useGlassSurface } from "@/registry/glass/glass-material"
+import { createSpring, isSettled, prefersReducedMotion, snapSpring, stepSpring, useAnimationFrames, useIsoLayoutEffect } from "@/registry/glass/glass-spring"
 
 export type GlassTabBarItem = {
   value: string
@@ -33,13 +34,9 @@ export type GlassTabBarProps = {
   "aria-label": string
 }
 
-const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect
-
 const PAD = 4
 const LENS_WIDTH = 1.2
 const LENS_HEIGHT = 1.18
-/** Width of the refracting rim as a share of the lens height. */
-const LENS_RIM = 0.17
 const DRAG_THRESHOLD = 6
 const MOVE = { stiffness: 420, damping: 30 }
 const GROW = { stiffness: 380, damping: 26 }
@@ -75,19 +72,7 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
   const [current, setCurrent] = useState(value)
   const [size, setSize] = useState({ width: 0, height: 0, slot: 0 })
 
-  // The same optics as the switch's lens: a narrow rim and a clear middle, no colour fringe.
-  const rim = size.height ? Math.round(size.height * LENS_HEIGHT * LENS_RIM) : undefined
-  const lens = useLiquidGlass({
-    variant: "lens",
-    blur: 0,
-    saturation: 1.1,
-    dispersion: 0,
-    refraction: 1.2,
-    bezel: rim,
-    thickness: rim && rim * 2,
-    tint: "rgba(255,255,255,0.04)",
-    radius: "auto",
-  })
+  const lens = useLiquidGlass({ ...lensOptics(size.height * LENS_HEIGHT), tint: "rgba(255,255,255,0.04)" })
 
   const root = useRef<HTMLDivElement>(null)
   const base = useRef<HTMLDivElement>(null)
@@ -95,10 +80,11 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
   const pill = useRef<HTMLSpanElement>(null)
   const lensElement = useRef<HTMLElement | null>(null)
   const metrics = useRef(size)
-  const physics = useRef({ x: 0, vx: 0, tx: 0, s: 0, vs: 0, ts: 0, releasing: false })
+  // x: the centre of the glass; grow: 0 for the pill at rest, 1 for the lens.
+  const x = useRef(createSpring())
+  const grow = useRef(createSpring())
+  const releasing = useRef(false)
   const drag = useRef<{ pointer: number; startX: number; pressed: number; onActive: boolean; moved: boolean } | null>(null)
-  const frame = useRef(0)
-  const lastTime = useRef(0)
   const pendingHref = useRef<string | undefined>(undefined)
 
   const count = items.length
@@ -107,27 +93,27 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
   activeRef.current = activeIndex
 
   const center = useCallback((index: number) => PAD + metrics.current.slot * (index + 0.5), [])
-  const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches
 
   const paint = useCallback(() => {
     const { width, height, slot } = metrics.current
     if (!width) return
-    const { x, s } = physics.current
+    const position = x.current.value
+    const s = grow.current.value
     const pillHeight = height - PAD * 2
     const lensWidth = slot * LENS_WIDTH
     const lensHeight = height * LENS_HEIGHT
     const rectWidth = mix(slot, lensWidth, s)
     const rectHeight = mix(pillHeight, lensHeight, s)
-    const left = x - rectWidth / 2
+    const left = position - rectWidth / 2
     const top = (height - rectHeight) / 2
 
     if (pill.current) {
-      pill.current.style.transform = `translate(${x - slot / 2}px, ${PAD}px)`
+      pill.current.style.transform = `translate(${position - slot / 2}px, ${PAD}px)`
       pill.current.style.opacity = String(1 - Math.min(1, s * 2.5))
     }
     if (lensElement.current) {
       const element = lensElement.current
-      element.style.transform = `translate(${x - lensWidth / 2}px, ${(height - lensHeight) / 2}px) scale(${rectWidth / lensWidth}, ${rectHeight / lensHeight})`
+      element.style.transform = `translate(${position - lensWidth / 2}px, ${(height - lensHeight) / 2}px) scale(${rectWidth / lensWidth}, ${rectHeight / lensHeight})`
       element.style.opacity = String(Math.min(1, s * 3))
       element.style.visibility = s > 0.01 ? "visible" : "hidden"
     }
@@ -136,55 +122,30 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
     if (base.current) base.current.style.clipPath = `path(evenodd, "M${-width} ${-height}H${width * 2}V${height * 2}H${-width}Z${shape}")`
   }, [])
 
-  const stop = useCallback(() => {
-    cancelAnimationFrame(frame.current)
-    frame.current = 0
-  }, [])
-
   const settle = useCallback(() => {
     const href = pendingHref.current
     pendingHref.current = undefined
     if (href) window.location.assign(href)
   }, [])
 
-  const tick = useCallback(
-    (now: number) => {
-      const p = physics.current
-      const dt = Math.min(0.032, (now - lastTime.current) / 1000 || 0.016)
-      lastTime.current = now
-      for (let i = 0; i < 2; i++) {
-        const h = dt / 2
-        p.vx += (-MOVE.stiffness * (p.x - p.tx) - MOVE.damping * p.vx) * h
-        p.x += p.vx * h
-        p.vs += (-GROW.stiffness * (p.s - p.ts) - GROW.damping * p.vs) * h
-        p.s += p.vs * h
-      }
-      if (p.releasing && Math.abs(p.x - p.tx) < 2 && Math.abs(p.vx) < 40) p.ts = 0
-      const moving = Math.abs(p.x - p.tx) > 0.4 || Math.abs(p.vx) > 4 || Math.abs(p.s - p.ts) > 0.01 || Math.abs(p.vs) > 0.05
-      if (!moving && !drag.current && p.ts === 0) {
-        p.x = p.tx
-        p.vx = 0
-        p.s = 0
-        p.vs = 0
-        p.releasing = false
-        paint()
-        frame.current = 0
-        settle()
-        return
-      }
+  const frames = useAnimationFrames((dt) => {
+    stepSpring(x.current, MOVE, dt)
+    stepSpring(grow.current, GROW, dt)
+    if (releasing.current && isSettled(x.current, 2, 40)) grow.current.target = 0
+    const moving = !isSettled(x.current, 0.4, 4) || !isSettled(grow.current, 0.01, 0.05)
+    if (!moving && !drag.current && grow.current.target === 0) {
+      snapSpring(x.current)
+      snapSpring(grow.current, 0)
+      releasing.current = false
       paint()
-      frame.current = requestAnimationFrame(tick)
-    },
-    [paint, settle],
-  )
+      settle()
+      return false
+    }
+    paint()
+    return true
+  })
+  const { start, stop } = frames
 
-  const start = useCallback(() => {
-    if (frame.current) return
-    lastTime.current = performance.now()
-    frame.current = requestAnimationFrame(tick)
-  }, [tick])
-
-  useEffect(() => stop, [stop])
 
   useIsoLayoutEffect(() => {
     const element = root.current
@@ -195,9 +156,8 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
       const next = { width, height, slot: (width - PAD * 2) / count }
       metrics.current = next
       setSize((old) => (old.width === width && old.height === height && old.slot === next.slot ? old : next))
-      const p = physics.current
-      if (!frame.current && !drag.current) {
-        p.tx = p.x = center(activeRef.current)
+      if (x.current.value === x.current.target && grow.current.value === 0 && !drag.current) {
+        snapSpring(x.current, center(activeRef.current))
         paint()
       }
     }
@@ -212,19 +172,18 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
 
   const moveTo = useCallback(
     (index: number) => {
-      const p = physics.current
-      p.tx = center(index)
-      if (reducedMotion()) {
+      x.current.target = center(index)
+      if (prefersReducedMotion()) {
         stop()
-        p.x = p.tx
-        p.vx = p.s = p.vs = p.ts = 0
-        p.releasing = false
+        snapSpring(x.current)
+        snapSpring(grow.current, 0)
+        releasing.current = false
         paint()
         settle()
         return
       }
-      p.ts = 1
-      p.releasing = true
+      grow.current.target = 1
+      releasing.current = true
       start()
     },
     [center, paint, settle, start, stop],
@@ -250,39 +209,38 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
 
   const localX = (event: PointerEvent<HTMLDivElement>) => event.clientX - event.currentTarget.getBoundingClientRect().left
   const indexAt = (x: number) => Math.max(0, Math.min(count - 1, Math.floor((x - PAD) / metrics.current.slot)))
-  const rubberBand = (x: number) => {
+  const rubberBand = (position: number) => {
     const low = center(0)
     const high = center(count - 1)
-    if (x < low) return low - (low - x) * 0.25
-    if (x > high) return high + (x - high) * 0.25
-    return x
+    if (position < low) return low - (low - position) * 0.25
+    if (position > high) return high + (position - high) * 0.25
+    return position
   }
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return
     if (!metrics.current.slot) return
     event.currentTarget.setPointerCapture(event.pointerId)
-    const x = localX(event)
-    const pressed = indexAt(x)
+    const pointerX = localX(event)
+    const pressed = indexAt(pointerX)
     const onActive = pressed === activeRef.current
-    drag.current = { pointer: event.pointerId, startX: x, pressed, onActive, moved: false }
-    if (reducedMotion()) return
-    const p = physics.current
-    p.releasing = false
-    p.ts = 1
-    if (onActive) p.tx = rubberBand(x)
+    drag.current = { pointer: event.pointerId, startX: pointerX, pressed, onActive, moved: false }
+    if (prefersReducedMotion()) return
+    releasing.current = false
+    grow.current.target = 1
+    if (onActive) x.current.target = rubberBand(pointerX)
     start()
   }
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const d = drag.current
     if (!d || d.pointer !== event.pointerId) return
-    const x = localX(event)
-    if (Math.abs(x - d.startX) > DRAG_THRESHOLD) d.moved = true
+    const pointerX = localX(event)
+    if (Math.abs(pointerX - d.startX) > DRAG_THRESHOLD) d.moved = true
     if (d.moved || d.onActive) {
-      physics.current.tx = rubberBand(x)
-      if (reducedMotion()) {
-        physics.current.x = physics.current.tx
+      x.current.target = rubberBand(pointerX)
+      if (prefersReducedMotion()) {
+        snapSpring(x.current)
         paint()
       }
     }
@@ -296,7 +254,7 @@ export function GlassTabBar({ items, value, onValueChange, material = "bar", cla
       moveTo(activeRef.current)
       return
     }
-    const target = d.moved ? indexAt(physics.current.tx) : d.pressed
+    const target = d.moved ? indexAt(x.current.target) : d.pressed
     select(target, true)
   }
 

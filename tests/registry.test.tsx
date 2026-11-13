@@ -6,6 +6,7 @@ import { GlassCard } from "../registry/glass/glass-card"
 import { GlassDialog, GlassDialogContent, GlassDialogTitle, GlassDialogTrigger } from "../registry/glass/glass-dialog"
 import { GlassTabBar } from "../registry/glass/glass-tab-bar"
 import { GlassSwitch } from "../registry/glass/glass-switch"
+import { GlassSlider } from "../registry/glass/glass-slider"
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "../registry/glass/glass-tabs"
 
 test("GlassButton is a real button whose ref and clicks work", () => {
@@ -156,4 +157,39 @@ test("a controlled GlassSwitch follows its checked prop and a disabled one ignor
   expect(control.getAttribute("aria-checked")).toBe("true")
   rerender(<GlassSwitch aria-label="Sync" checked disabled />)
   expect((control as HTMLButtonElement).disabled).toBe(true)
+})
+
+test("GlassSlider is a slider that steps with the keyboard and submits with a form", () => {
+  const onValueChange = vi.fn()
+  const onValueCommit = vi.fn()
+  render(
+    <form data-testid="form">
+      <GlassSlider aria-label="Volume" name="volume" defaultValue={40} step={10} onValueChange={onValueChange} onValueCommit={onValueCommit} />
+    </form>,
+  )
+  const control = screen.getByRole("slider", { name: "Volume" })
+  expect(control.getAttribute("aria-valuenow")).toBe("40")
+  expect(control.querySelector(".lg filter")).not.toBeNull()
+  fireEvent.keyDown(control, { key: "ArrowRight" })
+  expect(control.getAttribute("aria-valuenow")).toBe("50")
+  expect(onValueChange).toHaveBeenLastCalledWith(50)
+  expect(onValueCommit).toHaveBeenLastCalledWith(50)
+  fireEvent.keyDown(control, { key: "End" })
+  expect(control.getAttribute("aria-valuenow")).toBe("100")
+  fireEvent.keyDown(control, { key: "ArrowRight" })
+  expect(onValueChange).toHaveBeenCalledTimes(2)
+  expect(new FormData(screen.getByTestId("form") as HTMLFormElement).get("volume")).toBe("100")
+})
+
+test("a controlled GlassSlider follows its value and a disabled one ignores keys", () => {
+  const { rerender } = render(<GlassSlider aria-label="Speed" value={2} min={0} max={4} />)
+  const control = screen.getByRole("slider", { name: "Speed" })
+  fireEvent.keyDown(control, { key: "ArrowRight" })
+  expect(control.getAttribute("aria-valuenow")).toBe("2")
+  rerender(<GlassSlider aria-label="Speed" value={9} min={0} max={4} />)
+  expect(control.getAttribute("aria-valuenow")).toBe("4")
+  rerender(<GlassSlider aria-label="Speed" value={1} min={0} max={4} disabled />)
+  fireEvent.keyDown(control, { key: "ArrowRight" })
+  expect(control.getAttribute("aria-valuenow")).toBe("1")
+  expect(control.tabIndex).toBe(-1)
 })

@@ -180,8 +180,8 @@ For a complete draggable version, use [`GlassTabBar`](#ui-components).
 
 ## UI components
 
-Ready-made, themeable components for real apps: **Button, Switch, Tabs, Tab
-Bar, Dialog and Card**. Button, Tabs and Dialog use
+Ready-made, themeable components for real apps: **Button, Switch, Slider,
+Tabs, Tab Bar, Dialog and Card**. Button, Tabs and Dialog use
 [Base UI](https://base-ui.com) for keyboard and screen reader behaviour. All
 of them install as source code through the [shadcn](https://ui.shadcn.com)
 CLI, so they live in your project and you (or your coding agent) can change
@@ -190,6 +190,7 @@ them.
 ```bash
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-button.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-switch.json
+npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-slider.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tabs.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-tab-bar.json
 npx shadcn@latest add https://leonardseo.github.io/liquid-glass-react/r/glass-dialog.json
@@ -223,6 +224,14 @@ it a `name` to submit it with a form.
 
 ```tsx
 <GlassSwitch aria-label="Wi-Fi" checked={wifi} onCheckedChange={setWifi} />
+```
+
+`GlassSlider` is the iOS 26 slider: its thumb lifts into the same glass lens
+while you drag it, and follows the arrow, Page and Home/End keys. It takes
+`min`, `max` and `step`; `onValueCommit` fires when you let go.
+
+```tsx
+<GlassSlider aria-label="Volume" value={volume} onValueChange={setVolume} />
 ```
 
 Materials follow Apple's glass styles:

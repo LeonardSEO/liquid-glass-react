@@ -14,6 +14,7 @@ import {
 import { GlassTabs, GlassTabsList, GlassTabsPanel, GlassTabsTrigger } from "@/registry/glass/glass-tabs"
 import { GlassTabBar } from "@/registry/glass/glass-tab-bar"
 import { GlassSwitch } from "@/registry/glass/glass-switch"
+import { GlassSlider } from "@/registry/glass/glass-slider"
 import { params } from "./urlParams"
 
 type Backdrop = "wallpaper" | "stripes" | "solid"
@@ -129,6 +130,14 @@ export function UiDemo() {
           <GlassSwitch aria-label="On" defaultChecked data-sample="switch-on" />
           <GlassSwitch aria-label="Off" data-sample="switch-off" />
           <GlassSwitch aria-label="Disabled" disabled defaultChecked />
+        </div>
+      </Example>
+
+      <Example title="Slider" item="glass-slider" code={`<GlassSlider aria-label="Volume" value={volume} onValueChange={setVolume} />`}>
+        <div className="flex w-full max-w-md flex-col gap-6">
+          <GlassSlider aria-label="Volume" defaultValue={55} data-sample="slider" />
+          <GlassSlider aria-label="Speed" defaultValue={2} min={0} max={4} step={1} />
+          <GlassSlider aria-label="Disabled" defaultValue={30} disabled />
         </div>
       </Example>
 

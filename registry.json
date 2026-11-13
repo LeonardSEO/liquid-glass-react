@@ -15,6 +15,17 @@
       ]
     },
     {
+      "name": "glass-lens",
+      "type": "registry:ui",
+      "title": "Glass lens",
+      "description": "The spring physics and the lifting glass lens shared by the switch, slider and tab bar.",
+      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "files": [
+        { "path": "registry/glass/glass-spring.ts", "type": "registry:ui" },
+        { "path": "registry/glass/glass-lens-thumb.tsx", "type": "registry:ui" }
+      ]
+    },
+    {
       "name": "glass-button",
       "type": "registry:ui",
       "title": "Glass Button",
@@ -28,8 +39,16 @@
       "type": "registry:ui",
       "title": "Glass Switch",
       "description": "An iOS 26 switch: a white capsule that turns into a clear glass lens as it toggles, and stays glass while held.",
-      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-lens.json"],
       "files": [{ "path": "registry/glass/glass-switch.tsx", "type": "registry:ui" }]
+    },
+    {
+      "name": "glass-slider",
+      "type": "registry:ui",
+      "title": "Glass Slider",
+      "description": "An iOS 26 slider: a white capsule on a thin track that lifts into a clear glass lens while you drag it.",
+      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-lens.json"],
+      "files": [{ "path": "registry/glass/glass-slider.tsx", "type": "registry:ui" }]
     },
     {
       "name": "glass-tabs",
@@ -45,7 +64,7 @@
       "type": "registry:ui",
       "title": "Glass Tab Bar",
       "description": "An iOS-style tab bar or navigation with a magnifying glass lens you can drag between items.",
-      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-material.json"],
+      "registryDependencies": ["https://leonardseo.github.io/liquid-glass-react/r/glass-lens.json"],
       "files": [{ "path": "registry/glass/glass-tab-bar.tsx", "type": "registry:ui" }]
     },
     {
