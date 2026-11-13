@@ -20,6 +20,7 @@
   <a href="https://leonardseo.github.io/liquid-glass-react/"><b>Live demo</b></a> ·
   <a href="https://leonardseo.github.io/liquid-glass-react/?scene=ui">Components</a> ·
   <a href="#quick-start">Quick start</a> ·
+  <a href="#examples">Examples</a> ·
   <a href="#how-it-works">How it works</a>
 </p>
 
@@ -35,7 +36,7 @@ element, and lets the browser apply it in its normal `backdrop-filter` pass.
 Nothing runs per frame.
 
 <p align="center">
-  <img src="docs/showcase.jpg" alt="Music app with a draggable glass tab bar and mini player; frosted weather panel" width="100%" />
+  <img src="docs/demo.gif" alt="A clear glass lens bends the letters of a headline; then a switch lifts into glass, a slider thumb stretches its track and a menu grows out of its button" width="100%" />
 </p>
 
 ## Two ways to use it
@@ -68,6 +69,74 @@ export function Navbar() {
 
 Works in Next.js App Router out of the box: the bundle is marked
 `"use client"` and renders a frosted fallback on the server.
+
+## Examples
+
+**A floating navigation bar.** Frosted `regular` glass, the default, keeps text
+readable over anything.
+
+```tsx
+<LiquidGlass radius={999} style={{ position: "fixed", top: 16, left: "50%", translate: "-50%", padding: "8px 20px" }}>
+  <nav style={{ display: "flex", gap: 24 }}>
+    <a href="/">Home</a>
+    <a href="/docs">Docs</a>
+    <a href="/blog">Blog</a>
+  </nav>
+</LiquidGlass>
+```
+
+**Clear glass over a photo.** `clear` drops the frost, so the rim bends the image
+behind it. Keep text on it short and bold.
+
+```tsx
+<div style={{ position: "relative", backgroundImage: "url(/photo.jpg)", backgroundSize: "cover", height: 420 }}>
+  <LiquidGlass variant="clear" radius={28} style={{ position: "absolute", left: 24, bottom: 24, padding: "16px 20px" }}>
+    <strong>Lake Tahoe</strong>
+  </LiquidGlass>
+</div>
+```
+
+**A button that is really a button.** `render` puts the glass on your own element,
+so it keeps keyboard focus and activation.
+
+```tsx
+<LiquidGlass radius={999} interactive render={<button type="button" onClick={play} />} style={{ width: 56, height: 56 }}>
+  <PlayIcon aria-hidden="true" />
+</LiquidGlass>
+```
+
+**A settings panel from the components.** The same lens drives the segmented
+control, the switches and the slider.
+
+```tsx
+<GlassSegmentedControl aria-label="Appearance" value={theme} onValueChange={setTheme}
+  items={[{ value: "light", label: "Light" }, { value: "dark", label: "Dark" }, { value: "auto", label: "Automatic" }]} />
+
+<div className="row">Wi-Fi <GlassSwitch aria-label="Wi-Fi" checked={wifi} onCheckedChange={setWifi} /></div>
+
+<GlassSlider aria-label="Brightness" value={brightness} onValueChange={setBrightness} />
+```
+
+**A toolbar with a menu.** The menu grows out of the toolbar button and keeps a
+glass backdrop of its own.
+
+```tsx
+<GlassToolbar aria-label="Browser">
+  <GlassToolbarButton aria-label="Back"><Back /></GlassToolbarButton>
+  <GlassToolbarSeparator />
+  <GlassMenu>
+    <GlassMenuTrigger render={<GlassToolbarButton aria-label="Tabs" />}><Tabs /></GlassMenuTrigger>
+    <GlassMenuContent side="top" align="end">
+      <GlassMenuItem icon={<Plus />}>New Tab</GlassMenuItem>
+      <GlassMenuSeparator />
+      <GlassMenuItem destructive icon={<Close />}>Close All Tabs</GlassMenuItem>
+    </GlassMenuContent>
+  </GlassMenu>
+</GlassToolbar>
+```
+
+The settings panel and the toolbar with its menu run in the
+[showcase](https://leonardseo.github.io/liquid-glass-react/?page=showcase).
 
 ## Components
 

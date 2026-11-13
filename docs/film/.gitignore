@@ -1,0 +1,6 @@
+renders/
+.hyperframes/
+node_modules/
+recorder/node_modules/
+recorder/frames/
+.thumbnails/

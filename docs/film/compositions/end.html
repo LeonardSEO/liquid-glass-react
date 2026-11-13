@@ -1,0 +1,81 @@
+<template>
+  <style>
+    #end {
+      position: absolute;
+      inset: 0;
+      background: #f6f7f2;
+      color: #202322;
+      font-family: "Inter", sans-serif;
+    }
+
+    #end-lockup {
+      position: absolute;
+      left: 128px;
+      top: 232px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    #end-mark {
+      font-size: 76px;
+      line-height: 1;
+    }
+
+    #end-title {
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.035em;
+      white-space: nowrap;
+    }
+
+    #end-title span {
+      display: inline-block;
+    }
+
+    #end-sub {
+      position: absolute;
+      left: 128px;
+      top: 352px;
+      color: #626762;
+      font-size: 30px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    #end-command {
+      position: absolute;
+      left: 128px;
+      top: 432px;
+      padding: 14px 20px;
+      border-radius: 6px;
+      background: #bcf279;
+      color: #182115;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 26px;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="end" data-composition-id="end" data-width="1280" data-height="720">
+    <div id="end-lockup">
+      <span id="end-mark" class="clip" data-start="0" data-duration="3" data-track-index="1">◐</span>
+      <h1 id="end-title" class="clip" data-start="0" data-duration="3" data-track-index="1"><span>Liquid</span> <span>Glass</span> <span>for</span> <span>React</span></h1>
+    </div>
+    <p id="end-sub" class="clip" data-start="0" data-duration="3" data-track-index="2">Engine on npm. Components through shadcn.</p>
+    <code id="end-command" class="clip" data-start="0" data-duration="3" data-track-index="3">npm install @vepando/liquid-glass-react</code>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // The mark turns into place, the name follows word by word from grey to ink.
+    tl.fromTo("#end-mark", { opacity: 0, rotation: -120, scale: 0.6 }, { opacity: 1, rotation: 0, scale: 1, duration: 0.5, ease: "expo.out" }, 0.05);
+    tl.fromTo("#end-title span", { opacity: 0, color: "#c9ccc5" }, { opacity: 1, color: "#202322", duration: 0.2, stagger: 0.08, ease: "power2.out" }, 0.12);
+    tl.fromTo("#end-sub", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 0.45);
+    // The install command wipes in from the left and then holds.
+    tl.fromTo("#end-command", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.4, ease: "power2.inOut" }, 0.55);
+    window.__timelines["end"] = tl;
+  </script>
+</template>

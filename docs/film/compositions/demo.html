@@ -1,0 +1,89 @@
+<template>
+  <style>
+    #demo {
+      position: absolute;
+      inset: 0;
+      background: #f6f7f2;
+      font-family: "Inter", sans-serif;
+    }
+
+    /* One window holds every recording; the shots swap inside it. */
+    #demo-window {
+      position: absolute;
+      left: 128px;
+      top: 120px;
+      width: 1024px;
+      height: 576px;
+      overflow: hidden;
+      border-radius: 22px;
+      background: #e9ebe4;
+      box-shadow: 0 18px 50px rgba(32, 35, 34, 0.14), 0 1px 0 rgba(32, 35, 34, 0.06);
+    }
+
+    #demo-window video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .demo-line {
+      position: absolute;
+      left: 128px;
+      top: 40px;
+      color: #202322;
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      white-space: nowrap;
+    }
+
+    .demo-line span {
+      display: inline-block;
+    }
+  </style>
+
+  <div id="demo" data-composition-id="demo" data-width="1280" data-height="720">
+    <div id="demo-window">
+      <video id="demo-lab" class="clip" src="assets/lab.mp4" muted playsinline data-start="0" data-duration="4.33" data-track-index="1"></video>
+      <video id="demo-switch" class="clip" src="assets/switch.mp4" muted playsinline data-start="4.33" data-duration="2.97" data-track-index="1"></video>
+      <video id="demo-slider" class="clip" src="assets/slider.mp4" muted playsinline data-start="7.3" data-duration="3.6" data-track-index="1"></video>
+      <video id="demo-menu" class="clip" src="assets/menu.mp4" muted playsinline data-start="10.9" data-duration="3.23" data-track-index="1"></video>
+    </div>
+
+    <h2 id="demo-line-lab" class="demo-line clip" data-start="0" data-duration="4.33" data-track-index="2"><span>Real</span> <span>glass</span> <span>bends</span> <span>light.</span></h2>
+    <h2 id="demo-line-switch" class="demo-line clip" data-start="4.33" data-duration="2.97" data-track-index="2"><span>Switches</span> <span>lift</span> <span>into</span> <span>glass.</span></h2>
+    <h2 id="demo-line-slider" class="demo-line clip" data-start="7.3" data-duration="3.6" data-track-index="2"><span>Sliders</span> <span>stretch</span> <span>with</span> <span>it.</span></h2>
+    <h2 id="demo-line-menu" class="demo-line clip" data-start="10.9" data-duration="3.23" data-track-index="2"><span>Menus</span> <span>grow</span> <span>out</span> <span>of</span> <span>the</span> <span>button.</span></h2>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const shots = [
+      ["lab", 0, 4.33],
+      ["switch", 4.33, 2.97],
+      ["slider", 7.3, 3.6],
+      ["menu", 10.9, 3.23],
+    ];
+
+    // Each line arrives word by word out of a blur and leaves the same way.
+    shots.forEach(([name, start, duration]) => {
+      const words = `#demo-line-${name} span`;
+      tl.fromTo(words, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.07, ease: "power2.out" }, start + 0.15);
+      tl.to(words, { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, start + duration - 0.17);
+    });
+
+    // A blur swap at every cut: the window softens out of one shot and sharpens into the next.
+    [4.33, 7.3, 10.9].forEach((cut) => {
+      tl.fromTo("#demo-window", { filter: "blur(0px)" }, { filter: "blur(8px)", duration: 0.15, ease: "power3.in", immediateRender: false }, cut - 0.15);
+      tl.fromTo("#demo-window", { filter: "blur(8px)" }, { filter: "blur(0px)", duration: 0.15, ease: "power3.out", immediateRender: false }, cut);
+    });
+
+    // The window steps back as the end card takes over.
+    tl.fromTo("#demo-window", { scale: 1, opacity: 1 }, { scale: 0.94, opacity: 0, duration: 0.3, ease: "power3.in", immediateRender: false }, 13.83);
+
+    window.__timelines["demo"] = tl;
+  </script>
+</template>
